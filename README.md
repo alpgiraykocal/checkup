@@ -76,6 +76,31 @@ Bu tablolardan 12 doğuştan risk faktörü için skor önerisi üretilir:
 
 Öneriler bağlayıcı değildir: tek tıkla uygulanır, gerekçeyi yine siz yazarsınız. Portföy verisi yoksa künyedeki sayılar devreye girer.
 
+## Anketi hızlı doldurma
+
+218 soru tek tek tıklanmak zorunda değil. Anket ekranı açıkken, yazı alanı dışındayken:
+
+| Tuş | İşlev |
+|---|---|
+| `1` `2` `3` `4` | Evet / Kısmen / Hayır / Uygulanamaz |
+| `J` / `K` | Sonraki / önceki soru |
+| `N` | Sonraki yanıtlanmamış soru |
+| `E` | Kanıt referansı alanına geç |
+| `Esc` | Yazı alanından çık |
+| `?` | Kısayol listesini aç |
+
+Etkin soru ekranın üstündeki karttır ve ince bir çerçeveyle işaretlenir. Liste bölüm başlıklarıyla ayrılır; her başlıkta o bölümün ilerlemesi görünür. Panodaki "Son soru" düğmesi en son çalıştığınız soruya döner.
+
+## QA dosya testi sonucu
+
+Metodoloji "anket beyanı tek başına kontrol etkinliği sayılmaz" diyor; bu yüzden QA testi gerektiren 115 sorunun her birinde test sonucu kaydedilir: sonuç (Doğrulandı / Kısmen doğrulandı / Çelişkili / Test edilmedi), test edilen dosya sayısı, hatalı dosya sayısı ve not. Hata oranı otomatik hesaplanır.
+
+Yanıt "Evet" ama test sonucu "Çelişkili" ise soru kartında kırmızı uyarı çıkar ve pano/anket özetinde çelişki sayısı görünür. Anket filtresinde "QA testi bekliyor" ve "QA ile çelişkili" seçenekleri vardır.
+
+## Veri güvenliği: otomatik yedek
+
+Uygulama son beş sürümü tarayıcıda ayrıca saklar. Sıfırlama, dosya yükleme ve yedek geri yükleme işlemlerinden hemen önce de bir yedek alınır. **Veri ve yedekleme** ekranından tarih seçilerek geri dönülür. Bu, tarayıcı içi kaza koruması içindir; kalıcı yedek için JSON dosyasını indirin.
+
 ## Alanları doldurma rehberi
 
 Her giriş alanının yanında ne yazılacağını anlatan bir açıklama ve örnek değer bulunur. Özet:
@@ -192,7 +217,7 @@ CSV exports. Stored data is language-independent, so switching never affects any
 | 1 | Profile | Institution details. A "No" to a business scope question takes the related questions and risk factors out of scope. |
 | 2 | Portfolio | Customer distribution (7 types × 4 risk bands), 12 risk segments, country exposure and the branch network. These figures produce score suggestions for 12 inherent risk factors. |
 | 3 | Inherent Risk | Score 25 sub-factors from 1 to 5 against written anchors; rationale required for 4 and 5. |
-| 4 | Questionnaire | Answer 218 questions with an evidence reference and a finding note. |
+| 4 | Questionnaire | Answer 218 questions with an evidence reference and a finding note. Keyboard: `1`–`4` to answer, `J`/`K` to move, `N` for the next unanswered, `E` for the evidence field, `?` for the shortcut list. QA-tested questions also capture the file test result, sample size and error count. |
 | 5 | QA Plan | Enter each population's volume for the period; sample sizes are calculated. |
 | 6 | Control Scores | Derived control effectiveness and maturity per domain. |
 | 7 | Residual Risk | Inherent risk × (1 − control effectiveness), compared against appetite. |

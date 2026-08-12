@@ -130,6 +130,8 @@ const App = (() => {
 
     // Dinleyicilerin birikmemesi için içerik düğümü her seferinde yenilenir.
     const old = UI.el('#content');
+    // Görünüme bağlı belge düzeyi dinleyicileri temizlensin
+    if (old) old.dispatchEvent(new CustomEvent('view:teardown'));
     const host = document.createElement('main');
     host.id = 'content';
     host.className = 'content';
@@ -193,11 +195,37 @@ const App = (() => {
           <button class="btn" data-x="actions">${Icons.clipboard()} ${t('csvActions')}</button>
         </div>
         <div class="divider"></div>
+        <h3>${t('snapTitle')}</h3>
+        <p class="subtle">${t('snapHelp')}</p>
+        ${(() => {
+          const list = Store.snapshots();
+          if (!list.length) return `<p class="muted">${t('snapNone')}</p>`;
+          return `<div class="table-wrap"><table>
+            <thead><tr><th>${t('snapWhen')}</th><th class="num">${t('navSurvey')}</th><th class="num">${t('totalFindings')}</th><th></th></tr></thead>
+            <tbody>${list.map(s => `<tr>
+              <td>${UI.esc(new Date(s.at).toLocaleString(I18n.locale))}
+                <div class="subtle">${t('snapReason_' + s.reason) || s.reason}</div></td>
+              <td class="num">${s.answers}</td><td class="num">${s.actions}</td>
+              <td><button class="btn btn-sm" data-restore="${UI.esc(s.at)}">${Icons.reset()} ${t('snapRestore')}</button></td>
+            </tr>`).join('')}</tbody></table></div>`;
+        })()}
+
+        <div class="divider"></div>
         <h3>${t('workspace')}</h3>
         <p class="subtle">${t('resetWarn')}</p>
         <button class="btn btn-danger btn-block" data-x="reset">${Icons.trash()} ${t('resetAll')}</button>`,
       footer: `<button class="btn" data-close>${t('close')}</button>`,
       onMount(scrim) {
+        UI.els('[data-restore]', scrim).forEach(b => b.addEventListener('click', async () => {
+          const at = b.dataset.restore;
+          const ok = await UI.confirmDialog({
+            title: t('snapRestoreTitle'),
+            message: t('snapRestoreMsg', { t: new Date(at).toLocaleString(I18n.locale) }),
+            confirmLabel: t('snapRestore'), danger: true
+          });
+          if (!ok) return;
+          if (Store.restoreSnapshot(at)) { UI.closeModal(); UI.toast(t('snapRestored'), 'ok'); }
+        }));
         UI.els('[data-x]', scrim).forEach(b => b.addEventListener('click', () => {
           const kind = b.dataset.x;
           if (kind === 'json') Exporter.saveJSON();

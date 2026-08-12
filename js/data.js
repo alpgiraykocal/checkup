@@ -4571,6 +4571,12 @@ const DATA = {
    "Orta",
    "Düşük"
   ],
+  "qaResult": [
+   "Doğrulandı",
+   "Kısmen doğrulandı",
+   "Çelişkili",
+   "Test edilmedi"
+  ],
   "freq": [
    "Çeyreklik",
    "Altı Aylık",

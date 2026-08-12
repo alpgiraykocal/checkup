@@ -2,6 +2,9 @@
    Veri yalnızca tarayıcının localStorage'ında tutulur; hiçbir ağ isteği yapılmaz. */
 
 const STORAGE_KEY = 'aml-checkup-v1';
+const SNAPSHOT_KEY = 'aml-checkup-snapshots-v1';
+const SNAPSHOT_LIMIT = 5;
+const SNAPSHOT_MIN_GAP_MS = 10 * 60 * 1000;   // aynı oturumda her 10 dakikada bir
 const SCHEMA = 1;
 
 const Store = (() => {
@@ -42,6 +45,37 @@ const Store = (() => {
     return state;
   }
 
+  /* ---------- Otomatik yerel yedek ----------
+     Tarayıcı verisi tek kopya olduğu için son birkaç sürüm ayrıca saklanır.
+     Kaza sonucu sıfırlama veya yanlış dosya yüklemesi geri alınabilir. */
+
+  function readSnapshots() {
+    try { return JSON.parse(localStorage.getItem(SNAPSHOT_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function writeSnapshots(list) {
+    try { localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(list)); }
+    catch (e) { console.warn('Yedek yazılamadı', e); }
+  }
+
+  /** force: sıfırlama/geri yükleme gibi yıkıcı işlemlerden hemen önce. */
+  function snap(reason, force) {
+    const answers = Object.keys(state.answers || {}).length;
+    const actions = (state.actions || []).length;
+    if (!force && !answers && !actions) return;      // boş çalışmayı yedekleme
+    const list = readSnapshots();
+    const last = list[0];
+    if (!force && last && Date.now() - new Date(last.at).getTime() < SNAPSHOT_MIN_GAP_MS) return;
+    list.unshift({
+      at: new Date().toISOString(),
+      reason: reason || 'auto',
+      answers, actions,
+      data: JSON.parse(JSON.stringify(state))
+    });
+    writeSnapshots(list.slice(0, SNAPSHOT_LIMIT));
+  }
+
   let saveTimer = null;
   function persist() {
     clearTimeout(saveTimer);
@@ -49,6 +83,7 @@ const Store = (() => {
       state.updatedAt = new Date().toISOString();
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        snap('auto');
       } catch (e) {
         console.error('Kayıt başarısız', e);
       }
@@ -70,6 +105,7 @@ const Store = (() => {
     },
 
     replace(next) {
+      snap('before-load', true);
       state = Object.assign(blank(), next);
       state.ui = Object.assign({ theme: 'light' }, next.ui || {});
       persist();
@@ -77,6 +113,7 @@ const Store = (() => {
     },
 
     reset() {
+      snap('before-reset', true);
       state = blank();
       localStorage.removeItem(STORAGE_KEY);
       emit();
@@ -85,6 +122,20 @@ const Store = (() => {
     /** Dışa aktarım için tam anlık görüntü. */
     snapshot() {
       return JSON.parse(JSON.stringify(state));
+    },
+
+    /** Otomatik yedekler — en yeni başta. */
+    snapshots() { return readSnapshots().map(({ data, ...meta }) => meta); },
+
+    restoreSnapshot(at) {
+      const rec = readSnapshots().find(x => x.at === at);
+      if (!rec) return false;
+      snap('before-restore', true);
+      state = Object.assign(blank(), rec.data);
+      state.ui = Object.assign({ theme: 'light' }, rec.data.ui || {});
+      persist();
+      emit();
+      return true;
     }
   };
 })();

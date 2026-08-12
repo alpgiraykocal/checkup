@@ -107,6 +107,10 @@ const DATA_EN = {
     },
     riskLevel: { 'Çok Yüksek': 'Very high', 'Yüksek': 'High', 'Orta': 'Medium', 'Düşük': 'Low' },
     freq: { 'Çeyreklik': 'Quarterly', 'Altı Aylık': 'Semi-annual', 'Yıllık': 'Annual' },
+    qaResult: {
+      'Doğrulandı': 'Confirmed', 'Kısmen doğrulandı': 'Partly confirmed',
+      'Çelişkili': 'Contradicted', 'Test edilmedi': 'Not tested'
+    },
     maturity: {
       'Gelişmiş': 'Advanced', 'Yeterli': 'Adequate', 'Gelişime Açık': 'Needs improvement',
       'Zayıf': 'Weak', 'Kritik Zayıf': 'Critically weak'
@@ -183,8 +187,8 @@ const DATA_EN = {
       help: 'Usually one calendar year. Evidence and QA samples are drawn from this period.' },
     degerlendirmeyi_yapan: { label: 'Assessment performed by',
       help: 'In a self-assessment, statements do not count as evidence until confirmed by QA file testing; an independent review gives the scores far stronger evidential weight.',
-      options: ['Self-assessment — compliance function',
-        'Self-assessment — compliance and business units',
+      options: ['Self-assessment (compliance)',
+        'Self-assessment (compliance + business)',
         'Independent internal audit',
         'Independent external review'] },
     uyum_gorevlisi: { label: 'Compliance officer', placeholder: 'Full name',

@@ -68,6 +68,7 @@ const Views = (() => {
 
     host.innerHTML = `
       ${banners.join('')}
+      ${startCard(state, calc)}
       <div class="grid grid-kpi">${tiles}</div>
 
       <div class="card" style="margin-top:16px">
@@ -91,6 +92,18 @@ const Views = (() => {
       </div>
     `;
 
+    host.addEventListener('click', e => {
+      if (e.target.closest('[data-goto-last]')) {
+        const id = Store.state.ui.lastQuestion;
+        Object.keys(qFilter).forEach(k => qFilter[k] = '');
+        App.go('anket');
+        setTimeout(() => {
+          const card = document.getElementById('q-' + id);
+          if (card) { card.classList.add('is-active'); card.scrollIntoView({ block: 'center' }); }
+        }, 60);
+      }
+    });
+
     host.addEventListener('input', e => {
       const f = e.target.closest('[data-kpi]');
       if (!f) return;
@@ -105,6 +118,51 @@ const Views = (() => {
     host.addEventListener('blur', e => {
       if (e.target.closest('[data-kpi]')) App.rerender();
     }, true);
+  }
+
+  /** Boşken adım adım başlangıç, doluyken kaldığı yere dönüş. */
+  function startCard(state, calc) {
+    const tot = calc.totals, inh = calc.inherent, k = calc.kunye, pf = calc.portfolio;
+    const steps = [
+      { id: 'kunye', route: 'kunye', done: k.missingRequired.length === 0 && k.filled > 6,
+        label: t('navKunye'), desc: t('stepKunye') },
+      { id: 'portfoy', route: 'portfoy', done: pf && pf.sectionsFilled >= 2,
+        label: t('navPortfolio'), desc: t('stepPortfolio') },
+      { id: 'dogustan', route: 'dogustan', done: inh.complete,
+        label: t('navInherent'), desc: t('stepInherent'),
+        progress: inh.applicable ? inh.scored / inh.applicable : 0 },
+      { id: 'anket', route: 'anket', done: tot.answered === tot.count,
+        label: t('navSurvey'), desc: t('stepSurvey'), progress: tot.progress },
+      { id: 'aksiyon', route: 'aksiyon', done: calc.actionStats.total > 0 && calc.actionStats.open === 0,
+        label: t('navActions'), desc: t('stepActions') }
+    ];
+    const next = steps.find(s => !s.done) || steps[steps.length - 1];
+    const fresh = tot.answered === 0 && !inh.scored && k.filled === 0;
+
+    return `<div class="card start-card">
+      <div class="card-head">
+        <div style="flex:1;min-width:200px">
+          <h2>${fresh ? t('startTitle') : t('continueTitle')}</h2>
+          <div class="subtle">${fresh ? t('startBody') : t('continueBody', { s: next.label })}</div>
+        </div>
+        ${state.ui.lastQuestion && tot.answered > 0
+          ? `<button class="btn" data-goto-last>${Icons.list()} ${t('continueLast', { id: esc(state.ui.lastQuestion) })}</button>` : ''}
+        <button class="btn btn-primary" data-route="${next.route}">${t('continueGo', { s: next.label })}</button>
+      </div>
+      <div class="card-body">
+        <ol class="steps">
+          ${steps.map((s, i) => `<li class="step ${s.done ? 'is-done' : ''} ${s === next ? 'is-next' : ''}">
+            <span class="step-no">${s.done ? Icons.check() : i + 1}</span>
+            <button class="step-main" data-route="${s.route}">
+              <b>${esc(s.label)}</b>
+              <span class="subtle">${esc(s.desc)}</span>
+              ${s.progress !== undefined && s.progress > 0 && s.progress < 1
+                ? meter(s.progress) + `<span class="subtle">${fmtPct(s.progress)}</span>` : ''}
+            </button>
+          </li>`).join('')}
+        </ol>
+      </div>
+    </div>`;
   }
 
   function banner(kind, title, msg) {
@@ -718,6 +776,8 @@ const Views = (() => {
             <option value="gap"${qFilter.status === 'gap' ? ' selected' : ''}>${t('fltGap')}</option>
             <option value="opencrit"${qFilter.status === 'opencrit' ? ' selected' : ''}>${t('fltOpenCrit')}</option>
             <option value="noevidence"${qFilter.status === 'noevidence' ? ' selected' : ''}>${t('fltNoEvidence')}</option>
+            <option value="qapending"${qFilter.status === 'qapending' ? ' selected' : ''}>${t('fltQaPending')}</option>
+            <option value="qaconflict"${qFilter.status === 'qaconflict' ? ' selected' : ''}>${t('fltQaConflict')}</option>
           </select>
         </div>
         <div class="field">
@@ -729,7 +789,9 @@ const Views = (() => {
           </select>
         </div>
         <div class="toolbar-actions">
+          <button class="btn" data-next-open>${Icons.arrowDown()} ${t('nextUnanswered')}</button>
           <button class="btn" data-clear>${Icons.reset()} ${t('clearFilters')}</button>
+          <button class="btn btn-icon" data-kbd-help aria-label="${t('kbdTitle')}" title="${t('kbdTitle')}">${Icons.keyboard()}</button>
         </div>
       </div>
 
@@ -738,9 +800,31 @@ const Views = (() => {
 
     renderQuestionList(host, ctx);
 
+    // Klavye kısayolları yalnızca bu ekran açıkken bağlıdır
+    document.addEventListener('keydown', onSurveyKey);
+    host.addEventListener('view:teardown', () => document.removeEventListener('keydown', onSurveyKey));
+
+    // Kaldığı soruya dön
+    const last = state.ui.lastQuestion;
+    if (last && !qFilter.q) {
+      requestAnimationFrame(() => {
+        const card = UI.el('#q-' + CSS.escape(last), host);
+        if (card) { card.classList.add('is-active'); card.scrollIntoView({ block: 'center' }); }
+      });
+    }
+
     host.addEventListener('input', e => {
       const f = e.target.closest('[data-f]');
       if (f && f.dataset.f === 'q') { qFilter.q = f.value; debounceList(host, ctx); return; }
+      const qa = e.target.closest('[data-qa]');
+      if (qa) {
+        Store.update(s => {
+          s.answers[qa.dataset.qa] = s.answers[qa.dataset.qa] || { a: '' };
+          if (qa.value === '') delete s.answers[qa.dataset.qa][qa.dataset.field];
+          else s.answers[qa.dataset.qa][qa.dataset.field] = qa.value;
+        }, { silent: true });
+        return;
+      }
       const ev = e.target.closest('[data-evidence], [data-note]');
       if (ev) {
         const id = ev.dataset.evidence || ev.dataset.note;
@@ -758,6 +842,15 @@ const Views = (() => {
     });
 
     host.addEventListener('change', e => {
+      const qa = e.target.closest('select[data-qa]');
+      if (qa) {
+        Store.update(s => {
+          s.answers[qa.dataset.qa] = s.answers[qa.dataset.qa] || { a: '' };
+          if (qa.value === '') delete s.answers[qa.dataset.qa][qa.dataset.field];
+          else s.answers[qa.dataset.qa][qa.dataset.field] = qa.value;
+        });
+        return;
+      }
       const f = e.target.closest('[data-f]');
       if (!f || f.dataset.f === 'q') return;
       qFilter[f.dataset.f] = f.value;
@@ -771,6 +864,8 @@ const Views = (() => {
         App.rerender();
         return;
       }
+      if (e.target.closest('[data-next-open]')) { gotoNextUnanswered(); return; }
+      if (e.target.closest('[data-kbd-help]')) { showShortcuts(); return; }
       const ab = e.target.closest('[data-answer]');
       if (ab) {
         const id = ab.dataset.answer, val = ab.dataset.a;
@@ -797,6 +892,97 @@ const Views = (() => {
     });
   }
 
+  /* ---------- Anket klavye ve gezinme ---------- */
+
+  /** Görünümün üstüne en yakın soru kartı — klavye komutlarının hedefi. */
+  function activeCard() {
+    const cards = UI.els('.q');
+    if (!cards.length) return null;
+    const focused = document.activeElement && document.activeElement.closest('.q');
+    if (focused) return focused;
+    const top = 110;
+    return cards.find(c => c.getBoundingClientRect().bottom > top) || cards[cards.length - 1];
+  }
+
+  function focusCard(card, { evidence } = {}) {
+    if (!card) return;
+    UI.els('.q.is-active').forEach(c => c.classList.remove('is-active'));
+    card.classList.add('is-active');
+    card.scrollIntoView({ block: 'center', behavior: 'auto' });
+    const target = evidence ? card.querySelector('[data-evidence]') : card.querySelector('.answer-btn:not([disabled])');
+    if (target) target.focus({ preventScroll: true });
+    const id = card.id.replace(/^q-/, '');
+    Store.update(s => { s.ui.lastQuestion = id; }, { silent: true });
+  }
+
+  function step(dir) {
+    const cards = UI.els('.q');
+    const cur = activeCard();
+    const i = cards.indexOf(cur);
+    focusCard(cards[Math.min(cards.length - 1, Math.max(0, i + dir))]);
+  }
+
+  function gotoNextUnanswered() {
+    const calc = App.calc;
+    const cards = UI.els('.q');
+    const cur = activeCard();
+    const start = cards.indexOf(cur) + 1;
+    const isOpen = c => {
+      const s = calc.perQuestion[c.id.replace(/^q-/, '')];
+      return s && !s.answered;
+    };
+    const next = cards.slice(start).find(isOpen) || cards.find(isOpen);
+    if (next) focusCard(next);
+    else UI.toast(t('allAnswered'), 'ok');
+  }
+
+  /** Anket ekranı açıkken çalışan kısayollar. */
+  function onSurveyKey(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const el = e.target;
+    const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
+    if (document.querySelector('.scrim')) return;
+
+    // Kanıt alanındayken Esc odaktan çıkar, diğer tuşlar yazıya gider
+    if (typing) {
+      if (e.key === 'Escape') { el.blur(); e.preventDefault(); }
+      return;
+    }
+
+    const map = { '1': 'Evet', '2': 'Kısmen', '3': 'Hayır', '4': 'Uygulanamaz' };
+    if (map[e.key]) {
+      const card = activeCard();
+      if (!card) return;
+      const btn = card.querySelector(`[data-a="${map[e.key]}"]`);
+      if (btn && !btn.disabled) { btn.click(); e.preventDefault(); }
+      return;
+    }
+    const k = e.key.toLowerCase();
+    if (k === 'j') { step(1); e.preventDefault(); }
+    else if (k === 'k') { step(-1); e.preventDefault(); }
+    else if (k === 'n') { gotoNextUnanswered(); e.preventDefault(); }
+    else if (k === 'e') { focusCard(activeCard(), { evidence: true }); e.preventDefault(); }
+    else if (k === '?') { showShortcuts(); e.preventDefault(); }
+  }
+
+  function showShortcuts() {
+    const row = (keys, desc) => `<tr><td class="nowrap">${keys.map(x => `<kbd>${esc(x)}</kbd>`).join(' ')}</td><td>${esc(desc)}</td></tr>`;
+    UI.modal({
+      title: t('kbdTitle'), width: 480,
+      body: `<div class="table-wrap"><table><tbody>
+        ${row(['1', '2', '3', '4'], t('kbdAnswer'))}
+        ${row(['J'], t('kbdNext'))}
+        ${row(['K'], t('kbdPrev'))}
+        ${row(['N'], t('kbdNextOpen'))}
+        ${row(['E'], t('kbdEvidence'))}
+        ${row(['Esc'], t('kbdEscape'))}
+        ${row(['?'], t('kbdHelp'))}
+      </tbody></table></div>
+      <p class="subtle" style="margin-top:12px">${t('kbdNote')}</p>`,
+      footer: `<button class="btn btn-primary" data-close>${t('close')}</button>`
+    });
+  }
+
   let listTimer = null;
   function debounceList(host, ctx) {
     clearTimeout(listTimer);
@@ -816,6 +1002,8 @@ const Views = (() => {
       if (qFilter.status === 'answered' && !s.answered) return false;
       if (qFilter.status === 'gap' && (!s.actionNeeded || s.actionNeeded === 'Hayır')) return false;
       if (qFilter.status === 'opencrit' && !s.openCritical) return false;
+      if (qFilter.status === 'qapending' && (!q.qa || (s.qaResult && s.qaResult !== 'Test edilmedi'))) return false;
+      if (qFilter.status === 'qaconflict' && !s.qaConflict) return false;
       if (qFilter.status === 'noevidence') {
         const rec = Store.state.answers[q.id];
         if (!s.answered || (rec && rec.evidence && rec.evidence.trim())) return false;
@@ -840,7 +1028,28 @@ const Views = (() => {
       container.innerHTML = emptyState(t('noMatch'), t('noMatchBody'));
       return;
     }
-    UI.chunkRender(container, list, q => questionCard(q, calc));
+
+    // Bölüm başlıkları: uzun listede nerede olduğunu ve bölüm ilerlemesini gösterir
+    let lastKey = null;
+    const html = list.map(q => {
+      let head = '';
+      const key = q.domain + '|' + q.sectionKey;
+      if (key !== lastKey) {
+        lastKey = key;
+        const inSection = list.filter(x => x.domain === q.domain && x.sectionKey === q.sectionKey);
+        const done = inSection.filter(x => calc.perQuestion[x.id].answered).length;
+        head = `<div class="section-head" id="sec-${esc(q.domain)}-${esc(q.sectionKey.replace(/\s+/g, '_'))}">
+          <div class="section-head-main">
+            <b class="mono">${esc(q.domain)}</b>
+            <span>${esc(q.section)}</span>
+          </div>
+          <span class="chip ${done === inSection.length ? 'chip-ok' : ''}">${done}/${inSection.length}</span>
+          ${meter(done / inSection.length, done === inSection.length ? 'ok' : '')}
+        </div>`;
+      }
+      return head + questionCard(q, calc);
+    }).join('');
+    container.innerHTML = html;
   }
 
   /** Filtrelenmiş seçim için özet kutuları. */
@@ -864,7 +1073,12 @@ const Views = (() => {
       statTile({ label: t('selectedQs'), value: fmtInt(list_.length), foot: t('ofNQuestions', { n: fmtInt(DATA.questions.length) }) }),
       statTile({ label: t('answered'), value: fmtInt(answered), foot: fmtPct(list_.length ? answered / list_.length : 0) + meter(list_.length ? answered / list_.length : 0) }),
       statTile({ label: t('selectionEff'), value: fmtPct1(eff), tone: eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger' }),
-      statTile({ label: t('actionRequired'), value: fmtInt(gaps), tone: gaps ? 'warn' : 'ok', foot: t('openCriticalN', { n: fmtInt(openCrit) }) })
+      statTile({ label: t('actionRequired'), value: fmtInt(gaps), tone: gaps ? 'warn' : 'ok', foot: t('openCriticalN', { n: fmtInt(openCrit) }) }),
+      statTile({ label: t('qaCoverage'), value: fmtPct(calc.qa2.coverage),
+        tone: calc.qa2.conflicts.length ? 'danger' : calc.qa2.coverage >= 0.8 ? 'ok' : '',
+        foot: `${fmtInt(calc.qa2.tested)}/${fmtInt(calc.qa2.required)} ${t('qaTestedOf')}`
+          + (calc.qa2.conflicts.length ? ` · <b style="color:var(--danger)">${calc.qa2.conflicts.length} ${t('qaConflictShort')}</b>` : '')
+          + meter(calc.qa2.coverage, calc.qa2.coverage >= 0.8 ? 'ok' : '') })
     ].join('');
   }
 
@@ -922,6 +1136,41 @@ const Views = (() => {
             <div class="help" id="nt-${q.id}-h">${t('findingHelp')}</div>
           </div>
         </div>
+        ${q.qa ? `<details class="qa-block"${s.qaResult ? ' open' : ''}>
+          <summary>${Icons.flask()} ${t('qaResultTitle')}${s.qaResult
+            ? ` — <span class="chip ${s.qaResult === 'Çelişkili' ? 'chip-critical' : s.qaResult === 'Doğrulandı' ? 'chip-ok' : 'chip-high'}">${esc(I18n.ref('qaResult', s.qaResult))}</span>`
+            : ` <span class="chip chip-na">${t('qaNotEntered')}</span>`}</summary>
+          <div class="field-row" style="margin-top:10px">
+            <div class="field" style="margin:0">
+              <label for="qr-${q.id}">${t('qaResultLabel')}</label>
+              <select id="qr-${q.id}" data-qa="${q.id}" data-field="qaResult">
+                ${refOptions('qaResult', s.qaResult, t('select'))}
+              </select>
+              <div class="help">${t('qaResultHelp')}</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label for="qs-${q.id}">${t('qaSample')}</label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="qs-${q.id}"
+                data-qa="${q.id}" data-field="qaSample" value="${esc(s.qaSample)}" placeholder="25">
+              <div class="help">${esc(q.pop || t('genPopFallback'))}</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label for="qe-${q.id}">${t('qaErrors')}</label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="qe-${q.id}"
+                data-qa="${q.id}" data-field="qaErrors" value="${esc(s.qaErrors)}" placeholder="0">
+              <div class="help">${s.qaSample && s.qaErrors !== '' && Number(s.qaSample) > 0
+                ? t('qaErrorRate', { p: fmtPct1(Number(s.qaErrors) / Number(s.qaSample)) }) : t('qaErrorsHelp')}</div>
+            </div>
+          </div>
+          <div class="field" style="margin:0">
+            <label for="qn-${q.id}">${t('qaNote')}</label>
+            <input type="text" id="qn-${q.id}" data-qa="${q.id}" data-field="qaNote" value="${esc(s.qaNote)}"
+              placeholder="${t('qaNotePh')}">
+          </div>
+          ${s.qaConflict ? `<div class="banner danger" style="margin:10px 0 0">${Icons.alert()}
+            <div><b>${t('qaConflictTitle')}</b><span>${t('qaConflictBody')}</span></div></div>` : ''}
+        </details>` : ''}
+
         ${s.actionNeeded && s.actionNeeded !== 'Hayır'
           ? `<div><button class="btn btn-sm" data-mkaction="${q.id}">${Icons.plus()} ${t('createAction')}</button></div>` : ''}
       </div>

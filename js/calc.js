@@ -153,6 +153,12 @@ const Calc = (() => {
       coef: inScope ? coef : null,
       applicableWeight: inScope ? q.weight : 0,
       earned: inScope ? q.weight * coef : 0,
+      qaResult: (rec && rec.qaResult) || '',
+      qaSample: (rec && rec.qaSample) || '',
+      qaErrors: (rec && rec.qaErrors) || '',
+      qaNote: (rec && rec.qaNote) || '',
+      // Beyan "Evet" ama dosya testi çelişkiliyse skor savunulamaz
+      qaConflict: Boolean(q.qa && rec && rec.qaResult === 'Çelişkili' && answer === 'Evet'),
       openCritical: inScope && q.critKey === 'Kritik' && coef < 1,
       actionNeeded: !inScope ? '' : (coef === 1 ? 'Hayır' : (q.critKey === 'Kritik' ? 'EVET - ÖNCELİKLİ' : 'Evet'))
     };
@@ -314,6 +320,14 @@ const Calc = (() => {
       };
     });
 
+    // QA doğrulama örtüsü: testi gereken sorulardan kaçı test edildi
+    const qaRequired = DATA.questions.filter(q => q.qa);
+    const qaTested = qaRequired.filter(q => {
+      const r = perQuestion[q.id].qaResult;
+      return r && r !== 'Test edilmedi';
+    });
+    const qaConflicts = DATA.questions.filter(q => perQuestion[q.id].qaConflict);
+
     const totals = domains.reduce((t, d) => {
       t.count += d.count; t.answered += d.answered; t.na += d.na;
       t.applicableWeight += d.applicableWeight; t.earned += d.earned;
@@ -389,6 +403,12 @@ const Calc = (() => {
 
     return {
       scopeMap, perQuestion, domains, totals, kunye: kunye(state),
+      qa2: {
+        required: qaRequired.length,
+        tested: qaTested.length,
+        coverage: qaRequired.length ? qaTested.length / qaRequired.length : 0,
+        conflicts: qaConflicts.map(q => q.id)
+      },
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
       inherent: inh, residual, generalResidual,
       breaches: residual.filter(r => r.breach).length,

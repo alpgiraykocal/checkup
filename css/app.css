@@ -281,7 +281,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent);
 }
 input::placeholder, textarea::placeholder { color: var(--fg-subtle); }
-select { cursor: pointer; }
+select { cursor: pointer; text-overflow: ellipsis; }
 .field { margin-bottom: 14px; }
 .field .help { font-size: 12px; color: var(--fg-subtle); margin-top: 4px; line-height: 1.45; }
 .field-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
@@ -432,6 +432,58 @@ select { cursor: pointer; }
 .exposure-row > .chip { flex: 0 0 auto; min-width: 190px; }
 .exposure-row > .num:last-child { margin-left: auto; font-weight: 600; }
 
+/* ---------- Başlangıç / devam kartı ---------- */
+.start-card { margin-bottom: 16px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.step { display: flex; gap: 10px; align-items: flex-start; }
+.step-no {
+  flex: 0 0 26px; height: 26px; margin-top: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; background: var(--muted); color: var(--fg-subtle);
+  font-size: 12.5px; font-weight: 700;
+}
+.step-no .ico { width: 15px; height: 15px; }
+.step.is-done .step-no { background: var(--ok-bg); color: var(--ok); }
+.step.is-next .step-no { background: var(--primary); color: var(--on-primary); }
+.step-main {
+  flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left;
+  padding: 6px 10px; border: 1px solid transparent; border-radius: var(--r);
+  background: transparent; color: inherit; font: inherit; cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.step-main:hover { background: var(--surface-2); border-color: var(--border-soft); }
+.step.is-next .step-main { background: var(--info-bg); }
+.step-main .meter { margin-top: 5px; }
+
+/* ---------- Anket: bölüm başlığı, etkin kart, QA bloğu ---------- */
+.section-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 22px 0 10px; padding: 8px 12px;
+  background: var(--surface-2); border-left: 3px solid var(--primary);
+  border-radius: var(--r);
+}
+.section-head:first-child { margin-top: 0; }
+.section-head-main { flex: 1; min-width: 160px; display: flex; gap: 8px; align-items: baseline; font-weight: 600; }
+.section-head-main .mono { color: var(--primary); }
+.section-head > .meter { flex: 0 0 120px; margin: 0; }
+
+.q.is-active { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent); }
+
+.qa-block { border-top: 1px dashed var(--border); padding-top: 10px; }
+.qa-block > summary {
+  cursor: pointer; font-size: 13px; font-weight: 600; color: var(--fg-muted);
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; list-style-position: inside;
+}
+.qa-block > summary:hover { color: var(--primary); }
+.qa-block > summary .ico { flex: 0 0 15px; width: 15px; height: 15px; }
+
+kbd {
+  display: inline-block; min-width: 22px; padding: 2px 6px; text-align: center;
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 600;
+  background: var(--surface-2); color: var(--fg);
+  border: 1px solid var(--border); border-bottom-width: 2px; border-radius: var(--r-sm);
+}
+
 /* ---------- Chips / badges ---------- */
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -573,6 +625,8 @@ select { cursor: pointer; }
   /* Dokunmatik ekranda tüm hedefler 44px asgarisine çıkar. */
   .btn, .btn-sm { min-height: 44px; }
   .flag-chip { min-height: 40px; }
+  /* Katlanır bölüm başlıkları da dokunmatik hedef sayılır */
+  .anchor-details > summary, .qa-block > summary { min-height: 44px; align-items: center; display: flex; }
   .flag-chip input { min-height: 0; }
   .btn-icon { min-width: 44px; }
   .lang-btn { min-height: 44px; }
