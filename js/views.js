@@ -2,70 +2,68 @@
 
 const Views = (() => {
   const { esc, fmtInt, fmtPct, fmtPct1, fmtNum1, fmtNum2, fmtDate,
-          levelClass, effClass, critChip, meter, statTile, selectOptions, emptyState } = UI;
+          levelClass, effClass, critChip, meter, statTile, selectOptions, refOptions, emptyState } = UI;
+  const t = (k, p) => I18n.t(k, p);
 
   /* =========================================================
      PANO
      ========================================================= */
   function dashboard(host, { state, calc }) {
-    const t = calc.totals;
+    const tot = calc.totals;
     const inh = calc.inherent;
-    const effTone = t.effectiveness === null ? '' : t.effectiveness >= 0.75 ? 'ok' : t.effectiveness >= 0.6 ? 'warn' : 'danger';
+    const effTone = tot.effectiveness === null ? '' : tot.effectiveness >= 0.75 ? 'ok' : tot.effectiveness >= 0.6 ? 'warn' : 'danger';
 
     const tiles = [
       statTile({
-        label: 'Genel kontrol etkinliği', value: fmtPct1(t.effectiveness), tone: effTone,
-        foot: (t.maturity ? `Olgunluk: <b>${esc(t.maturity)}</b>` : 'Henüz yanıt yok') + meter(t.effectiveness, effTone === 'ok' ? 'ok' : effTone === 'warn' ? 'warn' : 'danger')
+        label: t('kpiEffectiveness'), value: fmtPct1(tot.effectiveness), tone: effTone,
+        foot: (tot.maturity ? `${t('maturityLabel')}: <b>${esc(I18n.ref('maturity', tot.maturity))}</b>` : t('noAnswersYet'))
+          + meter(tot.effectiveness, effTone === 'ok' ? 'ok' : effTone === 'warn' ? 'warn' : 'danger')
       }),
       statTile({
-        label: 'Genel doğuştan risk', value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/ 5',
+        label: t('kpiInherent'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/ 5',
         tone: !inh.measured ? '' : inh.general >= 3 ? 'danger' : inh.general >= 2 ? 'warn' : 'ok',
-        foot: `${inh.measured ? esc(inh.dims.GENEL.level) : 'ölçülmedi'} · ${inh.scored}/${inh.applicable} faktör${inh.na ? ` · ${inh.na} N/A` : ''}`
+        foot: `${inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) : t('notMeasured')} · ${inh.scored}/${inh.applicable} ${t('factor')}${inh.na ? ` · ${inh.na} N/A` : ''}`
       }),
       statTile({
-        label: 'Genel artık risk', value: fmtNum2(calc.generalResidual), unit: '/ 5',
+        label: t('kpiResidual'), value: fmtNum2(calc.generalResidual), unit: '/ 5',
         tone: calc.generalResidual === null ? '' : calc.generalResidual >= 2.5 ? 'danger' : calc.generalResidual >= 1.5 ? 'warn' : 'ok',
-        foot: calc.generalResidual === null ? 'Kontrol etkinliği hesaplanamadı' : esc(Calc.residualLevel(calc.generalResidual))
+        foot: calc.generalResidual === null ? t('effNotComputable') : esc(I18n.ref('riskLevel', Calc.residualLevel(calc.generalResidual)))
       }),
       statTile({
-        label: 'Anket ilerlemesi', value: fmtInt(t.answered), unit: `/ ${fmtInt(t.count)}`,
-        foot: `${fmtPct(t.progress)} tamamlandı` + meter(t.progress)
+        label: t('kpiProgress'), value: fmtInt(tot.answered), unit: `/ ${fmtInt(tot.count)}`,
+        foot: `${fmtPct(tot.progress)} ${t('pctComplete')}` + meter(tot.progress)
       }),
       statTile({
-        label: 'Açık kritik soru', value: fmtInt(t.openCritical), tone: t.openCritical > 0 ? 'danger' : 'ok',
-        foot: 'Kritiklik = Kritik ve yanıt ≠ Evet'
+        label: t('kpiOpenCritical'), value: fmtInt(tot.openCritical), tone: tot.openCritical > 0 ? 'danger' : 'ok',
+        foot: t('critRule')
       }),
       statTile({
-        label: 'İştahı aşan domain', value: fmtInt(calc.breaches), tone: calc.breaches > 0 ? 'danger' : 'ok',
-        foot: 'Artık risk > iştah limiti'
+        label: t('kpiBreaches'), value: fmtInt(calc.breaches), tone: calc.breaches > 0 ? 'danger' : 'ok',
+        foot: t('overAppetite')
       }),
       statTile({
-        label: 'Açık aksiyon', value: fmtInt(calc.actionStats.open),
+        label: t('kpiOpenActions'), value: fmtInt(calc.actionStats.open),
         tone: calc.actionStats.overdue > 0 ? 'danger' : '',
-        foot: `${fmtInt(calc.actionStats.overdue)} gecikmiş · ${fmtInt(calc.actionStats.critical)} kritik`
+        foot: `${fmtInt(calc.actionStats.overdue)} ${t('overdueCritical', { n: fmtInt(calc.actionStats.critical) })}`
       }),
       statTile({
-        label: 'Aksiyon kapanış oranı', value: fmtPct(calc.actionStats.closureRate),
-        foot: `${fmtInt(calc.actionStats.closed)} / ${fmtInt(calc.actionStats.total)} kapalı` + meter(calc.actionStats.closureRate)
+        label: t('kpiClosureRate'), value: fmtPct(calc.actionStats.closureRate),
+        foot: `${fmtInt(calc.actionStats.closed)} / ${fmtInt(calc.actionStats.total)} ${t('closedOfTotal')}` + meter(calc.actionStats.closureRate)
       })
     ].join('');
 
     const banners = [];
-    if (t.answered === 0) {
-      banners.push(banner('info', 'Değerlendirmeye künye ile başlayın',
-        'Künye, hangi soruların kapsam dışı sayılacağını belirler. Ardından doğuştan riski skorlayın ve soru bankasını yanıtlayın.'));
+    if (tot.answered === 0) {
+      banners.push(banner('info', t('bnStartTitle'), t('bnStartBody')));
     }
     if (inh.pending > 0 && inh.scored > 0) {
-      banners.push(banner('warn', `Doğuştan risk skorlaması eksik — ${inh.pending} faktör`,
-        'Boyut skorları yalnızca skorlanan faktörleri yansıtır; tamamlanana kadar artık risk sonucu geçicidir.'));
+      banners.push(banner('warn', t('bnInhPendTtl', { n: inh.pending }), t('bnInhPendBody')));
     }
     if (inh.missingNotes > 0) {
-      banners.push(banner('warn', `${inh.missingNotes} yüksek doğuştan risk skorunda gerekçe eksik`,
-        '4 ve 5 skorları denetimde kanıtla desteklenmelidir.'));
+      banners.push(banner('warn', t('bnNotesTtl', { n: inh.missingNotes }), t('bnNotesBody')));
     }
-    if (t.openCritical > 0) {
-      banners.push(banner('danger', `${t.openCritical} kritik kontrolde açık bulgu var`,
-        'Kritik sorulara "Evet" dışında verilen her yanıt, tek başına yaptırım riski taşıyan bir kontrol boşluğuna işaret eder.'));
+    if (tot.openCritical > 0) {
+      banners.push(banner('danger', t('bnCritTtl', { n: tot.openCritical }), t('bnCritBody')));
     }
 
     host.innerHTML = `
@@ -73,22 +71,22 @@ const Views = (() => {
       <div class="grid grid-kpi">${tiles}</div>
 
       <div class="card" style="margin-top:16px">
-        <div class="card-head"><h2>Domain ısı haritası</h2>
-          <span class="subtle">Artık Risk = Doğuştan Risk × (1 − Kontrol Etkinliği)</span></div>
+        <div class="card-head"><h2>${t('heatmapTitle')}</h2>
+          <span class="subtle">${t('heatmapFormula')}</span></div>
         <div class="card-body">
           ${heatmap(calc)}
         </div>
       </div>
 
       <div class="card" style="margin-top:16px">
-        <div class="card-head"><h2>Doğuştan risk boyutları</h2>
-          <span class="subtle">Her boyut, beslediği domainlerin artık riskini belirler</span></div>
+        <div class="card-head"><h2>${t('inherentDims')}</h2>
+          <span class="subtle">${t('inherentDimsSub')}</span></div>
         <div class="card-body"><div class="grid grid-2">${inherentBars(calc)}</div></div>
       </div>
 
       <div class="card" style="margin-top:16px">
-        <div class="card-head"><h2>Operasyonel KPI'lar</h2>
-          <span class="subtle">Hedefi kurumun risk iştahına göre siz belirlersiniz; üç KPI otomatik hesaplanır</span></div>
+        <div class="card-head"><h2>${t('kpiSectionTitle')}</h2>
+          <span class="subtle">${t('kpiSectionSub')}</span></div>
         <div class="card-body" style="padding:0">${kpiTable(state, calc)}</div>
       </div>
     `;
@@ -121,38 +119,38 @@ const Views = (() => {
       const eff = d.effectiveness;
       return `<div class="heat-row">
         <div class="heat-name"><b class="mono">${esc(r.code)}</b> ${esc(r.name)}
-          <div class="subtle">${fmtInt(d.answered)}/${fmtInt(d.count)} yanıt${d.na ? ` · ${fmtInt(d.na)} N/A` : ''}</div></div>
+          <div class="subtle">${fmtInt(d.answered)}/${fmtInt(d.count)} ${t('colAnswers').toLocaleLowerCase(I18n.locale)}${d.na ? ` · ${fmtInt(d.na)} N/A` : ''}</div></div>
         <div class="heat-eff-bar">${meter(eff === null ? 0 : eff, eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger')}
-          <div class="subtle">${esc(d.maturity || 'yanıt bekliyor')}</div></div>
-        <div class="heat-cell ${effClass(eff)}" title="Kontrol etkinliği">${fmtPct(eff)}</div>
-        <div class="heat-cell ${levelClass(r.level)}" title="Artık risk (0-5)">${fmtNum2(r.residual)}</div>
-        <div class="heat-cell ${r.breach ? 'lvl-cok-yuksek' : r.breach === false ? 'lvl-dusuk' : 'lvl-none'}" title="İştah limiti ${fmtNum1(r.appetite)}">
-          ${r.breach === null ? '—' : r.breach ? 'AŞIM' : 'İçinde'}</div>
+          <div class="subtle">${esc(d.maturity ? I18n.ref('maturity', d.maturity) : t('awaitingAnswers'))}</div></div>
+        <div class="heat-cell ${effClass(eff)}" title="${t('colEffectiveness')}">${fmtPct(eff)}</div>
+        <div class="heat-cell ${levelClass(r.level)}" title="${t('colResidual')}">${fmtNum2(r.residual)}</div>
+        <div class="heat-cell ${r.breach ? 'lvl-cok-yuksek' : r.breach === false ? 'lvl-dusuk' : 'lvl-none'}" title="${t('colAppetiteLimit')} ${fmtNum1(r.appetite)}">
+          ${r.breach === null ? '—' : r.breach ? t('breach') : t('withinAppetite')}</div>
       </div>`;
     }).join('');
 
-    return `<div role="table" aria-label="Domain bazlı artık risk ısı haritası">
+    return `<div role="table" aria-label="${t('heatmapTitle')}">
       <div class="heat-row head" role="row">
-        <div>Domain</div><div class="heat-eff-bar">Olgunluk</div>
-        <div class="center">Etkinlik</div><div class="center">Artık risk</div><div class="center">İştah</div>
+        <div>${t('domain')}</div><div class="heat-eff-bar">${t('maturityLabel')}</div>
+        <div class="center">${t('colEffectiveness')}</div><div class="center">${t('colResidual')}</div><div class="center">${t('colAppetite')}</div>
       </div>
       ${rows}
     </div>`;
   }
 
   function inherentBars(calc) {
-    return Calc.DIMS.map(dim => {
-      const d = calc.inherent.dims[dim];
-      const domains = (DATA.dimDomains || {})[dim] || [];
+    return Calc.DIMS.map(dimKey => {
+      const d = calc.inherent.dims[dimKey];
+      const domains = (DATA.dimDomains || {})[dimKey] || [];
       return `<div style="margin-bottom:12px">
         <div style="display:flex;gap:8px;align-items:baseline">
-          <span style="flex:1">${esc(dim)}</span>
-          ${d.measured ? `<span class="chip ${levelClass(d.level)}">${esc(d.level)}</span>
+          <span style="flex:1">${esc(I18n.dim(dimKey))}</span>
+          ${d.measured ? `<span class="chip ${levelClass(d.level)}">${esc(I18n.ref('riskLevel', d.level))}</span>
             <b class="num">${fmtNum2(d.value)}</b><span class="subtle">/5</span>`
-            : '<span class="chip chip-na">ölçülmedi</span>'}
+            : `<span class="chip chip-na">${t('notMeasured')}</span>`}
         </div>
         ${meter(d.value / 5, !d.measured ? '' : d.value >= 3 ? 'danger' : d.value >= 2 ? 'warn' : 'ok')}
-        <div class="subtle">${d.scored}/${d.applicable} faktör${d.na ? ` · ${d.na} N/A` : ''} · ${domains.join(' ') || '—'}</div>
+        <div class="subtle">${d.scored}/${d.applicable} ${t('factor')}${d.na ? ` · ${d.na} N/A` : ''} · ${domains.join(' ') || '—'}</div>
       </div>`;
     }).join('');
   }
@@ -160,9 +158,9 @@ const Views = (() => {
   /** Hedefe göre durum. dir: down = küçük iyi, up = büyük iyi, neutral = yorum gerektirir. */
   function kpiStatus(k, target, value) {
     if (target === null || value === null) return null;
-    if (k.dir === 'neutral') return { cls: 'chip-mid', text: 'Yorum gerektirir' };
+    if (k.dir === 'neutral') return { cls: 'chip-mid', text: t('kpiNeedsJudgment') };
     const ok = k.dir === 'down' ? value <= target : value >= target;
-    return ok ? { cls: 'chip-ok', text: 'Hedefte' } : { cls: 'chip-critical', text: 'Hedef dışı' };
+    return ok ? { cls: 'chip-ok', text: t('kpiOnTarget') } : { cls: 'chip-critical', text: t('kpiOffTarget') };
   }
 
   function kpiTable(state, calc) {
@@ -178,36 +176,36 @@ const Views = (() => {
       const manual = num(rec.value);
       const value = manual !== null ? manual : auto;
       const st = kpiStatus(k, target, value);
-      const dirHint = k.dir === 'down' ? 'küçük olan iyi' : k.dir === 'up' ? 'büyük olan iyi' : 'yön yorum gerektirir';
+      const dirHint = k.dir === 'down' ? t('kpiLowerBetter') : k.dir === 'up' ? t('kpiHigherBetter') : t('kpiNeutral');
       const statusCell = st
         ? `<span class="chip ${st.cls}">${esc(st.text)}</span>`
         : target === null && value === null ? '<span class="subtle">—</span>'
-        : target === null ? '<span class="subtle">hedef belirlenmedi</span>'
-        : '<span class="subtle">değer bekleniyor</span>';
+        : target === null ? `<span class="subtle">${t('kpiNoTarget')}</span>`
+        : `<span class="subtle">${t('kpiNoValue')}</span>`;
 
       return `<tr>
         <td>
           <label for="kpi-v-${i}" style="font-weight:500;color:inherit;margin:0">${esc(k.name.replace(/\s*\((gün|saat|ay)\)/, ''))}</label>
           <div class="subtle">${esc(k.help)}</div>
-          <div class="subtle">Kaynak: ${esc(k.auto ? 'uygulama içi hesaplama' : k.source)} · ${dirHint}</div>
+          <div class="subtle">${t('source')}: ${esc(k.auto ? t('kpiAutoSource') : k.source)} · ${dirHint}</div>
         </td>
         <td style="width:120px">
           <div class="input-unit">
             <input type="text" inputmode="decimal" id="kpi-t-${i}" data-kpi="${esc(k.name)}" data-field="target"
               value="${esc(rec.target || '')}" placeholder="${esc(k.placeholder || 'hedef')}"
-              aria-label="${esc(k.name)} hedef" title="Örnek hedef: ${esc(k.placeholder || '')} ${esc(k.unit)}">
+              aria-label="${esc(k.name)} — ${t('kpiTarget')}" title="${t('kpiExampleTarget')}: ${esc(k.placeholder || '')} ${esc(k.unit)}">
             <span class="unit-tag">${esc(k.unit)}</span>
           </div>
         </td>
         <td style="width:120px">
           ${k.auto && manual === null
-            ? `<div class="auto-value" title="Uygulamadan otomatik hesaplandı">
+            ? `<div class="auto-value" title="${t('kpiAutoTitle')}">
                  <b class="num">${auto === null ? '—' : fmtInt(auto)}</b> <span class="subtle">${esc(k.unit)}</span>
-                 <div class="subtle">otomatik</div>
+                 <div class="subtle">${t('kpiAuto')}</div>
                </div>`
             : `<div class="input-unit">
                  <input type="text" inputmode="decimal" id="kpi-v-${i}" data-kpi="${esc(k.name)}" data-field="value"
-                   value="${esc(rec.value || '')}" placeholder="ölçüm" aria-label="${esc(k.name)} dönem değeri">
+                   value="${esc(rec.value || '')}" placeholder="${t('kpiMeasurement')}" aria-label="${esc(k.name)} — ${t('kpiValue')}">
                  <span class="unit-tag">${esc(k.unit)}</span>
                </div>`}
         </td>
@@ -216,7 +214,7 @@ const Views = (() => {
     }).join('');
 
     return `<div class="table-wrap"><table>
-      <thead><tr><th>KPI</th><th>Hedef</th><th>Dönem değeri</th><th>Durum</th></tr></thead>
+      <thead><tr><th>${t('kpiCol')}</th><th>${t('kpiTarget')}</th><th>${t('kpiValue')}</th><th>${t('status')}</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
   }
 
@@ -232,11 +230,12 @@ const Views = (() => {
     switch (f.type) {
       case 'yesno':
         input = `<select id="${id}" data-kunye="${f.id}"${described}>
-          ${selectOptions(['Evet', 'Hayır'], val, 'Seçiniz')}</select>`;
+          ${selectOptions(['Evet', 'Hayır'], val, t('select'), [I18n.ref('answers', 'Evet'), I18n.ref('answers', 'Hayır')])}</select>`;
         break;
       case 'select':
+        // Depolanan değer Türkçe seçenek dizisinden gelir; etiket seçili dile göre gösterilir.
         input = `<select id="${id}" data-kunye="${f.id}"${described}>
-          ${selectOptions(f.options, val, 'Seçiniz')}</select>`;
+          ${selectOptions(f.optionKeys || f.options, val, t('select'), f.options)}</select>`;
         break;
       case 'date':
         input = `<input type="date" id="${id}" data-kunye="${f.id}" value="${esc(val)}"${described}>`;
@@ -292,21 +291,20 @@ const Views = (() => {
     const scopedFactors = calc.inherent.factors.filter(x => x.st.autoNA).length;
 
     host.innerHTML = `
-      ${k.warnings.length ? banner('danger', 'Tutarsız giriş', k.warnings.join(' ')) : ''}
+      ${k.warnings.length ? banner('danger', t('bnInconsistent'), k.warnings.join(' ')) : ''}
       ${k.missingRequired.length
-        ? banner('warn', `${k.missingRequired.length} zorunlu alan boş`,
+        ? banner('warn', t('bnReqTitle', { n: k.missingRequired.length }),
             k.missingRequired.map(f => f.label).join(' · '))
-        : banner('info', 'Künye kapsamı ve öneriyi belirler',
-            'Faaliyet sorularına "Hayır" yanıtı ilgili soruları ve risk faktörlerini kapsam dışına alır. Müşteri ve işlem sayıları doğuştan risk sayfasında skor önerisi üretir.')}
+        : banner('info', t('bnScopeTitle'), t('bnScopeBody'))}
 
       <div class="grid grid-kpi" style="margin-bottom:16px">
-        ${statTile({ label: 'Künye tamlığı', value: fmtPct(k.progress),
+        ${statTile({ label: t('profileCompleteness'), value: fmtPct(k.progress),
           tone: k.progress === 1 ? 'ok' : k.missingRequired.length ? 'warn' : '',
-          foot: `${k.filled}/${k.total} alan dolu` + meter(k.progress, k.progress === 1 ? 'ok' : '') })}
+          foot: `${k.filled}/${k.total} ${t('fieldsFilled')}` + meter(k.progress, k.progress === 1 ? 'ok' : '') })}
         ${k.ratios.map(r => statTile({
           label: r.label,
           value: r.value === null ? '—' : (r.format === 'int' ? fmtInt(Math.round(r.value)) : fmtPct1(r.value)),
-          foot: r.value === null ? 'İlgili sayılar girilmedi' : esc(r.note)
+          foot: r.value === null ? t('ratioMissing') : esc(r.note)
         })).join('')}
       </div>
 
@@ -314,34 +312,35 @@ const Views = (() => {
         ${groups}
         <div>
           <div class="card">
-            <div class="card-head"><h3>Kapsam etkisi</h3></div>
+            <div class="card-head"><h3>${t('scopeEffect')}</h3></div>
             <div class="card-body">
               ${scoped.length ? `
-                <p class="subtle">${fmtInt(scopedQ)} soru ve ${fmtInt(scopedFactors)} risk faktörü otomatik "Uygulanamaz" sayılıyor.</p>
+                <p class="subtle">${t('scopedOutNote', { q: fmtInt(scopedQ), f: fmtInt(scopedFactors) })}</p>
                 <div class="table-wrap"><table>
-                  <thead><tr><th>Bölüm</th><th>Gerekçe</th><th class="num">Soru</th></tr></thead>
+                  <thead><tr><th>${t('section')}</th><th>${t('rationale')}</th><th class="num">${t('colQuestions')}</th></tr></thead>
                   <tbody>${scoped.map(([key, reason]) => {
                     const [dom, sec] = key.split('|');
                     const n = DATA.questions.filter(q => q.domain === dom && q.section === sec).length;
-                    return `<tr><td><b class="mono">${esc(dom)}</b> · ${esc(sec)}</td><td>${esc(reason)}</td><td class="num">${n}</td></tr>`;
+                    const label = (DATA_EN.sections && I18n.isEn) ? (DATA_EN.sections[sec] || sec) : sec;
+                    return `<tr><td><b class="mono">${esc(dom)}</b> · ${esc(label)}</td><td>${esc(reason)}</td><td class="num">${n}</td></tr>`;
                   }).join('')}</tbody></table></div>`
-                : `<p class="muted">Kapsam daraltan bir yanıt yok. Tüm ${fmtInt(DATA.questions.length)} soru skorlamaya dahil.</p>`}
+                : `<p class="muted">${t('noScopeNarrowing', { n: fmtInt(DATA.questions.length) })}</p>`}
               <div class="divider"></div>
-              <p class="subtle">Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için geçersiz olur.</p>
+              <p class="subtle">${t('manualOverridesRule')}</p>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Tarih yaşlandırma</h3></div>
+            <div class="card-head"><h3>${t('dateAgeing')}</h3></div>
             <div class="card-body" style="padding:0">
               <div class="table-wrap"><table>
-                <thead><tr><th>Kalem</th><th class="num">Geçen süre</th><th>Beklenen</th></tr></thead>
+                <thead><tr><th>${t('colItem')}</th><th class="num">${t('colElapsed')}</th><th>${t('colExpected')}</th></tr></thead>
                 <tbody>${k.stale.map(s => `<tr>
-                  <td>${esc(s.field.label.replace(' tarihi', ''))}</td>
-                  <td class="num">${s.months === null ? '—' : fmtInt(s.months) + ' ay'}</td>
-                  <td>${s.months === null ? '<span class="chip chip-na">tarih girilmedi</span>'
-                    : s.overdue ? `<span class="chip chip-critical">${Icons.alert()} ${s.field.staleMonths} ayı aştı</span>`
-                    : `<span class="chip chip-ok">${s.field.staleMonths} ay içinde</span>`}</td>
+                  <td>${esc(s.field.label.replace(/ tarihi$/, '').replace(/^Date of /, ''))}</td>
+                  <td class="num">${s.months === null ? '—' : fmtInt(s.months) + ' ' + t('monthsShort')}</td>
+                  <td>${s.months === null ? `<span class="chip chip-na">${t('noDateEntered')}</span>`
+                    : s.overdue ? `<span class="chip chip-critical">${Icons.alert()} ${t('exceededMonths', { n: s.field.staleMonths })}</span>`
+                    : `<span class="chip chip-ok">${t('withinMonths', { n: s.field.staleMonths })}</span>`}</td>
                 </tr>`).join('')}</tbody>
               </table></div>
             </div>
@@ -370,7 +369,7 @@ const Views = (() => {
      ========================================================= */
   const inhUI = { editWeights: false, showAnchors: false, only: '' };
 
-  const SCORE_LABEL = ['Çok düşük', 'Düşük', 'Orta', 'Yüksek', 'Çok yüksek'];
+  const scoreLabels = () => [t('scoreVeryLow'), t('scoreLow'), t('scoreMedium'), t('scoreHigh'), t('scoreVeryHigh')];
 
   function scoreClass(n) {
     return ['lvl-dusuk', 'lvl-dusuk', 'lvl-orta', 'lvl-yuksek', 'lvl-cok-yuksek'][n - 1] || 'lvl-none';
@@ -390,51 +389,51 @@ const Views = (() => {
   function inherentView(host, { state, calc }) {
     const inh = calc.inherent;
     const byDim = {};
-    inh.factors.forEach(x => { (byDim[x.f.dim] = byDim[x.f.dim] || []).push(x); });
+    inh.factors.forEach(x => { (byDim[x.f.dimKey] = byDim[x.f.dimKey] || []).push(x); });
 
     const dimCards = Calc.DIMS
-      .filter(dim => !inhUI.only || inhUI.only === dim)
-      .map(dim => dimCard(dim, byDim[dim] || [], inh.dims[dim], state))
+      .filter(dimKey => !inhUI.only || inhUI.only === dimKey)
+      .map(dimKey => dimCard(dimKey, byDim[dimKey] || [], inh.dims[dimKey], state))
       .join('');
 
     host.innerHTML = `
       ${inherentBanners(inh)}
 
       <div class="grid grid-kpi" style="margin-bottom:16px">
-        ${Calc.DIMS.map(dim => {
-          const d = inh.dims[dim];
+        ${Calc.DIMS.map(dimKey => {
+          const d = inh.dims[dimKey];
           return statTile({
-            label: dim,
+            label: I18n.dim(dimKey),
             value: d.measured ? fmtNum2(d.value) : '—', unit: '/5',
             tone: !d.measured ? '' : d.value >= 3 ? 'danger' : d.value >= 2 ? 'warn' : 'ok',
-            foot: `${d.measured ? esc(d.level) : 'ölçülmedi'} · ${d.scored}/${d.applicable} faktör${d.na ? ` · ${d.na} N/A` : ''}`
+            foot: `${d.measured ? esc(I18n.ref('riskLevel', d.level)) : t('notMeasured')} · ${d.scored}/${d.applicable} ${t('factor')}${d.na ? ` · ${d.na} N/A` : ''}`
               + meter(d.coverage)
           });
         }).join('')}
         ${statTile({
-          label: 'GENEL', value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/5',
+          label: I18n.dim('GENEL'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/5',
           tone: !inh.measured ? '' : inh.general >= 3 ? 'danger' : inh.general >= 2 ? 'warn' : 'ok',
-          foot: `${inh.measured ? esc(inh.dims.GENEL.level) : 'ölçülmedi'} · beş boyutun ortalaması`
+          foot: `${inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) : t('notMeasured')} · ${t('inhMethod2').replace(/<[^>]+>/g, '')}`
         })}
       </div>
 
       <div class="toolbar no-print">
         <div class="field">
-          <label for="inh-only">Boyut</label>
+          <label for="inh-only">${t('dimension')}</label>
           <select id="inh-only" data-inh-only>
-            <option value="">Tümü (${inh.total} faktör)</option>
-            ${Calc.DIMS.map(d => `<option value="${esc(d)}"${inhUI.only === d ? ' selected' : ''}>${esc(d)} (${(byDim[d] || []).length})</option>`).join('')}
+            <option value="">${t('all')} (${inh.total} ${t('factor')})</option>
+            ${Calc.DIMS.map(d => `<option value="${esc(d)}"${inhUI.only === d ? ' selected' : ''}>${esc(I18n.dim(d))} (${(byDim[d] || []).length})</option>`).join('')}
           </select>
         </div>
         <div class="toolbar-actions">
           <button class="btn" data-inh-anchors aria-pressed="${inhUI.showAnchors}">
-            ${Icons.info()} Skor rehberlerini ${inhUI.showAnchors ? 'kapat' : 'aç'}
+            ${Icons.info()} ${inhUI.showAnchors ? t('anchorsOff') : t('anchorsOn')}
           </button>
           <button class="btn" data-inh-weights aria-pressed="${inhUI.editWeights}">
-            ${Icons.edit()} Ağırlıkları ${inhUI.editWeights ? 'kilitle' : 'düzenle'}
+            ${Icons.edit()} ${inhUI.editWeights ? t('lockWeights') : t('editWeights')}
           </button>
           ${Object.keys(state.inherentWeights || {}).length
-            ? `<button class="btn btn-danger" data-inh-resetw>${Icons.reset()} Varsayılan ağırlıklar</button>` : ''}
+            ? `<button class="btn btn-danger" data-inh-resetw>${Icons.reset()} ${t('defaultWeights')}</button>` : ''}
         </div>
       </div>
 
@@ -448,15 +447,12 @@ const Views = (() => {
   function inherentBanners(inh) {
     const out = [];
     if (!inh.measured) {
-      out.push(banner('info', 'Doğuştan risk kontrollerden bağımsızdır',
-        'Burada kurumun yapısal maruziyeti skorlanır. Kontrollerin ne kadar iyi çalıştığı bu sayfada değil, soru bankasında ölçülür. Her faktörü 1–5 arasında skorlayın veya faaliyet yoksa "Uygulanamaz" işaretleyin.'));
+      out.push(banner('info', t('bnInhIntroTtl'), t('bnInhIntroBody')));
     } else if (inh.pending > 0) {
-      out.push(banner('warn', `${inh.pending} faktör henüz skorlanmadı`,
-        'Skorlanmayan faktör paydaya girmez; boyut skoru yalnızca skorlanan faktörleri yansıtır. Tamamlanmadan artık risk sonucu geçici sayılmalıdır.'));
+      out.push(banner('warn', t('bnInhPendTtl2', { n: inh.pending }), t('bnInhPendBody2')));
     }
     if (inh.missingNotes > 0) {
-      out.push(banner('danger', `${inh.missingNotes} yüksek skorda gerekçe eksik`,
-        '4 ve 5 skorları denetimde ilk sorgulanan kalemlerdir; her biri için kanıta dayalı gerekçe girin.'));
+      out.push(banner('danger', t('bnInhNotesTtl', { n: inh.missingNotes }), t('bnInhNotesBody')));
     }
     return out.join('');
   }
@@ -466,8 +462,8 @@ const Views = (() => {
     if (!top.length) return '';
     const max = top[0].weighted || 1;
     return `<div class="card" style="margin-bottom:16px">
-      <div class="card-head"><h2>Baskın risk sürücüleri</h2>
-        <span class="subtle">Ağırlıklı katkısı en yüksek faktörler · skor × ağırlık</span></div>
+      <div class="card-head"><h2>${t('driversTitle')}</h2>
+        <span class="subtle">${t('driversSub')}</span></div>
       <div class="card-body">
         <div class="funnel">
           ${top.map(d => `<div class="funnel-step">
@@ -481,8 +477,8 @@ const Views = (() => {
               </div>
             </div>
             <div class="right nowrap">
-              <span class="chip ${scoreClass(d.score)}">${d.score} · ${esc(SCORE_LABEL[d.score - 1])}</span>
-              <div class="subtle">ağırlık ${fmtNum1(d.weight)}</div>
+              <span class="chip ${scoreClass(d.score)}">${d.score} · ${esc(scoreLabels()[d.score - 1])}</span>
+              <div class="subtle">${t('weight').toLocaleLowerCase(I18n.locale)} ${fmtNum1(d.weight)}</div>
             </div>
           </div>`).join('')}
         </div>
@@ -490,23 +486,23 @@ const Views = (() => {
     </div>`;
   }
 
-  function dimCard(dim, items, d, state) {
-    const domains = (DATA.dimDomains || {})[dim] || [];
+  function dimCard(dimKey, items, d, state) {
+    const domains = (DATA.dimDomains || {})[dimKey] || [];
     return `<div class="card">
       <div class="card-head">
         <div style="flex:1;min-width:160px">
-          <h3>${esc(dim)}</h3>
-          <div class="subtle">Beslediği domainler: ${domains.map(esc).join(' · ') || '—'}</div>
+          <h3>${esc(I18n.dim(dimKey))}</h3>
+          <div class="subtle">${t('feedsDomains')}: ${domains.map(esc).join(' · ') || '—'}</div>
         </div>
-        ${d.measured ? `<span class="chip ${levelClass(d.level)}">${esc(d.level)}</span>
+        ${d.measured ? `<span class="chip ${levelClass(d.level)}">${esc(I18n.ref('riskLevel', d.level))}</span>
           <b class="num">${fmtNum2(d.value)}</b><span class="subtle">/5</span>`
-          : '<span class="chip chip-na">ölçülmedi</span>'}
+          : `<span class="chip chip-na">${t('notMeasured')}</span>`}
       </div>
       <div class="card-body" style="padding:0">
         ${items.map(({ f, st }) => factorRow(f, st, state)).join('')}
       </div>
       <div class="card-head" style="border-top:1px solid var(--border-soft);border-bottom:0">
-        <span class="subtle" style="flex:1">${d.scored}/${d.applicable} faktör skorlandı${d.na ? ` · ${d.na} uygulanamaz` : ''}</span>
+        <span class="subtle" style="flex:1">${d.scored}/${d.applicable} ${t('factorsScored')}${d.na ? ` · ${d.na} ${t('naCount')}` : ''}</span>
         ${meter(d.coverage, d.complete ? 'ok' : '')}
       </div>
     </div>`;
@@ -520,7 +516,8 @@ const Views = (() => {
     const buttons = [1, 2, 3, 4, 5].map(n => `
       <button type="button" class="answer-btn score-btn" data-inh-score="${esc(st.key)}" data-n="${n}"
         aria-pressed="${st.score === n}" ${st.na ? 'disabled' : ''}
-        title="${esc(n + ' — ' + SCORE_LABEL[n - 1] + ': ' + f.anchors[n - 1])}">
+        title="${esc(n + ' — ' + scoreLabels()[n - 1] + ': ' + f.anchors[n - 1])}"
+        aria-label="${esc(f.factor)} — ${n} ${esc(scoreLabels()[n - 1])}">
         <span class="score-n">${n}</span>
       </button>`).join('');
 
@@ -528,41 +525,41 @@ const Views = (() => {
       <div class="factor-main">
         <div class="factor-title">
           <span>${esc(f.factor)}</span>
-          ${st.na ? `<span class="chip chip-na">${Icons.lock()} ${esc(st.manualNA ? 'Uygulanamaz' : st.scopeReason)}</span>` : ''}
-          ${st.weightOverridden ? `<span class="chip chip-mid">ağırlık değiştirildi</span>` : ''}
-          ${st.needsNote ? `<span class="chip chip-critical">${Icons.alert()} Gerekçe gerekli</span>` : ''}
+          ${st.na ? `<span class="chip chip-na">${Icons.lock()} ${esc(st.manualNA ? t('notApplicable') : st.scopeReason)}</span>` : ''}
+          ${st.weightOverridden ? `<span class="chip chip-mid">${t('weightChanged')}</span>` : ''}
+          ${st.needsNote ? `<span class="chip chip-critical">${Icons.alert()} ${t('rationaleNeeded')}</span>` : ''}
         </div>
         <div class="subtle">${esc(f.why)}</div>
         ${hint && !st.na ? `<div class="factor-hint">
-          ${Icons.info()}<span>Künye: <b>${esc(hint.label)} ${fmtPct1(hint.pct / 100)}</b> → önerilen skor <b>${hint.suggested}</b>
-          ${st.score === hint.suggested ? '(uygulandı)' : `<button class="btn btn-sm" data-inh-apply="${esc(st.key)}" data-n="${hint.suggested}">Uygula</button>`}</span>
+          ${Icons.info()}<span>${t('profileHint')}: <b>${esc(hint.label)} ${fmtPct1(hint.pct / 100)}</b> → ${t('suggestedScore')} <b>${hint.suggested}</b>
+          ${st.score === hint.suggested ? `(${t('applied')})` : `<button class="btn btn-sm" data-inh-apply="${esc(st.key)}" data-n="${hint.suggested}">${t('apply')}</button>`}</span>
         </div>` : ''}
       </div>
 
       <div class="factor-score">
-        <div class="scorebar" role="group" aria-label="${esc(f.factor)} skoru">
+        <div class="scorebar" role="group" aria-label="${esc(f.factor)}">
           ${buttons}
           <button type="button" class="answer-btn na-btn" data-inh-na="${esc(st.key)}"
-            aria-pressed="${st.manualNA}" title="Faktör bu kurum için geçerli değil">
-            ${Icons.minus()}<span>N/A</span>
+            aria-pressed="${st.manualNA}" title="${t('naTitle')}">
+            ${Icons.minus()}<span>${t('naShort')}</span>
           </button>
         </div>
         <div class="factor-calc">
-          ${st.na ? '<span class="subtle">Skorlamadan çıkarıldı</span>' : `
-            <span class="subtle">Ağırlık</span>
+          ${st.na ? `<span class="subtle">${t('excludedFromScoring')}</span>` : `
+            <span class="subtle">${t('weight')}</span>
             ${inhUI.editWeights
               ? `<input type="number" min="0.5" max="10" step="0.5" class="w-input" id="inhw-${idx}"
-                   data-inh-weight="${esc(st.key)}" value="${st.weight}" aria-label="${esc(f.factor)} ağırlığı">`
+                   data-inh-weight="${esc(st.key)}" value="${st.weight}" aria-label="${esc(f.factor)} — ${t('weight')}">`
               : `<b class="num">${fmtNum1(st.weight)}</b>`}
-            <span class="subtle">· Ağırlıklı</span>
+            <span class="subtle">· ${t('weighted')}</span>
             <b class="num">${st.weighted === null ? '—' : fmtNum1(st.weighted)}</b>`}
         </div>
       </div>
 
       ${st.na ? '' : `<div class="factor-anchors">
-        ${anchorText ? `<div class="anchor-current"><b>${st.score} — ${esc(SCORE_LABEL[st.score - 1])}:</b> ${esc(anchorText)}</div>` : ''}
+        ${anchorText ? `<div class="anchor-current"><b>${st.score} — ${esc(scoreLabels()[st.score - 1])}:</b> ${esc(anchorText)}</div>` : ''}
         <details class="anchor-details"${inhUI.showAnchors ? ' open' : ''}>
-          <summary>Skor rehberi (1–5)</summary>
+          <summary>${t('scoreGuide')}</summary>
           <ol class="anchor-list">
             ${f.anchors.map((a, i) => `<li class="${st.score === i + 1 ? 'is-current' : ''}">
               <span class="anchor-n ${scoreClass(i + 1)}">${i + 1}</span>${esc(a)}</li>`).join('')}
@@ -571,32 +568,27 @@ const Views = (() => {
       </div>`}
 
       ${st.na ? '' : `<div class="factor-note">
-        <label for="inhn-${idx}">Gerekçe / kanıt${st.score >= 4 ? ' (zorunlu)' : ''}</label>
+        <label for="inhn-${idx}">${st.score >= 4 ? t('rationaleReq') : t('rationaleLabel')}</label>
         <input type="text" id="inhn-${idx}" data-inh-note="${esc(st.key)}" value="${esc(st.note)}"
-          placeholder="Ölçüm, rapor adı, dönem — skorun dayanağı">
+          placeholder="${t('rationalePh')}">
       </div>`}
     </div>`;
   }
 
   function methodCard() {
     return `<div class="card">
-      <div class="card-head"><h2>Yöntem</h2></div>
+      <div class="card-head"><h2>${t('method')}</h2></div>
       <div class="card-body">
-        <p><b>Boyut skoru</b> = Σ(skor × ağırlık) / Σ(skorlanan faktörlerin ağırlığı).
-          Uygulanamaz ve henüz skorlanmamış faktörler paydaya girmez; tüm faktörler skorlandığında
-          sonuç kaynak çalışma kitabıyla birebir aynıdır.</p>
-        <p><b>GENEL</b> = beş boyut skorunun aritmetik ortalaması (ölçülmüş boyutlar üzerinden).</p>
-        <p><b>Artık risk</b> hesabı bu sayfadan beslenir: her domain, kendisine atanmış boyutların
-          ortalamasını doğuştan risk olarak alır. İlgili boyut ölçülmemişse o domainin artık riski hesaplanmaz.</p>
+        <p>${t('inhMethod1')}</p>
+        <p>${t('inhMethod2')}</p>
+        <p>${t('inhMethod3')}</p>
         <div class="inline-list" style="margin:12px 0">
-          <span class="chip lvl-cok-yuksek">Çok Yüksek ≥ 4,00</span>
-          <span class="chip lvl-yuksek">Yüksek ≥ 3,00</span>
-          <span class="chip lvl-orta">Orta ≥ 2,00</span>
-          <span class="chip lvl-dusuk">Düşük &lt; 2,00</span>
+          <span class="chip lvl-cok-yuksek">${esc(I18n.ref('riskLevel', 'Çok Yüksek'))} ≥ ${fmtNum2(4)}</span>
+          <span class="chip lvl-yuksek">${esc(I18n.ref('riskLevel', 'Yüksek'))} ≥ ${fmtNum2(3)}</span>
+          <span class="chip lvl-orta">${esc(I18n.ref('riskLevel', 'Orta'))} ≥ ${fmtNum2(2)}</span>
+          <span class="chip lvl-dusuk">${esc(I18n.ref('riskLevel', 'Düşük'))} &lt; ${fmtNum2(2)}</span>
         </div>
-        <p class="subtle">Varsayım: ağırlıklar sektör uygulamasına dayalı başlangıç değerleridir ve kurumun
-          onaylı risk metodolojisine göre kalibre edilmelidir. Değiştirilen ağırlıklar "ağırlık değiştirildi"
-          etiketiyle işaretlenir ve CSV çıktısına yansır.</p>
+        <p class="subtle">${t('inhMethod4')}</p>
       </div>
     </div>`;
   }
@@ -616,7 +608,7 @@ const Views = (() => {
       const ap = e.target.closest('[data-inh-apply]');
       if (ap) {
         Store.update(s => { s.inherent[ap.dataset.inhApply] = Number(ap.dataset.n); });
-        UI.toast('Künye oranından skor uygulandı. Gerekçeyi doğrulayın.');
+        UI.toast(t('appliedToast'));
         return;
       }
       const na = e.target.closest('[data-inh-na]');
@@ -633,9 +625,9 @@ const Views = (() => {
       const rw = e.target.closest('[data-inh-resetw]');
       if (rw) {
         UI.confirmDialog({
-          title: 'Ağırlıklar sıfırlansın mı?',
-          message: 'Tüm ağırlıklar kaynak çalışma kitabındaki varsayılan değerlere döner. Skorlar ve gerekçeler korunur.',
-          confirmLabel: 'Varsayılana dön', danger: true
+          title: t('resetWeightsTtl'),
+          message: t('resetWeightsMsg'),
+          confirmLabel: t('resetWeightsOk'), danger: true
         }).then(ok => { if (ok) Store.update(s => { s.inherentWeights = {}; }); });
       }
     });
@@ -681,19 +673,20 @@ const Views = (() => {
     const { state, calc } = ctx;
 
     const sections = qFilter.domain
-      ? [...new Set(DATA.questions.filter(q => q.domain === qFilter.domain).map(q => q.section))]
+      ? [...new Map(DATA.questions.filter(q => q.domain === qFilter.domain)
+          .map(q => [q.sectionKey, { key: q.sectionKey, label: q.section }])).values()]
       : [];
 
     host.innerHTML = `
       <div class="toolbar no-print">
         <div class="field grow">
-          <label for="f-q">Soruda ara</label>
-          <input type="text" id="f-q" data-f="q" value="${esc(qFilter.q)}" placeholder="Soru metni, ID, kanıt veya kaynak">
+          <label for="f-q">${t('searchQuestions')}</label>
+          <input type="text" id="f-q" data-f="q" value="${esc(qFilter.q)}" placeholder="${t('searchPh')}">
         </div>
         <div class="field">
-          <label for="f-domain">Domain</label>
+          <label for="f-domain">${t('domain')}</label>
           <select id="f-domain" data-f="domain">
-            <option value="">Tümü (${DATA.questions.length})</option>
+            <option value="">${t('all')} (${DATA.questions.length})</option>
             ${DATA.domains.map(d => {
               const n = DATA.questions.filter(q => q.domain === d.code).length;
               return `<option value="${d.code}"${qFilter.domain === d.code ? ' selected' : ''}>${esc(d.code)} — ${esc(d.name)} (${n})</option>`;
@@ -701,40 +694,40 @@ const Views = (() => {
           </select>
         </div>
         <div class="field">
-          <label for="f-section">Bölüm</label>
+          <label for="f-section">${t('section')}</label>
           <select id="f-section" data-f="section" ${sections.length ? '' : 'disabled'}>
-            <option value="">Tümü</option>
-            ${sections.map(s => `<option value="${esc(s)}"${qFilter.section === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}
+            <option value="">${t('all')}</option>
+            ${sections.map(sec => `<option value="${esc(sec.key)}"${qFilter.section === sec.key ? ' selected' : ''}>${esc(sec.label)}</option>`).join('')}
           </select>
         </div>
         <div class="field">
-          <label for="f-crit">Kritiklik</label>
+          <label for="f-crit">${t('criticality')}</label>
           <select id="f-crit" data-f="crit">
-            <option value="">Tümü</option>
-            ${['Kritik', 'Yüksek', 'Orta'].map(c => `<option value="${c}"${qFilter.crit === c ? ' selected' : ''}>${c}</option>`).join('')}
+            <option value="">${t('all')}</option>
+            ${['Kritik', 'Yüksek', 'Orta'].map(c => `<option value="${c}"${qFilter.crit === c ? ' selected' : ''}>${esc(I18n.ref('crit', c))}</option>`).join('')}
           </select>
         </div>
         <div class="field">
-          <label for="f-status">Durum</label>
+          <label for="f-status">${t('filterStatus')}</label>
           <select id="f-status" data-f="status">
-            <option value="">Tümü</option>
-            <option value="unanswered"${qFilter.status === 'unanswered' ? ' selected' : ''}>Yanıtlanmamış</option>
-            <option value="answered"${qFilter.status === 'answered' ? ' selected' : ''}>Yanıtlanmış</option>
-            <option value="gap"${qFilter.status === 'gap' ? ' selected' : ''}>Aksiyon gerektiren</option>
-            <option value="opencrit"${qFilter.status === 'opencrit' ? ' selected' : ''}>Açık kritik</option>
-            <option value="noevidence"${qFilter.status === 'noevidence' ? ' selected' : ''}>Kanıt referansı boş</option>
+            <option value="">${t('all')}</option>
+            <option value="unanswered"${qFilter.status === 'unanswered' ? ' selected' : ''}>${t('fltUnanswered')}</option>
+            <option value="answered"${qFilter.status === 'answered' ? ' selected' : ''}>${t('fltAnswered')}</option>
+            <option value="gap"${qFilter.status === 'gap' ? ' selected' : ''}>${t('fltGap')}</option>
+            <option value="opencrit"${qFilter.status === 'opencrit' ? ' selected' : ''}>${t('fltOpenCrit')}</option>
+            <option value="noevidence"${qFilter.status === 'noevidence' ? ' selected' : ''}>${t('fltNoEvidence')}</option>
           </select>
         </div>
         <div class="field">
-          <label for="f-qa">QA testi</label>
+          <label for="f-qa">${t('qaTest')}</label>
           <select id="f-qa" data-f="qa">
-            <option value="">Tümü</option>
-            <option value="yes"${qFilter.qa === 'yes' ? ' selected' : ''}>Gerekli</option>
-            <option value="no"${qFilter.qa === 'no' ? ' selected' : ''}>Gerekli değil</option>
+            <option value="">${t('all')}</option>
+            <option value="yes"${qFilter.qa === 'yes' ? ' selected' : ''}>${t('qaRequired')}</option>
+            <option value="no"${qFilter.qa === 'no' ? ' selected' : ''}>${t('qaNotRequired')}</option>
           </select>
         </div>
         <div class="toolbar-actions">
-          <button class="btn" data-clear>${Icons.reset()} Filtreleri sıfırla</button>
+          <button class="btn" data-clear>${Icons.reset()} ${t('clearFilters')}</button>
         </div>
       </div>
 
@@ -809,12 +802,12 @@ const Views = (() => {
   }
 
   function filtered(calc) {
-    const term = qFilter.q.trim().toLocaleLowerCase('tr');
+    const term = qFilter.q.trim().toLocaleLowerCase(I18n.locale);
     return DATA.questions.filter(q => {
       const s = calc.perQuestion[q.id];
       if (qFilter.domain && q.domain !== qFilter.domain) return false;
-      if (qFilter.section && q.section !== qFilter.section) return false;
-      if (qFilter.crit && q.crit !== qFilter.crit) return false;
+      if (qFilter.section && q.sectionKey !== qFilter.section) return false;
+      if (qFilter.crit && q.critKey !== qFilter.crit) return false;
       if (qFilter.qa === 'yes' && !q.qa) return false;
       if (qFilter.qa === 'no' && q.qa) return false;
       if (qFilter.status === 'unanswered' && s.answered) return false;
@@ -826,7 +819,7 @@ const Views = (() => {
         if (!s.answered || (rec && rec.evidence && rec.evidence.trim())) return false;
       }
       if (term) {
-        const hay = (q.id + ' ' + q.text + ' ' + q.evidence + ' ' + q.source + ' ' + q.section).toLocaleLowerCase('tr');
+        const hay = (q.id + ' ' + q.text + ' ' + q.evidence + ' ' + q.source + ' ' + q.section).toLocaleLowerCase(I18n.locale);
         if (!hay.includes(term)) return false;
       }
       return true;
@@ -842,7 +835,7 @@ const Views = (() => {
 
     container.innerHTML = '';
     if (!list.length) {
-      container.innerHTML = emptyState('Eşleşen soru yok', 'Filtreleri gevşetin veya arama terimini değiştirin.');
+      container.innerHTML = emptyState(t('noMatch'), t('noMatchBody'));
       return;
     }
     UI.chunkRender(container, list, q => questionCard(q, calc));
@@ -866,10 +859,10 @@ const Views = (() => {
     const list_ = items;
 
     summary.innerHTML = [
-      statTile({ label: 'Seçili soru', value: fmtInt(list_.length), foot: `${fmtInt(DATA.questions.length)} sorudan` }),
-      statTile({ label: 'Yanıtlanan', value: fmtInt(answered), foot: fmtPct(list_.length ? answered / list_.length : 0) + meter(list_.length ? answered / list_.length : 0) }),
-      statTile({ label: 'Seçim kontrol etkinliği', value: fmtPct1(eff), tone: eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger' }),
-      statTile({ label: 'Aksiyon gerektiren', value: fmtInt(gaps), tone: gaps ? 'warn' : 'ok', foot: `${fmtInt(openCrit)} açık kritik` })
+      statTile({ label: t('selectedQs'), value: fmtInt(list_.length), foot: t('ofNQuestions', { n: fmtInt(DATA.questions.length) }) }),
+      statTile({ label: t('answered'), value: fmtInt(answered), foot: fmtPct(list_.length ? answered / list_.length : 0) + meter(list_.length ? answered / list_.length : 0) }),
+      statTile({ label: t('selectionEff'), value: fmtPct1(eff), tone: eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger' }),
+      statTile({ label: t('actionRequired'), value: fmtInt(gaps), tone: gaps ? 'warn' : 'ok', foot: t('openCriticalN', { n: fmtInt(openCrit) }) })
     ].join('');
   }
 
@@ -883,7 +876,7 @@ const Views = (() => {
     const answerBtns = DATA.ref.answers.map(a => `
       <button type="button" class="answer-btn" data-answer="${q.id}" data-a="${esc(a)}"
         aria-pressed="${s.answer === a}" ${locked ? 'disabled' : ''}>
-        ${ANSWER_ICON[a]}<span>${esc(a)}</span>
+        ${ANSWER_ICON[a]}<span>${esc(I18n.ref('answers', a))}</span>
       </button>`).join('');
 
     const missingEvidence = s.answered && !(rec.evidence || '').trim();
@@ -894,41 +887,41 @@ const Views = (() => {
         <div class="q-main">
           <div class="q-text">${esc(q.text)}</div>
           <div class="q-meta">
-            ${critChip(q.crit)}
-            <span class="chip">Ağırlık ${q.weight}</span>
+            ${critChip(q.critKey)}
+            <span class="chip">${t('weight')} ${q.weight}</span>
             <span class="chip">${esc(q.domain)} · ${esc(q.section)}</span>
-            ${q.qa ? `<span class="chip chip-mid">${Icons.flask()} QA testi</span>` : ''}
-            ${s.actionNeeded === 'EVET - ÖNCELİKLİ' ? `<span class="chip chip-critical">${Icons.alert()} Öncelikli aksiyon</span>`
-              : s.actionNeeded === 'Evet' ? `<span class="chip chip-high">Aksiyon gerekli</span>` : ''}
+            ${q.qa ? `<span class="chip chip-mid">${Icons.flask()} ${t('qaTest')}</span>` : ''}
+            ${s.actionNeeded === 'EVET - ÖNCELİKLİ' ? `<span class="chip chip-critical">${Icons.alert()} ${t('priorityAction')}</span>`
+              : s.actionNeeded === 'Evet' ? `<span class="chip chip-high">${t('actionNeeded')}</span>` : ''}
             ${locked ? `<span class="chip chip-na">${Icons.lock()} ${esc(s.scopeReason)}</span>` : ''}
-            <span class="chip ${missingEvidence ? 'chip-high' : 'hidden'}" data-evidence-badge>Kanıt referansı yok</span>
+            <span class="chip ${missingEvidence ? 'chip-high' : 'hidden'}" data-evidence-badge>${t('noEvidenceRef')}</span>
           </div>
-          <div class="answers" role="group" aria-label="${esc(q.id)} yanıtı">${answerBtns}</div>
+          <div class="answers" role="group" aria-label="${t('answerFor', { id: esc(q.id) })}">${answerBtns}</div>
         </div>
       </div>
       <div class="q-detail">
         <div class="q-refs">
-          <div><b>Beklenen kanıt:</b> ${esc(q.evidence)}</div>
-          <div><b>Kaynak:</b> ${esc(q.source)}</div>
-          ${q.pop ? `<div><b>Örneklem popülasyonu:</b> ${esc(q.pop)}</div>` : ''}
+          <div><b>${t('expectedEvidence')}:</b> ${esc(q.evidence)}</div>
+          <div><b>${t('source')}:</b> ${esc(q.source)}</div>
+          ${q.pop ? `<div><b>${t('samplePopulation')}:</b> ${esc(q.pop)}</div>` : ''}
         </div>
         <div class="field-row">
           <div class="field" style="margin:0">
-            <label for="ev-${q.id}">Kanıt referansı</label>
+            <label for="ev-${q.id}">${t('evidenceRef')}</label>
             <input type="text" id="ev-${q.id}" data-evidence="${q.id}" value="${esc(rec.evidence || '')}"
-              placeholder="${esc(q.evidence)} — dosya adı ve tarihi" aria-describedby="ev-${q.id}-h">
-            <div class="help" id="ev-${q.id}-h">Kanıtın nerede olduğunu yazın; denetimde bu satır üzerinden aranır.</div>
+              placeholder="${esc(q.evidence)} — ${t('evidencePhSuffix')}" aria-describedby="ev-${q.id}-h">
+            <div class="help" id="ev-${q.id}-h">${t('evidenceHelp')}</div>
           </div>
           <div class="field" style="margin:0">
-            <label for="nt-${q.id}">Bulgu / not</label>
+            <label for="nt-${q.id}">${t('findingNote')}</label>
             <input type="text" id="nt-${q.id}" data-note="${q.id}" value="${esc(rec.note || '')}"
-              placeholder="${s.answer === 'Evet' ? 'İsteğe bağlı açıklama' : 'Eksik ne, hangi kısmı çalışmıyor'}"
+              placeholder="${s.answer === 'Evet' ? t('findingPhYes') : t('findingPhNo')}"
               aria-describedby="nt-${q.id}-h">
-            <div class="help" id="nt-${q.id}-h">"Evet" dışındaki yanıtlarda buraya yazdığınız metin aksiyon kaydına taşınır.</div>
+            <div class="help" id="nt-${q.id}-h">${t('findingHelp')}</div>
           </div>
         </div>
         ${s.actionNeeded && s.actionNeeded !== 'Hayır'
-          ? `<div><button class="btn btn-sm" data-mkaction="${q.id}">${Icons.plus()} Bu sorudan aksiyon oluştur</button></div>` : ''}
+          ? `<div><button class="btn btn-sm" data-mkaction="${q.id}">${Icons.plus()} ${t('createAction')}</button></div>` : ''}
       </div>
     </article>`;
   }
@@ -937,7 +930,7 @@ const Views = (() => {
      KONTROL SKORLARI
      ========================================================= */
   function domainScores(host, { calc }) {
-    const t = calc.totals;
+    const tot = calc.totals;
     const rows = calc.domains.map(d => `
       <tr>
         <td><b class="mono">${esc(d.code)}</b></td>
@@ -948,45 +941,44 @@ const Views = (() => {
         <td class="num">${fmtNum1(d.applicableWeight)}</td>
         <td class="num">${fmtNum1(d.earned)}</td>
         <td class="num"><span class="heat-cell score-pill ${effClass(d.effectiveness)}">${fmtPct1(d.effectiveness)}</span></td>
-        <td>${d.maturity ? `<span class="chip ${maturityClass(d.maturity)}">${esc(d.maturity)}</span>` : '—'}</td>
+        <td>${d.maturity ? `<span class="chip ${maturityClass(d.maturity)}">${esc(I18n.ref('maturity', d.maturity))}</span>` : '—'}</td>
         <td class="num">${d.openCritical ? `<b style="color:var(--danger)">${fmtInt(d.openCritical)}</b>` : '0'}</td>
         <td class="num">${fmtInt(d.actionsNeeded)}</td>
       </tr>`).join('');
 
     host.innerHTML = `
-      ${banner('info', 'Bu sayfada girdi yoktur',
-        'Tüm değerler soru bankasından türetilir. Kontrol etkinliği = kazanılan puan / uygulanabilir toplam ağırlık.')}
+      ${banner('info', t('bnNoInputTtl'), t('bnNoInputBody'))}
       <div class="card">
-        <div class="card-head"><h2>Domain bazlı kontrol etkinliği</h2>
-          <span class="subtle">Evet = 1,00 · Kısmen = 0,50 · Hayır = 0,00 · Uygulanamaz = skorlama dışı</span></div>
+        <div class="card-head"><h2>${t('ttlScores')}</h2>
+          <span class="subtle">${t('scoreLegend')}</span></div>
         <div class="card-body" style="padding:0">
           <div class="table-wrap"><table>
             <thead><tr>
-              <th>Kod</th><th>Domain</th><th class="num">Soru</th><th class="num">Yanıt</th><th class="num">N/A</th>
-              <th class="num">Uyg. ağırlık</th><th class="num">Kazanılan</th><th class="num">Etkinlik</th>
-              <th>Olgunluk</th><th class="num">Açık kritik</th><th class="num">Aksiyon</th>
+              <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colQuestions')}</th><th class="num">${t('colAnswers')}</th><th class="num">N/A</th>
+              <th class="num">${t('colApplicableW')}</th><th class="num">${t('colEarned')}</th><th class="num">${t('colEffectiveness')}</th>
+              <th>${t('maturityLabel')}</th><th class="num">${t('colOpenCrit')}</th><th class="num">${t('colActions')}</th>
             </tr></thead>
             <tbody>${rows}</tbody>
             <tfoot><tr>
-              <td></td><td>TOPLAM / AĞIRLIKLI ORTALAMA</td>
-              <td class="num">${fmtInt(t.count)}</td><td class="num">${fmtInt(t.answered)}</td><td class="num">${fmtInt(t.na)}</td>
-              <td class="num">${fmtNum1(t.applicableWeight)}</td><td class="num">${fmtNum1(t.earned)}</td>
-              <td class="num">${fmtPct1(t.effectiveness)}</td><td>${esc(t.maturity || '—')}</td>
-              <td class="num">${fmtInt(t.openCritical)}</td><td class="num">${fmtInt(t.actionsNeeded)}</td>
+              <td></td><td>${t('totalRow')}</td>
+              <td class="num">${fmtInt(tot.count)}</td><td class="num">${fmtInt(tot.answered)}</td><td class="num">${fmtInt(tot.na)}</td>
+              <td class="num">${fmtNum1(tot.applicableWeight)}</td><td class="num">${fmtNum1(tot.earned)}</td>
+              <td class="num">${fmtPct1(tot.effectiveness)}</td><td>${esc(tot.maturity ? I18n.ref('maturity', tot.maturity) : '—')}</td>
+              <td class="num">${fmtInt(tot.openCritical)}</td><td class="num">${fmtInt(tot.actionsNeeded)}</td>
             </tr></tfoot>
           </table></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-head"><h2>Olgunluk eşikleri</h2></div>
+        <div class="card-head"><h2>${t('maturityBands')}</h2></div>
         <div class="card-body">
           <div class="inline-list">
-            <span class="chip chip-ok">Gelişmiş ≥ %90</span>
-            <span class="chip chip-mid">Yeterli ≥ %75</span>
-            <span class="chip chip-high">Gelişime Açık ≥ %60</span>
-            <span class="chip chip-high">Zayıf ≥ %40</span>
-            <span class="chip chip-critical">Kritik Zayıf &lt; %40</span>
+            <span class="chip chip-ok">${esc(I18n.ref('maturity', 'Gelişmiş'))} ≥ 90%</span>
+            <span class="chip chip-mid">${esc(I18n.ref('maturity', 'Yeterli'))} ≥ 75%</span>
+            <span class="chip chip-high">${esc(I18n.ref('maturity', 'Gelişime Açık'))} ≥ 60%</span>
+            <span class="chip chip-high">${esc(I18n.ref('maturity', 'Zayıf'))} ≥ 40%</span>
+            <span class="chip chip-critical">${esc(I18n.ref('maturity', 'Kritik Zayıf'))} &lt; 40%</span>
           </div>
         </div>
       </div>`;
@@ -1003,40 +995,40 @@ const Views = (() => {
     const rows = calc.residual.map(r => `
       <tr>
         <td><b class="mono">${esc(r.code)}</b></td>
-        <td>${esc(r.name)}<div class="subtle">Doğuştan risk kaynağı: ${esc(r.source)}</div></td>
+        <td>${esc(r.name)}<div class="subtle">${t('inherentSource')}: ${esc(r.source)}</div></td>
         <td class="num">${fmtNum2(r.inherentRisk)}</td>
         <td class="num">${fmtPct1(r.effectiveness)}</td>
         <td class="num"><span class="heat-cell score-pill ${levelClass(r.level)}">${fmtNum2(r.residual)}</span></td>
-        <td>${r.level ? `<span class="chip ${levelClass(r.level)}">${esc(r.level)}</span>` : '—'}</td>
+        <td>${r.level ? `<span class="chip ${levelClass(r.level)}">${esc(I18n.ref('riskLevel', r.level))}</span>` : '—'}</td>
         <td class="num">${fmtNum1(r.appetite)}</td>
         <td>${r.breach === null ? '—' : r.breach
-          ? `<span class="chip chip-critical">${Icons.alert()} AŞIM — AKSİYON</span>`
-          : `<span class="chip chip-ok">İştah içinde</span>`}</td>
+          ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
+          : `<span class="chip chip-ok">${t('withinAppetiteFull')}</span>`}</td>
       </tr>`).join('');
 
     host.innerHTML = `
       ${calc.breaches > 0
-        ? banner('danger', `${calc.breaches} domain risk iştahını aşıyor`, 'Aşan her domain için aksiyon planında en az bir kayıt bulunmalıdır.')
-        : banner('info', 'Artık Risk = Doğuştan Risk × (1 − Kontrol Etkinliği)', 'Varsayılan iştah limiti 1,50 (Orta–Yüksek sınırı). Kurumun onaylı risk iştahına göre güncellenmelidir.')}
+        ? banner('danger', t('bnBreachTtl', { n: calc.breaches }), t('bnBreachBody'))
+        : banner('info', t('heatmapFormula'), t('bnResidBody'))}
       <div class="card">
-        <div class="card-head"><h2>Artık risk matrisi</h2></div>
+        <div class="card-head"><h2>${t('ttlResidual')}</h2></div>
         <div class="card-body" style="padding:0">
           <div class="table-wrap"><table>
             <thead><tr>
-              <th>Kod</th><th>Domain</th><th class="num">Doğuştan (1-5)</th><th class="num">Kontrol etkinliği</th>
-              <th class="num">Artık risk</th><th>Seviye</th><th class="num">İştah limiti</th><th>Durum</th>
+              <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th><th class="num">${t('colEffectiveness')}</th>
+              <th class="num">${t('colResidual')}</th><th>${t('level')}</th><th class="num">${t('colAppetiteLimit')}</th><th>${t('status')}</th>
             </tr></thead>
             <tbody>${rows}</tbody>
           </table></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-head"><h2>Artık risk seviyesi eşikleri</h2></div>
+        <div class="card-head"><h2>${t('residualBands')}</h2></div>
         <div class="card-body"><div class="inline-list">
-          <span class="chip lvl-cok-yuksek">Çok Yüksek ≥ 3,50</span>
-          <span class="chip lvl-yuksek">Yüksek ≥ 2,50</span>
-          <span class="chip lvl-orta">Orta ≥ 1,50</span>
-          <span class="chip lvl-dusuk">Düşük &lt; 1,50</span>
+          <span class="chip lvl-cok-yuksek">${esc(I18n.ref('riskLevel', 'Çok Yüksek'))} ≥ ${fmtNum2(3.5)}</span>
+          <span class="chip lvl-yuksek">${esc(I18n.ref('riskLevel', 'Yüksek'))} ≥ ${fmtNum2(2.5)}</span>
+          <span class="chip lvl-orta">${esc(I18n.ref('riskLevel', 'Orta'))} ≥ ${fmtNum2(1.5)}</span>
+          <span class="chip lvl-dusuk">${esc(I18n.ref('riskLevel', 'Düşük'))} &lt; ${fmtNum2(1.5)}</span>
         </div></div>
       </div>`;
   }
@@ -1049,46 +1041,45 @@ const Views = (() => {
       <tr>
         <td>${esc(p.pop)}<div class="subtle">${esc(p.focus)}</div></td>
         <td><span class="chip">${esc(p.domain)}</span></td>
-        <td><span class="chip ${levelClass(p.risk)}">${esc(p.risk)}</span></td>
+        <td><span class="chip ${levelClass(p.riskKey)}">${esc(p.risk)}</span></td>
         <td style="width:150px">
           <div class="input-unit">
             <input type="number" min="0" step="1" inputmode="numeric" id="qa-vol-${i}" data-vol="${esc(p.pop)}"
               value="${p.volume === null ? '' : p.volume}" placeholder="0"
-              aria-label="${esc(p.pop)} dönem içi hacim">
-            <span class="unit-tag">adet</span>
+              aria-label="${esc(p.pop)} — ${t('colPeriodVol')}">
+            <span class="unit-tag">${t('items')}</span>
           </div>
-          ${p.volume !== null ? `<div class="subtle">${fmtInt(p.volume)} kayıt</div>` : ''}
+          ${p.volume !== null ? `<div class="subtle">${fmtInt(p.volume)} ${t('records')}</div>` : ''}
         </td>
         <td>${p.full
-          ? '<span class="chip chip-critical">Tam kapsam</span><div class="subtle">tamamı test edilir</div>'
-          : `%${fmtInt(p.rate * 100)} · en az ${fmtInt(p.min)}<div class="subtle">hangisi büyükse</div>`}</td>
+          ? `<span class="chip chip-critical">${t('fullCoverage')}</span><div class="subtle">${t('allTested')}</div>`
+          : `${fmtInt(p.rate * 100)}% · ${t('atLeast')} ${fmtInt(p.min)}<div class="subtle">${t('whicheverLarger')}</div>`}</td>
         <td class="num"><b>${fmtInt(p.yearlySample)}</b></td>
-        <td>${esc(p.freq)}<div class="subtle">yılda ${p.tests}×</div></td>
+        <td>${esc(p.freq)}<div class="subtle">${t('perYear', { n: p.tests })}</div></td>
         <td class="num">${fmtInt(p.perTest)}</td>
       </tr>`).join('');
 
     const covered = calc.qa.filter(p => p.volume !== null).length;
 
     host.innerHTML = `
-      ${banner('info', 'Ne gireceksiniz: her popülasyonun dönem içi toplam adedi',
-        'Örneğin "EDD dosyaları" satırına, değerlendirme döneminde açılan toplam EDD dosyası sayısını yazın. Örneklem büyüklüğü otomatik hesaplanır: tam kapsam "Evet" ise tüm popülasyon test edilir, diğerlerinde MAK(hacim × oran, asgari sayı) — hacmi aşamaz. Test başına örneklem = yıllık örneklem / frekans, yukarı yuvarlanır. Hacmini bilmediğiniz satırı boş bırakabilirsiniz.')}
+      ${banner('info', t('bnQaTtl'), t('bnQaBody'))}
       <div class="grid grid-kpi" style="margin-bottom:16px">
-        ${statTile({ label: 'Popülasyon', value: fmtInt(calc.qa.length), foot: `${fmtInt(covered)} tanesinin hacmi girildi` })}
-        ${statTile({ label: 'Toplam yıllık hacim', value: fmtInt(calc.qaTotals.volume) })}
-        ${statTile({ label: 'Yıllık örneklem', value: fmtInt(calc.qaTotals.yearlySample), foot: 'Test edilecek toplam dosya' })}
-        ${statTile({ label: 'Test başına örneklem', value: fmtInt(calc.qaTotals.perTest), foot: 'Tüm popülasyonlar toplamı' })}
+        ${statTile({ label: t('qaPopulations'), value: fmtInt(calc.qa.length), foot: `${fmtInt(covered)} ${t('qaVolumeEntered')}` })}
+        ${statTile({ label: t('qaTotalVolume'), value: fmtInt(calc.qaTotals.volume) })}
+        ${statTile({ label: t('qaAnnualSample'), value: fmtInt(calc.qaTotals.yearlySample), foot: t('qaFilesToTest') })}
+        ${statTile({ label: t('qaPerTest'), value: fmtInt(calc.qaTotals.perTest), foot: t('qaAllPops') })}
       </div>
       <div class="card">
-        <div class="card-head"><h2>Yıllık QA planı ve risk bazlı örnekleme</h2></div>
+        <div class="card-head"><h2>${t('qaTableTitle')}</h2></div>
         <div class="card-body" style="padding:0">
           <div class="table-wrap"><table>
             <thead><tr>
-              <th>Popülasyon / test odağı</th><th>Domain</th><th>Risk</th><th>Dönem içi hacim</th>
-              <th>Örneklem kuralı</th><th class="num">Yıllık örneklem</th><th>Frekans</th><th class="num">Test başına</th>
+              <th>${t('colPopFocus')}</th><th>${t('domain')}</th><th>${t('colRisk')}</th><th>${t('colPeriodVol')}</th>
+              <th>${t('colSampleRule')}</th><th class="num">${t('colAnnualSample')}</th><th>${t('colFrequency')}</th><th class="num">${t('colPerTest')}</th>
             </tr></thead>
             <tbody>${rows}</tbody>
             <tfoot><tr>
-              <td>TOPLAM</td><td></td><td></td>
+              <td>${t('total')}</td><td></td><td></td>
               <td class="num">${fmtInt(calc.qaTotals.volume)}</td><td></td>
               <td class="num">${fmtInt(calc.qaTotals.yearlySample)}</td><td></td>
               <td class="num">${fmtInt(calc.qaTotals.perTest)}</td>
@@ -1097,18 +1088,18 @@ const Views = (() => {
         </div>
       </div>
       <div class="card">
-        <div class="card-head"><h2>Hata sınıflandırması ve kapanış süresi</h2></div>
+        <div class="card-head"><h2>${t('errorClasses')}</h2></div>
         <div class="card-body">
           <div class="table-wrap"><table>
-            <thead><tr><th>Sınıf</th><th>Tanım</th><th>Kapanış süresi</th></tr></thead>
+            <thead><tr><th>${t('colClass')}</th><th>${t('colDefinition')}</th><th>${t('colClosureTime')}</th></tr></thead>
             <tbody>
-              <tr><td>${critChip('Kritik')}</td><td>Bildirim yapılmamış / yaptırım ihlali</td><td>5 iş günü</td></tr>
-              <tr><td>${critChip('Yüksek')}</td><td>Gerekçe yetersiz, EDD eksik</td><td>30 gün</td></tr>
-              <tr><td>${critChip('Orta')}</td><td>Dokümantasyon eksikliği</td><td>90 gün</td></tr>
-              <tr><td>${critChip('Düşük')}</td><td>Gözlem</td><td>Sonraki QA döngüsü</td></tr>
+              <tr><td>${critChip('Kritik')}</td><td>${t('errCritical')}</td><td>${t('slaCritical')}</td></tr>
+              <tr><td>${critChip('Yüksek')}</td><td>${t('errHigh')}</td><td>${t('slaHigh')}</td></tr>
+              <tr><td>${critChip('Orta')}</td><td>${t('errMedium')}</td><td>${t('slaMedium')}</td></tr>
+              <tr><td>${critChip('Düşük')}</td><td>${t('errLow')}</td><td>${t('slaLow')}</td></tr>
             </tbody>
           </table></div>
-          <p class="subtle" style="margin-top:12px">Katmanlama: her örneklem risk seviyesi, ürün, senaryo ve analist bazında tabakalandırılmalıdır.</p>
+          <p class="subtle" style="margin-top:12px">${t('stratNote')}</p>
         </div>
       </div>`;
 

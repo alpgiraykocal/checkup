@@ -3,9 +3,23 @@
 Uyum uzmanının tek başına çalıştırabileceği, kanıta dayalı AML/CFT uyum değerlendirme uygulaması.
 Kaynak: `AML_Uyum_Checkup_Anket_QA_Aksiyon.xlsx` + `Anket.docx` (mimari notları).
 
+> English summary at the bottom of this file.
+
 ## Çalıştırma
 
 `index.html` dosyasını çift tıklayın. Kurulum, sunucu veya internet bağlantısı gerekmez.
+Yayındaki sürüm: <https://checkup.alpgiraykocal.com>
+
+## Dil
+
+Sayfanın üst kısmındaki **TR / EN** düğmesi arayüzün tamamını değiştirir: menüler, başlıklar,
+218 sorunun tamamı, beklenen kanıtlar, mevzuat atıfları, 25 risk faktörü ve skor rehberleri,
+24 QA popülasyonu, künye alanları, KPI'lar, uyarı metinleri, CSV başlıkları ve dosya adları.
+
+Seçim tarayıcıda saklanır. **Depolanan veriler dilden bağımsızdır**: yanıtlar, skorlar ve
+aksiyon kayıtları her zaman aynı iç anahtarlarla tutulur, bu yüzden dil değiştirmek hiçbir
+hesabı ya da kaydı bozmaz — doğrulandı: iki dilde kontrol etkinliği, doğuştan risk ve örneklem
+sonuçları birebir aynı.
 
 ## Veri ve gizlilik
 
@@ -99,9 +113,12 @@ Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için ge�
 ## Dosya yapısı
 
 ```
-index.html          kabuk ve gezinme
+index.html          kabuk, gezinme, dil değiştirici
 css/app.css         tasarım sistemi, açık/koyu tema, yazdırma stilleri
-js/data.js          xlsx'ten üretilmiş veri (218 soru, 25 faktör, 24 popülasyon, 15 KPI)
+js/data.js          xlsx'ten üretilmiş Türkçe veri (218 soru, 25 faktör, 24 popülasyon, 15 KPI)
+js/data.en.js       İngilizce içerik katmanı (domain, bölüm, faktör, künye, KPI, QA, referanslar)
+js/questions.en.js  218 sorunun İngilizce metni ve beklenen kanıtları
+js/i18n.js          arayüz metinleri, dil uygulama motoru, mevzuat atıfı çeviri kuralları
 js/store.js         durum yönetimi ve localStorage kalıcılığı
 js/calc.js          skorlama motoru
 js/ui.js            ikonlar, biçimlendirme, modal, toast
@@ -117,3 +134,41 @@ js/app.js           yönlendirme, tema, veri menüsü
 - Ağırlıklar, örneklem oranları ve asgari örneklem sayıları sektör uygulamasına dayalı başlangıç değerleridir; kurumun risk iştahına göre kalibre edilmelidir.
 - Varsayılan iştah limiti (1,50) tüm domainler için aynıdır; kurumun onaylı risk iştahı ile değiştirilmelidir. Şu an bu değer `js/data.js` içindeki `appetite` alanından okunur.
 - Araç tespit, önceliklendirme ve aksiyon üretir; bağımsız denetim yerine geçmez.
+
+
+---
+
+## English
+
+**AML/CFT Compliance Check-up** — an evidence-based self-assessment tool for obliged entities.
+Open `index.html`; no installation, server or internet connection is required. Live at
+<https://checkup.alpgiraykocal.com>.
+
+Use the **TR / EN** switch at the top of the page to change language. Everything is translated:
+all 218 questions, expected evidence, regulatory citations, the 25 inherent risk factors with
+their 1–5 scoring anchors, the 24 QA sampling populations, profile fields, KPIs, warnings and
+CSV exports. Stored data is language-independent, so switching never affects any score or record.
+
+| Step | Screen | What you do |
+|---|---|---|
+| 1 | Profile | Institution details. A "No" to a business scope question takes the related questions and risk factors out of scope. |
+| 2 | Inherent Risk | Score 25 sub-factors from 1 to 5 against written anchors; rationale required for 4 and 5. |
+| 3 | Questionnaire | Answer 218 questions with an evidence reference and a finding note. |
+| 4 | QA Plan | Enter each population's volume for the period; sample sizes are calculated. |
+| 5 | Control Scores | Derived control effectiveness and maturity per domain. |
+| 6 | Residual Risk | Inherent risk × (1 − control effectiveness), compared against appetite. |
+| 7 | Action Plan | Finding → root cause → action → owner → due date → verification. |
+| 8 | Executive Report | Print or export to PDF. |
+
+Scoring: Yes = 1.00 · Partial = 0.50 · No = 0.00 · Not applicable is excluded. Control
+effectiveness = points earned / applicable weight. Maturity bands: ≥90% Advanced, ≥75% Adequate,
+≥60% Needs improvement, ≥40% Weak, below that Critically weak. Residual risk levels: ≥3.50 Very
+high, ≥2.50 High, ≥1.50 Medium, below that Low.
+
+All data stays in the browser's local storage; nothing is sent to a server. Use **Data and
+backup → Download JSON** to back up or move to another device.
+
+Article references are indicative and must be checked against the legislation in force. The
+weights, sampling rates and minimum sample sizes are starting values based on industry practice
+and should be calibrated to the institution's approved risk methodology. The tool supports
+detection, prioritisation and remediation tracking; it does not replace an independent audit.

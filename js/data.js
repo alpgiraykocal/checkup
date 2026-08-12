@@ -1,4 +1,4 @@
-// AML/CFT Uyum Check-up — veri katmanı. Kaynak: AML_Uyum_Checkup_Anket_QA_Aksiyon.xlsx
+// AML/CFT Uyum Check-up — veri katmanı (Türkçe temel). Kaynak: AML_Uyum_Checkup_Anket_QA_Aksiyon.xlsx
 const DATA = {
  "kunyeFields": [
   {
@@ -8,7 +8,8 @@ const DATA = {
    "type": "text",
    "placeholder": "Örnek Bank A.Ş.",
    "help": "Ticaret sicilinde kayıtlı tam unvan. Rapor başlığında görünür.",
-   "required": true
+   "required": true,
+   "groupKey": "Kurum kimliği"
   },
   {
    "id": "yukumlu_tipi",
@@ -34,7 +35,26 @@ const DATA = {
     "Diğer"
    ],
    "help": "5549 sayılı Kanun kapsamındaki yükümlü sınıfınız. Hangi mevzuat setine tabi olduğunuzu belirler.",
-   "required": true
+   "required": true,
+   "groupKey": "Kurum kimliği",
+   "optionKeys": [
+    "Banka",
+    "Katılım bankası",
+    "Kalkınma ve yatırım bankası",
+    "Aracı kurum",
+    "Portföy yönetim şirketi",
+    "Sigorta / emeklilik şirketi",
+    "Finansal kiralama",
+    "Faktoring",
+    "Finansman şirketi",
+    "Elektronik para kuruluşu",
+    "Ödeme kuruluşu",
+    "Kripto varlık hizmet sağlayıcı",
+    "Yetkili müessese (döviz)",
+    "PTT",
+    "Varlık yönetim şirketi",
+    "Diğer"
+   ]
   },
   {
    "id": "lisanslar",
@@ -42,7 +62,8 @@ const DATA = {
    "group": "Kurum kimliği",
    "type": "text",
    "placeholder": "BDDK bankacılık lisansı; SPK aracılık yetki belgeleri",
-   "help": "Düzenleyici kurum ve belge adları. Birden fazlaysa noktalı virgülle ayırın."
+   "help": "Düzenleyici kurum ve belge adları. Birden fazlaysa noktalı virgülle ayırın.",
+   "groupKey": "Kurum kimliği"
   },
   {
    "id": "faaliyet_gosterilen_ulkeler",
@@ -50,7 +71,8 @@ const DATA = {
    "group": "Kurum kimliği",
    "type": "text",
    "placeholder": "TR, BG, DE",
-   "help": "Şube, iştirak ve temsilcilik dahil tüm ülkeler. Ülke kodu veya adı."
+   "help": "Şube, iştirak ve temsilcilik dahil tüm ülkeler. Ülke kodu veya adı.",
+   "groupKey": "Kurum kimliği"
   },
   {
    "id": "donem_baslangic",
@@ -58,7 +80,8 @@ const DATA = {
    "group": "Değerlendirme",
    "type": "date",
    "help": "Anketin kapsadığı dönemin ilk günü.",
-   "required": true
+   "required": true,
+   "groupKey": "Değerlendirme"
   },
   {
    "id": "donem_bitis",
@@ -66,7 +89,8 @@ const DATA = {
    "group": "Değerlendirme",
    "type": "date",
    "help": "Genellikle bir takvim yılı. Kanıtlar ve QA örneklemleri bu dönemden seçilir.",
-   "required": true
+   "required": true,
+   "groupKey": "Değerlendirme"
   },
   {
    "id": "degerlendirmeyi_yapan",
@@ -80,7 +104,14 @@ const DATA = {
     "Bağımsız dış inceleme / danışman"
    ],
    "help": "Öz değerlendirmede beyanlar QA dosya testiyle doğrulanmadıkça kanıt sayılmaz; bağımsız incelemede skorların ispat gücü yüksektir.",
-   "required": true
+   "required": true,
+   "groupKey": "Değerlendirme",
+   "optionKeys": [
+    "Öz değerlendirme — uyum birimi",
+    "Öz değerlendirme — uyum + iş birimleri",
+    "Bağımsız iç denetim",
+    "Bağımsız dış inceleme / danışman"
+   ]
   },
   {
    "id": "uyum_gorevlisi",
@@ -88,7 +119,8 @@ const DATA = {
    "group": "Değerlendirme",
    "type": "text",
    "placeholder": "Ad Soyad",
-   "help": "MASAK'a bildirilmiş uyum görevlisi."
+   "help": "MASAK'a bildirilmiş uyum görevlisi.",
+   "groupKey": "Değerlendirme"
   },
   {
    "id": "toplam_musteri_sayisi",
@@ -97,7 +129,8 @@ const DATA = {
    "type": "number",
    "placeholder": "412000",
    "help": "Dönem sonu itibarıyla aktif müşteri sayısı. Oran hesapları bu sayıyı payda alır.",
-   "unit": "müşteri"
+   "unit": "müşteri",
+   "groupKey": "Ölçek ve maruziyet"
   },
   {
    "id": "yuksek_riskli_musteri_sayisi",
@@ -106,7 +139,8 @@ const DATA = {
    "type": "number",
    "placeholder": "23000",
    "help": "Kendi risk derecelendirmenizde yüksek ve çok yüksek sınıfına düşen müşteriler.",
-   "unit": "müşteri"
+   "unit": "müşteri",
+   "groupKey": "Ölçek ve maruziyet"
   },
   {
    "id": "pep_musteri_sayisi",
@@ -115,7 +149,8 @@ const DATA = {
    "type": "number",
    "placeholder": "2100",
    "help": "PEP, aile üyeleri ve yakın çevre dahil toplam.",
-   "unit": "müşteri"
+   "unit": "müşteri",
+   "groupKey": "Ölçek ve maruziyet"
   },
   {
    "id": "yillik_islem_adedi",
@@ -124,7 +159,8 @@ const DATA = {
    "type": "number",
    "placeholder": "18000000",
    "help": "Dönem içindeki toplam işlem adedi (tutar değil).",
-   "unit": "işlem"
+   "unit": "işlem",
+   "groupKey": "Ölçek ve maruziyet"
   },
   {
    "id": "yillik_sinir_otesi_islem_adedi",
@@ -133,7 +169,8 @@ const DATA = {
    "type": "number",
    "placeholder": "3600000",
    "help": "Yurt dışına giden ve yurt dışından gelen transferlerin adedi.",
-   "unit": "işlem"
+   "unit": "işlem",
+   "groupKey": "Ölçek ve maruziyet"
   },
   {
    "id": "uyum_birimi_kadrosu_fte",
@@ -143,7 +180,8 @@ const DATA = {
    "placeholder": "12,5",
    "help": "Tam zaman eşdeğeri. Yarı zamanlı çalışan 0,5 sayılır.",
    "unit": "FTE",
-   "step": "0.5"
+   "step": "0.5",
+   "groupKey": "Ölçek ve maruziyet"
   },
   {
    "id": "i_zleme_sistemi",
@@ -151,7 +189,8 @@ const DATA = {
    "group": "Sistemler",
    "type": "text",
    "placeholder": "Actimize SAM v9.1 / kural tabanlı iç geliştirme",
-   "help": "Ürün adı ve sürümü. İç geliştirme ise bunu belirtin."
+   "help": "Ürün adı ve sürümü. İç geliştirme ise bunu belirtin.",
+   "groupKey": "Sistemler"
   },
   {
    "id": "yaptirim_tarama_sistemi",
@@ -159,7 +198,8 @@ const DATA = {
    "group": "Sistemler",
    "type": "text",
    "placeholder": "Fircosoft Continuity v7 / Bridger Insight",
-   "help": "Ürün adı ve sürümü. Müşteri ve işlem taraması farklı ürünlerse ikisini de yazın."
+   "help": "Ürün adı ve sürümü. Müşteri ve işlem taraması farklı ürünlerse ikisini de yazın.",
+   "groupKey": "Sistemler"
   },
   {
    "id": "trade_finance_faaliyeti_var_mi",
@@ -167,7 +207,8 @@ const DATA = {
    "group": "Faaliyet kapsamı",
    "type": "yesno",
    "help": "Akreditif, tahsilat, garanti gibi dış ticaret finansmanı ürünleri.",
-   "scopeNote": "Hayır: D6 Trade Finance soruları ve trade finance risk faktörü kapsam dışına alınır."
+   "scopeNote": "Hayır: D6 Trade Finance soruları ve trade finance risk faktörü kapsam dışına alınır.",
+   "groupKey": "Faaliyet kapsamı"
   },
   {
    "id": "muhabir_bankacilik_var_mi",
@@ -175,7 +216,8 @@ const DATA = {
    "group": "Faaliyet kapsamı",
    "type": "yesno",
    "help": "Başka bir bankaya muhabir hizmeti verme veya alma ilişkisi.",
-   "scopeNote": "Hayır: D2 Muhabir Bankacılık soruları ve muhabir coğrafi risk faktörü kapsam dışına alınır."
+   "scopeNote": "Hayır: D2 Muhabir Bankacılık soruları ve muhabir coğrafi risk faktörü kapsam dışına alınır.",
+   "groupKey": "Faaliyet kapsamı"
   },
   {
    "id": "sanal_varlik_faaliyeti_var_mi",
@@ -183,7 +225,8 @@ const DATA = {
    "group": "Faaliyet kapsamı",
    "type": "yesno",
    "help": "Doğrudan kripto varlık hizmeti veya VASP müşteri ilişkisi.",
-   "scopeNote": "Hayır: D3 Sanal Varlık soruları ve sanal varlık risk faktörü kapsam dışına alınır."
+   "scopeNote": "Hayır: D3 Sanal Varlık soruları ve sanal varlık risk faktörü kapsam dışına alınır.",
+   "groupKey": "Faaliyet kapsamı"
   },
   {
    "id": "uzaktan_musteri_kabulu_var_mi",
@@ -191,7 +234,8 @@ const DATA = {
    "group": "Faaliyet kapsamı",
    "type": "yesno",
    "help": "Yüz yüze olmayan yöntemlerle hesap açılışı (mobil, video, e-imza).",
-   "scopeNote": "Hayır: D3 Dijital Kanal soruları ve uzaktan kabul risk faktörü kapsam dışına alınır."
+   "scopeNote": "Hayır: D3 Dijital Kanal soruları ve uzaktan kabul risk faktörü kapsam dışına alınır.",
+   "groupKey": "Faaliyet kapsamı"
   },
   {
    "id": "acente_temsilci_agi_var_mi",
@@ -199,7 +243,8 @@ const DATA = {
    "group": "Faaliyet kapsamı",
    "type": "yesno",
    "help": "Acente, temsilci veya dış hizmet sağlayıcı üzerinden müşteri kabulü ya da işlem.",
-   "scopeNote": "Hayır: D3 Aracılı Kanal ve D1 Dış Hizmet soruları ile acente risk faktörü kapsam dışına alınır."
+   "scopeNote": "Hayır: D3 Aracılı Kanal ve D1 Dış Hizmet soruları ile acente risk faktörü kapsam dışına alınır.",
+   "groupKey": "Faaliyet kapsamı"
   },
   {
    "id": "yurt_disi_sube_istirak_var_mi",
@@ -207,7 +252,8 @@ const DATA = {
    "group": "Faaliyet kapsamı",
    "type": "yesno",
    "help": "Yurt dışında şube, iştirak veya bağlı ortaklık.",
-   "scopeNote": "Hayır: grup düzeyi politika ve bilgi paylaşımı soruları için not düşün."
+   "scopeNote": "Hayır: grup düzeyi politika ve bilgi paylaşımı soruları için not düşün.",
+   "groupKey": "Faaliyet kapsamı"
   },
   {
    "id": "son_bagimsiz_aml_denetimi_tarihi",
@@ -215,7 +261,8 @@ const DATA = {
    "group": "Denetim ve model geçmişi",
    "type": "date",
    "help": "İç denetim veya dış inceleme raporunun tarihi. 24 aydan eskiyse D1 bağımsız denetim soruları için risk sinyalidir.",
-   "staleMonths": 24
+   "staleMonths": 24,
+   "groupKey": "Denetim ve model geçmişi"
   },
   {
    "id": "son_ewra_tarihi",
@@ -223,7 +270,8 @@ const DATA = {
    "group": "Denetim ve model geçmişi",
    "type": "date",
    "help": "Kurumsal risk değerlendirmesinin yönetim kurulunca onaylandığı tarih. Yılda bir güncellenmesi beklenir.",
-   "staleMonths": 12
+   "staleMonths": 12,
+   "groupKey": "Denetim ve model geçmişi"
   },
   {
    "id": "son_senaryo_tuning_tarihi",
@@ -231,7 +279,8 @@ const DATA = {
    "group": "Denetim ve model geçmişi",
    "type": "date",
    "help": "İzleme senaryo eşiklerinin en son kalibre edildiği tarih. D7 KPI'sını otomatik besler.",
-   "staleMonths": 12
+   "staleMonths": 12,
+   "groupKey": "Denetim ve model geçmişi"
   },
   {
    "id": "son_tarama_esigi_kalibrasyon_tarihi",
@@ -239,7 +288,8 @@ const DATA = {
    "group": "Denetim ve model geçmişi",
    "type": "date",
    "help": "Yaptırım tarama fuzzy eşiğinin en son kalibre edildiği tarih. D6 KPI'sını otomatik besler.",
-   "staleMonths": 12
+   "staleMonths": 12,
+   "groupKey": "Denetim ve model geçmişi"
   }
  ],
  "yesNoFields": [
@@ -274,7 +324,8 @@ const DATA = {
      15
     ],
     "label": "Yüksek riskli müşteri payı"
-   }
+   },
+   "dimKey": "Müşteri"
   },
   {
    "dim": "Müşteri",
@@ -299,7 +350,8 @@ const DATA = {
      3
     ],
     "label": "PEP müşteri payı"
-   }
+   },
+   "dimKey": "Müşteri"
   },
   {
    "dim": "Müşteri",
@@ -313,7 +365,8 @@ const DATA = {
     "%5–12",
     "%12–25",
     "%25'in üzerinde"
-   ]
+   ],
+   "dimKey": "Müşteri"
   },
   {
    "dim": "Müşteri",
@@ -327,7 +380,8 @@ const DATA = {
     "%5–15; bazı yapılar iki-üç katmanlı",
     "%15–30 veya offshore katman içeren yapılar",
     "%30'un üzerinde ya da gerçek faydalanıcı düzenli olarak üç ve üzeri katman ardında"
-   ]
+   ],
+   "dimKey": "Müşteri"
   },
   {
    "dim": "Müşteri",
@@ -341,7 +395,8 @@ const DATA = {
     "%5–15",
     "%15–30",
     "%30'un üzerinde"
-   ]
+   ],
+   "dimKey": "Müşteri"
   },
   {
    "dim": "Coğrafya ve Yaptırım",
@@ -355,7 +410,8 @@ const DATA = {
     "%1–5 gri liste ülkeleriyle düzenli iş",
     "%5–10 veya kara liste ülkesiyle teması olan akışlar",
     "%10'un üzerinde ya da kara liste ülkeleriyle düzenli iş"
-   ]
+   ],
+   "dimKey": "Coğrafya ve Yaptırım"
   },
   {
    "dim": "Coğrafya ve Yaptırım",
@@ -369,7 +425,8 @@ const DATA = {
     "Komşuluk var, ticaret sınırlı",
     "Düzenli ticaret veya belirgin transit riski",
     "Yoğun ticaret ve bilinen yaptırım kaçınma koridorunda faaliyet"
-   ]
+   ],
+   "dimKey": "Coğrafya ve Yaptırım"
   },
   {
    "dim": "Coğrafya ve Yaptırım",
@@ -383,7 +440,8 @@ const DATA = {
     "%1–5",
     "%5–10",
     "%10'un üzerinde"
-   ]
+   ],
+   "dimKey": "Coğrafya ve Yaptırım"
   },
   {
    "dim": "Coğrafya ve Yaptırım",
@@ -401,7 +459,8 @@ const DATA = {
    "scope": {
     "field": "muhabir_bankacilik_var_mi",
     "reason": "Muhabir bankacılık yok"
-   }
+   },
+   "dimKey": "Coğrafya ve Yaptırım"
   },
   {
    "dim": "Coğrafya ve Yaptırım",
@@ -426,7 +485,8 @@ const DATA = {
      50
     ],
     "label": "Sınır ötesi işlem payı"
-   }
+   },
+   "dimKey": "Coğrafya ve Yaptırım"
   },
   {
    "dim": "Ürün",
@@ -440,7 +500,8 @@ const DATA = {
     "%10–25",
     "%25–40",
     "%40'ın üzerinde"
-   ]
+   ],
+   "dimKey": "Ürün"
   },
   {
    "dim": "Ürün",
@@ -454,7 +515,8 @@ const DATA = {
     "Kayıtlı ürünler, orta seviye limitler",
     "Anonim yükleme mümkün veya limitler yüksek",
     "Anonim kullanım, yüksek limit ve sınır ötesi kabul bir arada"
-   ]
+   ],
+   "dimKey": "Ürün"
   },
   {
    "dim": "Ürün",
@@ -472,7 +534,8 @@ const DATA = {
    "scope": {
     "field": "trade_finance_faaliyeti_var_mi",
     "reason": "Trade finance faaliyeti yok"
-   }
+   },
+   "dimKey": "Ürün"
   },
   {
    "dim": "Ürün",
@@ -490,7 +553,8 @@ const DATA = {
    "scope": {
     "field": "sanal_varlik_faaliyeti_var_mi",
     "reason": "Sanal varlık faaliyeti yok"
-   }
+   },
+   "dimKey": "Ürün"
   },
   {
    "dim": "Ürün",
@@ -504,7 +568,8 @@ const DATA = {
     "%2–10",
     "%10–20",
     "%20'nin üzerinde veya ağırlıklı olarak sınır ötesi servet yönetimi"
-   ]
+   ],
+   "dimKey": "Ürün"
   },
   {
    "dim": "Kanal",
@@ -522,7 +587,8 @@ const DATA = {
    "scope": {
     "field": "uzaktan_musteri_kabulu_var_mi",
     "reason": "Uzaktan müşteri kabulü yok"
-   }
+   },
+   "dimKey": "Kanal"
   },
   {
    "dim": "Kanal",
@@ -540,7 +606,8 @@ const DATA = {
    "scope": {
     "field": "acente_temsilci_agi_var_mi",
     "reason": "Acente / temsilci ağı yok"
-   }
+   },
+   "dimKey": "Kanal"
   },
   {
    "dim": "Kanal",
@@ -554,7 +621,8 @@ const DATA = {
     "Birden çok entegrasyon; kontroller tanımlı",
     "Çok sayıda entegrasyon veya veri sahipliği belirsiz",
     "Kontrolsüz API erişimi; müşteri kaynağı izlenemiyor"
-   ]
+   ],
+   "dimKey": "Kanal"
   },
   {
    "dim": "Kanal",
@@ -568,7 +636,8 @@ const DATA = {
     "%10–25",
     "%25–40",
     "%40'ın üzerinde"
-   ]
+   ],
+   "dimKey": "Kanal"
   },
   {
    "dim": "Kanal",
@@ -582,7 +651,8 @@ const DATA = {
     "Orta düzeyde dolaylı erişim",
     "Nested erişim ihtimali var, tespit kontrolleri kısmi",
     "Nested / downstream ilişki tespit edilmiş"
-   ]
+   ],
+   "dimKey": "Kanal"
   },
   {
    "dim": "İşlem",
@@ -596,7 +666,8 @@ const DATA = {
     "Orta hacim, büyüme %10–25",
     "Yüksek hacim veya büyüme %25–50",
     "Çok yüksek hacim ya da %50'nin üzerinde, kontrol kapasitesini aşan büyüme"
-   ]
+   ],
+   "dimKey": "İşlem"
   },
   {
    "dim": "İşlem",
@@ -621,7 +692,8 @@ const DATA = {
      50
     ],
     "label": "Sınır ötesi işlem payı"
-   }
+   },
+   "dimKey": "İşlem"
   },
   {
    "dim": "İşlem",
@@ -635,7 +707,8 @@ const DATA = {
     "%10–20",
     "%20–35",
     "%35'in üzerinde"
-   ]
+   ],
+   "dimKey": "İşlem"
   },
   {
    "dim": "İşlem",
@@ -649,7 +722,8 @@ const DATA = {
     "Gerçek zamanlı ürünler var; kontrol kısmen işlem öncesi",
     "Ağırlıklı olarak gerçek zamanlı; kontrol işlem sonrası",
     "Anlık ve 7/24 ürünler; kontrol yalnızca işlem sonrası"
-   ]
+   ],
+   "dimKey": "İşlem"
   },
   {
    "dim": "İşlem",
@@ -663,7 +737,8 @@ const DATA = {
     "Gözlenebilir yoğunlaşma var",
     "Belirgin yoğunlaşma; structuring sinyali",
     "Sistematik eşik altı örüntü tespit edilmiş"
-   ]
+   ],
+   "dimKey": "İşlem"
   }
  ],
  "questions": [
@@ -678,7 +753,9 @@ const DATA = {
    "evidence": "Atama kararı, MASAK bildirim yazısı",
    "source": "MASAK Uyum Programı Yön. m.16-18",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Uyum Görevlisi",
+   "critKey": "Kritik"
   },
   {
    "id": "D1-02",
@@ -691,7 +768,9 @@ const DATA = {
    "evidence": "Organizasyon şeması, görev tanımı",
    "source": "FATF R.18; Uyum Programı Yön. m.17",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Uyum Görevlisi",
+   "critKey": "Kritik"
   },
   {
    "id": "D1-03",
@@ -704,7 +783,9 @@ const DATA = {
    "evidence": "Prosedür metni",
    "source": "Uyum Programı Yön. m.18",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Uyum Görevlisi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-04",
@@ -717,7 +798,9 @@ const DATA = {
    "evidence": "Görev tanımı, ikincil görev listesi",
    "source": "FATF R.18; Basel AML/CFT Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Uyum Görevlisi",
+   "critKey": "Kritik"
   },
   {
    "id": "D1-05",
@@ -730,7 +813,9 @@ const DATA = {
    "evidence": "Yetki matrisi",
    "source": "Uyum Programı Yön. m.17",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Uyum Görevlisi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-06",
@@ -743,7 +828,9 @@ const DATA = {
    "evidence": "YK kararı, bütçe onayı",
    "source": "Basel AML Guidelines, prensip 3",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kaynak ve Organizasyon",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-07",
@@ -756,7 +843,9 @@ const DATA = {
    "evidence": "Kapasite analizi dokümanı",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kaynak ve Organizasyon",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-08",
@@ -769,7 +858,9 @@ const DATA = {
    "evidence": "Süreklilik planı",
    "source": "Basel AML Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kaynak ve Organizasyon",
+   "critKey": "Orta"
   },
   {
    "id": "D1-09",
@@ -782,7 +873,9 @@ const DATA = {
    "evidence": "Uyum programı dokümanı",
    "source": "Uyum Programı Yön. m.4",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Uyum Programı",
+   "critKey": "Kritik"
   },
   {
    "id": "D1-10",
@@ -795,7 +888,9 @@ const DATA = {
    "evidence": "Onaylı politika, revizyon tarihi",
    "source": "Uyum Programı Yön. m.5-6",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Politika ve Prosedür",
+   "critKey": "Kritik"
   },
   {
    "id": "D1-11",
@@ -808,7 +903,9 @@ const DATA = {
    "evidence": "Doküman yönetim kaydı",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Politika ve Prosedür",
+   "critKey": "Orta"
   },
   {
    "id": "D1-12",
@@ -821,7 +918,9 @@ const DATA = {
    "evidence": "Grup politikası, yerel eklentiler",
    "source": "FATF R.18; AMLR 2024/1624",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Politika ve Prosedür",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-13",
@@ -834,7 +933,9 @@ const DATA = {
    "evidence": "Prosedür, çatışma kaydı",
    "source": "FATF R.18 IN",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Politika ve Prosedür",
+   "critKey": "Orta"
   },
   {
    "id": "D1-14",
@@ -847,7 +948,9 @@ const DATA = {
    "evidence": "Denetim planı, denetim raporu",
    "source": "FATF R.18; IIA Üç Savunma Hattı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Bağımsız Denetim",
+   "critKey": "Kritik"
   },
   {
    "id": "D1-15",
@@ -860,7 +963,9 @@ const DATA = {
    "evidence": "Bulgu takip listesi, re-test kaydı",
    "source": "IIA / iç kontrol standardı",
    "qa": true,
-   "pop": "Son 24 ayda kapatılan denetim bulguları"
+   "pop": "Son 24 ayda kapatılan denetim bulguları",
+   "sectionKey": "Bağımsız Denetim",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-16",
@@ -873,7 +978,9 @@ const DATA = {
    "evidence": "NPA formu, onay kaydı",
    "source": "FATF R.15",
    "qa": true,
-   "pop": "Son 12 ayda onaylanan yeni ürünler"
+   "pop": "Son 12 ayda onaylanan yeni ürünler",
+   "sectionKey": "Değişiklik Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-17",
@@ -886,7 +993,9 @@ const DATA = {
    "evidence": "Sözleşme örnekleri",
    "source": "FATF R.14, R.17",
    "qa": true,
-   "pop": "Aktif acente/dış hizmet sözleşmeleri"
+   "pop": "Aktif acente/dış hizmet sözleşmeleri",
+   "sectionKey": "Dış Hizmet ve Acente",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-18",
@@ -899,7 +1008,9 @@ const DATA = {
    "evidence": "Belge talep-yanıt kaydı",
    "source": "FATF R.17",
    "qa": true,
-   "pop": "Üçüncü taraf üzerinden açılan hesaplar"
+   "pop": "Üçüncü taraf üzerinden açılan hesaplar",
+   "sectionKey": "Dış Hizmet ve Acente",
+   "critKey": "Yüksek"
   },
   {
    "id": "D1-19",
@@ -912,7 +1023,9 @@ const DATA = {
    "evidence": "Disiplin yönetmeliği, uygulanan vakalar",
    "source": "Wolfsberg Culture Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kültür ve Sorumluluk",
+   "critKey": "Orta"
   },
   {
    "id": "D1-20",
@@ -925,7 +1038,9 @@ const DATA = {
    "evidence": "Kanal tanımı, kullanım istatistiği",
    "source": "AMLD/AMLR; FATF R.21",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kültür ve Sorumluluk",
+   "critKey": "Orta"
   },
   {
    "id": "D2-01",
@@ -938,7 +1053,9 @@ const DATA = {
    "evidence": "Risk dağılım raporu",
    "source": "FATF R.1",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Müşteri Tabanı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-02",
@@ -951,7 +1068,9 @@ const DATA = {
    "evidence": "Yönetim raporu",
    "source": "Basel AML Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Müşteri Tabanı",
+   "critKey": "Orta"
   },
   {
    "id": "D2-03",
@@ -964,7 +1083,9 @@ const DATA = {
    "evidence": "Risk modeli dokümanı",
    "source": "FATF R.1; EBA ML/TF Risk Factors GL",
    "qa": true,
-   "pop": "Yeni açılan tüzel kişi hesapları"
+   "pop": "Yeni açılan tüzel kişi hesapları",
+   "sectionKey": "Müşteri Tabanı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-04",
@@ -977,7 +1098,9 @@ const DATA = {
    "evidence": "Portföy tanımı, izleme senaryosu",
    "source": "FATF tipoloji raporları",
    "qa": true,
-   "pop": "Nakit yoğun sektör müşterileri"
+   "pop": "Nakit yoğun sektör müşterileri",
+   "sectionKey": "Müşteri Tabanı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-05",
@@ -990,7 +1113,9 @@ const DATA = {
    "evidence": "PEP listesi, sınıflandırma kuralı",
    "source": "FATF R.12; Tedbirler Yön. m.19",
    "qa": true,
-   "pop": "PEP müşteriler"
+   "pop": "PEP müşteriler",
+   "sectionKey": "PEP",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-06",
@@ -1003,7 +1128,9 @@ const DATA = {
    "evidence": "Tespit yöntemi, örnek dosya",
    "source": "FATF R.12 IN",
    "qa": true,
-   "pop": "PEP müşteriler"
+   "pop": "PEP müşteriler",
+   "sectionKey": "PEP",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-07",
@@ -1016,7 +1143,9 @@ const DATA = {
    "evidence": "Onay kayıtları",
    "source": "FATF R.12",
    "qa": true,
-   "pop": "Son 12 ayda açılan PEP hesapları"
+   "pop": "Son 12 ayda açılan PEP hesapları",
+   "sectionKey": "PEP",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-08",
@@ -1029,7 +1158,9 @@ const DATA = {
    "evidence": "Ülke risk metodolojisi",
    "source": "FATF R.19; AB Delege Tüzükleri",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Coğrafi Risk",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-09",
@@ -1042,7 +1173,9 @@ const DATA = {
    "evidence": "Metodoloji dokümanı, gösterge kaynakları",
    "source": "Basel AML Index, TI CPI",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Coğrafi Risk",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-10",
@@ -1055,7 +1188,9 @@ const DATA = {
    "evidence": "Güncelleme kaydı",
    "source": "FATF Plenary takvimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Coğrafi Risk",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-11",
@@ -1068,7 +1203,9 @@ const DATA = {
    "evidence": "Risk modeli alanları",
    "source": "EBA ML/TF Risk Factors GL",
    "qa": true,
-   "pop": "Sınır ötesi işlem yapan müşteriler"
+   "pop": "Sınır ötesi işlem yapan müşteriler",
+   "sectionKey": "Coğrafi Risk",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-12",
@@ -1081,7 +1218,9 @@ const DATA = {
    "evidence": "Sistem kuralı, örnek dosya",
    "source": "FATF R.19",
    "qa": true,
-   "pop": "Yüksek riskli ülke bağlantılı müşteriler"
+   "pop": "Yüksek riskli ülke bağlantılı müşteriler",
+   "sectionKey": "Coğrafi Risk",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-13",
@@ -1094,7 +1233,9 @@ const DATA = {
    "evidence": "Tamamlanmış CBDDQ dosyaları",
    "source": "FATF R.13; Wolfsberg CBDDQ",
    "qa": true,
-   "pop": "Aktif muhabir ilişkileri"
+   "pop": "Aktif muhabir ilişkileri",
+   "sectionKey": "Muhabir Bankacılık",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-14",
@@ -1107,7 +1248,9 @@ const DATA = {
    "evidence": "Onay kayıtları",
    "source": "FATF R.13",
    "qa": true,
-   "pop": "Son 24 ayda kurulan muhabir ilişkileri"
+   "pop": "Son 24 ayda kurulan muhabir ilişkileri",
+   "sectionKey": "Muhabir Bankacılık",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-15",
@@ -1120,7 +1263,9 @@ const DATA = {
    "evidence": "Tespit yöntemi, tespit edilen vakalar",
    "source": "FATF R.13 IN",
    "qa": true,
-   "pop": "Muhabir işlem akışları"
+   "pop": "Muhabir işlem akışları",
+   "sectionKey": "Muhabir Bankacılık",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-16",
@@ -1133,7 +1278,9 @@ const DATA = {
    "evidence": "Kontrol tanımı",
    "source": "FATF R.13",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Muhabir Bankacılık",
+   "critKey": "Kritik"
   },
   {
    "id": "D2-17",
@@ -1146,7 +1293,9 @@ const DATA = {
    "evidence": "Ülke-iştirak risk matrisi",
    "source": "FATF R.18",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Sınır Ötesi Yapı",
+   "critKey": "Orta"
   },
   {
    "id": "D2-18",
@@ -1159,7 +1308,9 @@ const DATA = {
    "evidence": "İşaretleme kuralı, müşteri listesi",
    "source": "FATF tipolojileri",
    "qa": true,
-   "pop": "Offshore yapılı müşteriler"
+   "pop": "Offshore yapılı müşteriler",
+   "sectionKey": "Sınır Ötesi Yapı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-19",
@@ -1172,7 +1323,9 @@ const DATA = {
    "evidence": "Yasaklı liste, sistem kontrolü",
    "source": "Risk iştahı beyanı",
    "qa": true,
-   "pop": "Reddedilen başvurular"
+   "pop": "Reddedilen başvurular",
+   "sectionKey": "Kabul Politikası",
+   "critKey": "Yüksek"
   },
   {
    "id": "D2-20",
@@ -1185,7 +1338,9 @@ const DATA = {
    "evidence": "Karşılaştırmalı analiz raporu",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Tutarlılık",
+   "critKey": "Orta"
   },
   {
    "id": "D3-01",
@@ -1198,7 +1353,9 @@ const DATA = {
    "evidence": "Ürün envanteri",
    "source": "FATF R.1",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Ürün Envanteri",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-02",
@@ -1211,7 +1368,9 @@ const DATA = {
    "evidence": "Ürün risk skor tablosu",
    "source": "FATF R.1; EWRA metodolojisi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Ürün Envanteri",
+   "critKey": "Kritik"
   },
   {
    "id": "D3-03",
@@ -1224,7 +1383,9 @@ const DATA = {
    "evidence": "Skorlama metodolojisi",
    "source": "EBA ML/TF Risk Factors GL",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Ürün Envanteri",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-04",
@@ -1237,7 +1398,9 @@ const DATA = {
    "evidence": "NPA formu",
    "source": "FATF R.15",
    "qa": true,
-   "pop": "Son 12 ayda onaylanan ürünler"
+   "pop": "Son 12 ayda onaylanan ürünler",
+   "sectionKey": "Ürün Envanteri",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-05",
@@ -1250,7 +1413,9 @@ const DATA = {
    "evidence": "Sistem konfigürasyonu, örnek kayıt",
    "source": "FATF Digital ID Guidance; Tedbirler Yön.",
    "qa": true,
-   "pop": "Uzaktan açılan hesaplar"
+   "pop": "Uzaktan açılan hesaplar",
+   "sectionKey": "Dijital Kanal",
+   "critKey": "Kritik"
   },
   {
    "id": "D3-06",
@@ -1263,7 +1428,9 @@ const DATA = {
    "evidence": "Tespit istatistikleri",
    "source": "FATF Digital ID Guidance",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Dijital Kanal",
+   "critKey": "Orta"
   },
   {
    "id": "D3-07",
@@ -1276,7 +1443,9 @@ const DATA = {
    "evidence": "Veri akış şeması",
    "source": "FATF R.16",
    "qa": true,
-   "pop": "Üçüncü taraf sağlayıcı işlemleri"
+   "pop": "Üçüncü taraf sağlayıcı işlemleri",
+   "sectionKey": "Dijital Kanal",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-08",
@@ -1289,7 +1458,9 @@ const DATA = {
    "evidence": "Senaryo listesi",
    "source": "FATF tipolojileri",
    "qa": true,
-   "pop": "Gözetimsiz kanal işlemleri"
+   "pop": "Gözetimsiz kanal işlemleri",
+   "sectionKey": "Dijital Kanal",
+   "critKey": "Orta"
   },
   {
    "id": "D3-09",
@@ -1302,7 +1473,9 @@ const DATA = {
    "evidence": "Limit tablosu",
    "source": "FATF R.15; e-para mevzuatı",
    "qa": true,
-   "pop": "Ön ödemeli ürün işlemleri"
+   "pop": "Ön ödemeli ürün işlemleri",
+   "sectionKey": "Nakit ve Ön Ödemeli",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-10",
@@ -1315,7 +1488,9 @@ const DATA = {
    "evidence": "Eşik tablosu",
    "source": "Tedbirler Yön. (kimlik tespiti eşikleri)",
    "qa": true,
-   "pop": "Eşik üstü nakit işlemler"
+   "pop": "Eşik üstü nakit işlemler",
+   "sectionKey": "Nakit ve Ön Ödemeli",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-11",
@@ -1328,7 +1503,9 @@ const DATA = {
    "evidence": "VASP müşteri listesi, risk kuralı",
    "source": "FATF R.15 IN",
    "qa": true,
-   "pop": "VASP müşterileri"
+   "pop": "VASP müşterileri",
+   "sectionKey": "Sanal Varlık",
+   "critKey": "Kritik"
   },
   {
    "id": "D3-12",
@@ -1341,7 +1518,9 @@ const DATA = {
    "evidence": "Sistem kaydı, örnek transfer",
    "source": "FATF R.16 IN",
    "qa": true,
-   "pop": "Sanal varlık transferleri"
+   "pop": "Sanal varlık transferleri",
+   "sectionKey": "Sanal Varlık",
+   "critKey": "Kritik"
   },
   {
    "id": "D3-13",
@@ -1354,7 +1533,9 @@ const DATA = {
    "evidence": "Kontrol tanımı",
    "source": "FATF VA Guidance",
    "qa": true,
-   "pop": "Unhosted cüzdan işlemleri"
+   "pop": "Unhosted cüzdan işlemleri",
+   "sectionKey": "Sanal Varlık",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-14",
@@ -1367,7 +1548,9 @@ const DATA = {
    "evidence": "Trade finance risk değerlendirmesi",
    "source": "FATF/Wolfsberg Trade Finance Principles",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Trade Finance",
+   "critKey": "Kritik"
   },
   {
    "id": "D3-15",
@@ -1380,7 +1563,9 @@ const DATA = {
    "evidence": "ISIN/enstrüman tarama kaydı",
    "source": "OFAC NS-MBS/SSI listeleri",
    "qa": true,
-   "pop": "Menkul kıymet işlemleri"
+   "pop": "Menkul kıymet işlemleri",
+   "sectionKey": "Yatırım ve Kambiyo",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-16",
@@ -1393,7 +1578,9 @@ const DATA = {
    "evidence": "Sistem kuralı, örnek işlem",
    "source": "Tedbirler Yön. m.5-6",
    "qa": true,
-   "pop": "Müşteri olmayan tek seferlik işlemler"
+   "pop": "Müşteri olmayan tek seferlik işlemler",
+   "sectionKey": "Yatırım ve Kambiyo",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-17",
@@ -1406,7 +1593,9 @@ const DATA = {
    "evidence": "Kanal bazlı izleme raporu",
    "source": "FATF R.14",
    "qa": true,
-   "pop": "Acente kanalı işlemleri"
+   "pop": "Acente kanalı işlemleri",
+   "sectionKey": "Aracılı Kanal",
+   "critKey": "Yüksek"
   },
   {
    "id": "D3-18",
@@ -1419,7 +1608,9 @@ const DATA = {
    "evidence": "Karar kaydı",
    "source": "Risk iştahı beyanı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Risk İştahı",
+   "critKey": "Orta"
   },
   {
    "id": "D4-01",
@@ -1432,7 +1623,9 @@ const DATA = {
    "evidence": "İşlem evreni dokümanı",
    "source": "Model risk yönetimi standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "İşlem Evreni",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-02",
@@ -1445,7 +1638,9 @@ const DATA = {
    "evidence": "Kapsam dışı listesi ve gerekçe",
    "source": "Model risk yönetimi standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "İşlem Evreni",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-03",
@@ -1458,7 +1653,9 @@ const DATA = {
    "evidence": "Kapsam raporu",
    "source": "FATF R.18",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "İşlem Evreni",
+   "critKey": "Yüksek"
   },
   {
    "id": "D4-04",
@@ -1471,7 +1668,9 @@ const DATA = {
    "evidence": "Mutabakat raporları",
    "source": "Veri yönetişimi standardı",
    "qa": true,
-   "pop": "Günlük mutabakat kayıtları"
+   "pop": "Günlük mutabakat kayıtları",
+   "sectionKey": "Mutabakat",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-05",
@@ -1484,7 +1683,9 @@ const DATA = {
    "evidence": "Prosedür, eskalasyon kayıtları",
    "source": "Veri yönetişimi standardı",
    "qa": true,
-   "pop": "Eşik aşan mutabakat farkları"
+   "pop": "Eşik aşan mutabakat farkları",
+   "sectionKey": "Mutabakat",
+   "critKey": "Yüksek"
   },
   {
    "id": "D4-06",
@@ -1497,7 +1698,9 @@ const DATA = {
    "evidence": "Hata logu, yeniden işleme kaydı",
    "source": "BT süreklilik standardı",
    "qa": true,
-   "pop": "Son 12 aydaki besleme hataları"
+   "pop": "Son 12 aydaki besleme hataları",
+   "sectionKey": "Mutabakat",
+   "critKey": "Yüksek"
   },
   {
    "id": "D4-07",
@@ -1510,7 +1713,9 @@ const DATA = {
    "evidence": "Veri kalitesi raporu",
    "source": "BCBS 239 prensipleri",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Veri Kalitesi",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-08",
@@ -1523,7 +1728,9 @@ const DATA = {
    "evidence": "Eşik tanımı",
    "source": "BCBS 239",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Veri Kalitesi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D4-09",
@@ -1536,7 +1743,9 @@ const DATA = {
    "evidence": "Yönetim raporu",
    "source": "BCBS 239",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Veri Kalitesi",
+   "critKey": "Orta"
   },
   {
    "id": "D4-10",
@@ -1549,7 +1758,9 @@ const DATA = {
    "evidence": "Referans veri güncelleme kaydı",
    "source": "Veri yönetişimi standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Veri Kalitesi",
+   "critKey": "Orta"
   },
   {
    "id": "D4-11",
@@ -1562,7 +1773,9 @@ const DATA = {
    "evidence": "Kur kaynağı tanımı",
    "source": "İç kontrol",
    "qa": true,
-   "pop": "Yabancı para işlemler"
+   "pop": "Yabancı para işlemler",
+   "sectionKey": "Veri Kalitesi",
+   "critKey": "Orta"
   },
   {
    "id": "D4-12",
@@ -1575,7 +1788,9 @@ const DATA = {
    "evidence": "Eşleştirme test raporu",
    "source": "Model doğrulama standardı",
    "qa": true,
-   "pop": "Müşteri-işlem eşleşme örneklemi"
+   "pop": "Müşteri-işlem eşleşme örneklemi",
+   "sectionKey": "Bağlantı ve Bütünlük",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-13",
@@ -1588,7 +1803,9 @@ const DATA = {
    "evidence": "Kontrol kuralı, istisna raporu",
    "source": "FATF R.16",
    "qa": true,
-   "pop": "Giden/gelen elektronik transferler"
+   "pop": "Giden/gelen elektronik transferler",
+   "sectionKey": "Transfer Bilgisi",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-14",
@@ -1601,7 +1818,9 @@ const DATA = {
    "evidence": "İşlem kararı kayıtları",
    "source": "FATF R.16 IN",
    "qa": true,
-   "pop": "Eksik bilgili transferler"
+   "pop": "Eksik bilgili transferler",
+   "sectionKey": "Transfer Bilgisi",
+   "critKey": "Kritik"
   },
   {
    "id": "D4-15",
@@ -1614,7 +1833,9 @@ const DATA = {
    "evidence": "Saklama politikası, arşiv testi",
    "source": "FATF R.11; 5549 s.K. m.8",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Saklama",
+   "critKey": "Yüksek"
   },
   {
    "id": "D4-16",
@@ -1627,7 +1848,9 @@ const DATA = {
    "evidence": "Test raporu",
    "source": "Değişiklik yönetimi standardı",
    "qa": true,
-   "pop": "Son 24 aydaki değişiklikler"
+   "pop": "Son 24 aydaki değişiklikler",
+   "sectionKey": "Değişiklik Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D4-17",
@@ -1640,7 +1863,9 @@ const DATA = {
    "evidence": "Test ortamı tanımı",
    "source": "Model doğrulama standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Test Ortamı",
+   "critKey": "Orta"
   },
   {
    "id": "D4-18",
@@ -1653,7 +1878,9 @@ const DATA = {
    "evidence": "Yetki matrisi, erişim logu",
    "source": "Bilgi güvenliği standardı",
    "qa": true,
-   "pop": "Yetkili kullanıcı örneklemi"
+   "pop": "Yetkili kullanıcı örneklemi",
+   "sectionKey": "Erişim",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-01",
@@ -1666,7 +1893,9 @@ const DATA = {
    "evidence": "Prosedür, örnek dosyalar",
    "source": "FATF R.10; Tedbirler Yön. m.6-12",
    "qa": true,
-   "pop": "Yeni açılan hesaplar"
+   "pop": "Yeni açılan hesaplar",
+   "sectionKey": "Kimlik Tespiti",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-02",
@@ -1679,7 +1908,9 @@ const DATA = {
    "evidence": "Doğrulama kayıtları (NVİ, MERSİS, sicil)",
    "source": "FATF R.10",
    "qa": true,
-   "pop": "Yeni açılan hesaplar"
+   "pop": "Yeni açılan hesaplar",
+   "sectionKey": "Kimlik Tespiti",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-03",
@@ -1692,7 +1923,9 @@ const DATA = {
    "evidence": "Vekaletname, imza sirküleri",
    "source": "Tedbirler Yön. m.14",
    "qa": true,
-   "pop": "Vekil/temsilci ile açılan hesaplar"
+   "pop": "Vekil/temsilci ile açılan hesaplar",
+   "sectionKey": "Kimlik Tespiti",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-04",
@@ -1705,7 +1938,9 @@ const DATA = {
    "evidence": "Sistem kontrolü, istisna listesi",
    "source": "FATF R.10",
    "qa": true,
-   "pop": "Yeni açılan hesaplar"
+   "pop": "Yeni açılan hesaplar",
+   "sectionKey": "Kimlik Tespiti",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-05",
@@ -1718,7 +1953,9 @@ const DATA = {
    "evidence": "Kabul politikası",
    "source": "Basel AML Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Müşteri Kabul",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-06",
@@ -1731,7 +1968,9 @@ const DATA = {
    "evidence": "Onay kayıtları",
    "source": "FATF R.10, R.12",
    "qa": true,
-   "pop": "Yüksek riskli yeni müşteriler"
+   "pop": "Yüksek riskli yeni müşteriler",
+   "sectionKey": "Müşteri Kabul",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-07",
@@ -1744,7 +1983,9 @@ const DATA = {
    "evidence": "Sahiplik şeması, tespit dosyası",
    "source": "FATF R.24-25; Tedbirler Yön. m.12",
    "qa": true,
-   "pop": "Tüzel kişi müşteriler"
+   "pop": "Tüzel kişi müşteriler",
+   "sectionKey": "Gerçek Faydalanıcı",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-08",
@@ -1757,7 +1998,9 @@ const DATA = {
    "evidence": "Gerekçe kayıtları",
    "source": "FATF R.10 IN",
    "qa": true,
-   "pop": "Üst düzey yönetici uygulanan dosyalar"
+   "pop": "Üst düzey yönetici uygulanan dosyalar",
+   "sectionKey": "Gerçek Faydalanıcı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-09",
@@ -1770,7 +2013,9 @@ const DATA = {
    "evidence": "Ek kontrol prosedürü, örnek dosya",
    "source": "FATF R.24-25",
    "qa": true,
-   "pop": "Karmaşık yapılı müşteriler"
+   "pop": "Karmaşık yapılı müşteriler",
+   "sectionKey": "Gerçek Faydalanıcı",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-10",
@@ -1783,7 +2028,9 @@ const DATA = {
    "evidence": "Karşılaştırma kaydı, tutarsızlık raporu",
    "source": "AMLD5 m.30(4); AMLR 2024/1624",
    "qa": true,
-   "pop": "Tüzel kişi müşteriler"
+   "pop": "Tüzel kişi müşteriler",
+   "sectionKey": "Gerçek Faydalanıcı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-11",
@@ -1796,7 +2043,9 @@ const DATA = {
    "evidence": "Model dokümanı, onay kaydı",
    "source": "FATF R.1",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Risk Derecelendirme",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-12",
@@ -1809,7 +2058,9 @@ const DATA = {
    "evidence": "Validasyon raporu",
    "source": "Model risk yönetimi (SR 11-7 benzeri)",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Risk Derecelendirme",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-13",
@@ -1822,7 +2073,9 @@ const DATA = {
    "evidence": "Override kayıtları",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Risk skoru override edilen müşteriler"
+   "pop": "Risk skoru override edilen müşteriler",
+   "sectionKey": "Risk Derecelendirme",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-14",
@@ -1835,7 +2088,9 @@ const DATA = {
    "evidence": "Override istatistikleri",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Risk Derecelendirme",
+   "critKey": "Orta"
   },
   {
    "id": "D5-15",
@@ -1848,7 +2103,9 @@ const DATA = {
    "evidence": "Tetikleyici kural, örnek vaka",
    "source": "FATF R.10",
    "qa": true,
-   "pop": "Tetikleyici olay yaşanan müşteriler"
+   "pop": "Tetikleyici olay yaşanan müşteriler",
+   "sectionKey": "Risk Derecelendirme",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-16",
@@ -1861,7 +2118,9 @@ const DATA = {
    "evidence": "EDD prosedürü",
    "source": "FATF R.10, R.12, R.19",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "EDD",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-17",
@@ -1874,7 +2133,9 @@ const DATA = {
    "evidence": "SoF belgeleri",
    "source": "FATF R.12",
    "qa": true,
-   "pop": "EDD dosyaları"
+   "pop": "EDD dosyaları",
+   "sectionKey": "EDD",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-18",
@@ -1887,7 +2148,9 @@ const DATA = {
    "evidence": "SoW dosyası",
    "source": "FATF R.12",
    "qa": true,
-   "pop": "EDD dosyaları"
+   "pop": "EDD dosyaları",
+   "sectionKey": "EDD",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-19",
@@ -1900,7 +2163,9 @@ const DATA = {
    "evidence": "Tarama kayıtları",
    "source": "FATF R.10 IN",
    "qa": true,
-   "pop": "Yüksek riskli müşteriler"
+   "pop": "Yüksek riskli müşteriler",
+   "sectionKey": "EDD",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-20",
@@ -1913,7 +2178,9 @@ const DATA = {
    "evidence": "Onay kayıtları",
    "source": "FATF R.12",
    "qa": true,
-   "pop": "EDD dosyaları"
+   "pop": "EDD dosyaları",
+   "sectionKey": "EDD",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-21",
@@ -1926,7 +2193,9 @@ const DATA = {
    "evidence": "Frekans tablosu",
    "source": "FATF R.10 IN",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Periyodik Gözden Geçirme",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-22",
@@ -1939,7 +2208,9 @@ const DATA = {
    "evidence": "Yaşlandırma raporu",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Periyodik Gözden Geçirme",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-23",
@@ -1952,7 +2223,9 @@ const DATA = {
    "evidence": "Kısıtlama kayıtları",
    "source": "FATF R.10",
    "qa": true,
-   "pop": "Gecikmiş KYC dosyaları"
+   "pop": "Gecikmiş KYC dosyaları",
+   "sectionKey": "Periyodik Gözden Geçirme",
+   "critKey": "Yüksek"
   },
   {
    "id": "D5-24",
@@ -1965,7 +2238,9 @@ const DATA = {
    "evidence": "Profil-davranış analiz raporu",
    "source": "FATF R.10(d)",
    "qa": true,
-   "pop": "Profil sapması olan müşteriler"
+   "pop": "Profil sapması olan müşteriler",
+   "sectionKey": "Sürekli İzleme",
+   "critKey": "Kritik"
   },
   {
    "id": "D5-25",
@@ -1978,7 +2253,9 @@ const DATA = {
    "evidence": "Senaryo tanımı",
    "source": "FATF tipolojileri",
    "qa": true,
-   "pop": "Yeniden aktifleşen hesaplar"
+   "pop": "Yeniden aktifleşen hesaplar",
+   "sectionKey": "Sürekli İzleme",
+   "critKey": "Orta"
   },
   {
    "id": "D5-26",
@@ -1991,7 +2268,9 @@ const DATA = {
    "evidence": "QA test raporu",
    "source": "QA programı",
    "qa": true,
-   "pop": "Tüm müşteri dosyaları"
+   "pop": "Tüm müşteri dosyaları",
+   "sectionKey": "Kalite Kontrol",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-01",
@@ -2004,7 +2283,9 @@ const DATA = {
    "evidence": "Liste envanteri",
    "source": "FATF R.6-7; 7262 s.K.",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Liste Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-02",
@@ -2017,7 +2298,9 @@ const DATA = {
    "evidence": "SLA tanımı, güncelleme logları",
    "source": "FATF R.6 IN ('gecikmeksizin')",
    "qa": true,
-   "pop": "Son 12 aydaki liste güncellemeleri"
+   "pop": "Son 12 aydaki liste güncellemeleri",
+   "sectionKey": "Liste Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-03",
@@ -2030,7 +2313,9 @@ const DATA = {
    "evidence": "Rescreening logları",
    "source": "FATF R.6",
    "qa": true,
-   "pop": "Liste güncelleme olayları"
+   "pop": "Liste güncelleme olayları",
+   "sectionKey": "Liste Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-04",
@@ -2043,7 +2328,9 @@ const DATA = {
    "evidence": "Karar uygulama kayıtları",
    "source": "7262 s.K.; MASAK tebliğleri",
    "qa": true,
-   "pop": "Ulusal dondurma kararları"
+   "pop": "Ulusal dondurma kararları",
+   "sectionKey": "Liste Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-05",
@@ -2056,7 +2343,9 @@ const DATA = {
    "evidence": "Kapsam matrisi",
    "source": "FATF R.6-7",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Liste Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-06",
@@ -2069,7 +2358,9 @@ const DATA = {
    "evidence": "Tarama yöntemi, tespit edilen vakalar",
    "source": "OFAC 50 Percent Rule; AB Best Practices",
    "qa": true,
-   "pop": "Tüzel kişi müşteriler"
+   "pop": "Tüzel kişi müşteriler",
+   "sectionKey": "Sahiplik ve Kontrol",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-07",
@@ -2082,7 +2373,9 @@ const DATA = {
    "evidence": "Veri kaynağı sözleşmesi/kapsamı",
    "source": "OFAC 50 Percent Rule",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Sahiplik ve Kontrol",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-08",
@@ -2095,7 +2388,9 @@ const DATA = {
    "evidence": "Değerlendirme kaydı",
    "source": "AB Konsey Kılavuzu; OFSI Guidance",
    "qa": true,
-   "pop": "Yüksek riskli tüzel kişiler"
+   "pop": "Yüksek riskli tüzel kişiler",
+   "sectionKey": "Sahiplik ve Kontrol",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-09",
@@ -2108,7 +2403,9 @@ const DATA = {
    "evidence": "Kontrol tanımı",
    "source": "AB 2021/821; ihracat kontrol rejimleri",
    "qa": true,
-   "pop": "Trade finance işlemleri"
+   "pop": "Trade finance işlemleri",
+   "sectionKey": "Kapsam",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-10",
@@ -2121,7 +2418,9 @@ const DATA = {
    "evidence": "Kalibrasyon raporu",
    "source": "Model doğrulama standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Tarama Motoru",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-11",
@@ -2134,7 +2433,9 @@ const DATA = {
    "evidence": "Son kalibrasyon tarihi",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Tarama Motoru",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-12",
@@ -2147,7 +2448,9 @@ const DATA = {
    "evidence": "Test sonuçları",
    "source": "OFAC SDN_ADVANCED yapısı",
    "qa": true,
-   "pop": "Bilinen isim varyasyon testleri"
+   "pop": "Bilinen isim varyasyon testleri",
+   "sectionKey": "Tarama Motoru",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-13",
@@ -2160,7 +2463,9 @@ const DATA = {
    "evidence": "Kapsam dokümanı",
    "source": "FATF R.6",
    "qa": true,
-   "pop": "Müşteri ve karşı taraf örneklemi"
+   "pop": "Müşteri ve karşı taraf örneklemi",
+   "sectionKey": "Tarama Motoru",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-14",
@@ -2173,7 +2478,9 @@ const DATA = {
    "evidence": "Sistem mimarisi, örnek durdurma",
    "source": "FATF R.6",
    "qa": true,
-   "pop": "Giden ödeme işlemleri"
+   "pop": "Giden ödeme işlemleri",
+   "sectionKey": "İşlem Taraması",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-15",
@@ -2186,7 +2493,9 @@ const DATA = {
    "evidence": "Alan eşleme dokümanı",
    "source": "ISO 20022 / SWIFT MT alan yapısı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "İşlem Taraması",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-16",
@@ -2199,7 +2508,9 @@ const DATA = {
    "evidence": "Konfigürasyon kaydı",
    "source": "Wolfsberg Sanctions Screening Guidance",
    "qa": true,
-   "pop": "Serbest metin içeren ödemeler"
+   "pop": "Serbest metin içeren ödemeler",
+   "sectionKey": "İşlem Taraması",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-17",
@@ -2212,7 +2523,9 @@ const DATA = {
    "evidence": "Tarama kayıtları, örnek dosya",
    "source": "Wolfsberg Trade Finance Principles",
    "qa": true,
-   "pop": "Akreditif/tahsilat dosyaları"
+   "pop": "Akreditif/tahsilat dosyaları",
+   "sectionKey": "Trade Finance",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-18",
@@ -2225,7 +2538,9 @@ const DATA = {
    "evidence": "Kontrol kayıtları",
    "source": "İhracat kontrol rejimleri",
    "qa": true,
-   "pop": "Trade finance dosyaları"
+   "pop": "Trade finance dosyaları",
+   "sectionKey": "Trade Finance",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-19",
@@ -2238,7 +2553,9 @@ const DATA = {
    "evidence": "İzleme kaynağı, tespit vakaları",
    "source": "OFAC Maritime Advisory",
    "qa": true,
-   "pop": "Deniz taşımacılığı dosyaları"
+   "pop": "Deniz taşımacılığı dosyaları",
+   "sectionKey": "Trade Finance",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-20",
@@ -2251,7 +2568,9 @@ const DATA = {
    "evidence": "Karar kayıtları",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Kapatılan yaptırım alertleri"
+   "pop": "Kapatılan yaptırım alertleri",
+   "sectionKey": "Alert Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-21",
@@ -2264,7 +2583,9 @@ const DATA = {
    "evidence": "Sistem kuralı, ihlal raporu",
    "source": "Görevler ayrılığı ilkesi",
    "qa": true,
-   "pop": "Kapatılan yaptırım alertleri"
+   "pop": "Kapatılan yaptırım alertleri",
+   "sectionKey": "Alert Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-22",
@@ -2277,7 +2598,9 @@ const DATA = {
    "evidence": "Audit trail örneği",
    "source": "Denetlenebilirlik standardı",
    "qa": true,
-   "pop": "Kapatılan yaptırım alertleri"
+   "pop": "Kapatılan yaptırım alertleri",
+   "sectionKey": "Alert Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-23",
@@ -2290,7 +2613,9 @@ const DATA = {
    "evidence": "Prosedür, uygulanan vakalar",
    "source": "FATF R.6",
    "qa": true,
-   "pop": "True match vakaları"
+   "pop": "True match vakaları",
+   "sectionKey": "Alert Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-24",
@@ -2303,7 +2628,9 @@ const DATA = {
    "evidence": "Yaşlandırma raporu",
    "source": "İç raporlama",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Alert Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D6-25",
@@ -2316,7 +2643,9 @@ const DATA = {
    "evidence": "Test raporu (bilinen isim seti)",
    "source": "Model doğrulama standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Test ve Süreklilik",
+   "critKey": "Kritik"
   },
   {
    "id": "D6-26",
@@ -2329,7 +2658,9 @@ const DATA = {
    "evidence": "Prosedür, kesinti kayıtları",
    "source": "İş sürekliliği standardı",
    "qa": true,
-   "pop": "Kesinti dönemleri"
+   "pop": "Kesinti dönemleri",
+   "sectionKey": "Test ve Süreklilik",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-01",
@@ -2342,7 +2673,9 @@ const DATA = {
    "evidence": "Senaryo-tipoloji matrisi",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Senaryo Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-02",
@@ -2355,7 +2688,9 @@ const DATA = {
    "evidence": "Kapsam analizi raporu",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Senaryo Yönetimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-03",
@@ -2368,7 +2703,9 @@ const DATA = {
    "evidence": "Gap listesi",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Senaryo Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-04",
@@ -2381,7 +2718,9 @@ const DATA = {
    "evidence": "Değişiklik kayıtları",
    "source": "Değişiklik yönetimi standardı",
    "qa": true,
-   "pop": "Son 12 aydaki senaryo değişiklikleri"
+   "pop": "Son 12 aydaki senaryo değişiklikleri",
+   "sectionKey": "Senaryo Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-05",
@@ -2394,7 +2733,9 @@ const DATA = {
    "evidence": "Test raporları",
    "source": "Model doğrulama standardı",
    "qa": true,
-   "pop": "Devreye alınan senaryolar"
+   "pop": "Devreye alınan senaryolar",
+   "sectionKey": "Senaryo Yönetimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-06",
@@ -2407,7 +2748,9 @@ const DATA = {
    "evidence": "Eşik belirleme çalışması",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Eşik ve Kalibrasyon",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-07",
@@ -2420,7 +2763,9 @@ const DATA = {
    "evidence": "Tuning raporu",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Eşik ve Kalibrasyon",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-08",
@@ -2433,7 +2778,9 @@ const DATA = {
    "evidence": "BTL test raporu",
    "source": "Model doğrulama standardı",
    "qa": true,
-   "pop": "Eşik altı işlem örneklemi"
+   "pop": "Eşik altı işlem örneklemi",
+   "sectionKey": "Eşik ve Kalibrasyon",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-09",
@@ -2446,7 +2793,9 @@ const DATA = {
    "evidence": "ATL analiz raporu",
    "source": "Model doğrulama standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Eşik ve Kalibrasyon",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-10",
@@ -2459,7 +2808,9 @@ const DATA = {
    "evidence": "Segmentasyon dokümanı",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Eşik ve Kalibrasyon",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-11",
@@ -2472,7 +2823,9 @@ const DATA = {
    "evidence": "Validasyon raporu",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Model Validasyon",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-12",
@@ -2485,7 +2838,9 @@ const DATA = {
    "evidence": "Bulgu takip listesi",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Açık validasyon bulguları"
+   "pop": "Açık validasyon bulguları",
+   "sectionKey": "Model Validasyon",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-13",
@@ -2498,7 +2853,9 @@ const DATA = {
    "evidence": "Kapasite raporu",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-14",
@@ -2511,7 +2868,9 @@ const DATA = {
    "evidence": "Backlog raporu",
    "source": "İç raporlama",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-15",
@@ -2524,7 +2883,9 @@ const DATA = {
    "evidence": "SLA tanımı, ölçüm raporu",
    "source": "İç raporlama",
    "qa": true,
-   "pop": "Kapatılan izleme alertleri"
+   "pop": "Kapatılan izleme alertleri",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-16",
@@ -2537,7 +2898,9 @@ const DATA = {
    "evidence": "Kod seti, dağılım raporu",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Kapatılan izleme alertleri"
+   "pop": "Kapatılan izleme alertleri",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-17",
@@ -2550,7 +2913,9 @@ const DATA = {
    "evidence": "Sistem kuralı, onay kayıtları",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Toplu kapatma vakaları"
+   "pop": "Toplu kapatma vakaları",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-18",
@@ -2563,7 +2928,9 @@ const DATA = {
    "evidence": "Vaka birleştirme kaydı",
    "source": "İnceleme prosedürü",
    "qa": true,
-   "pop": "Tekrarlayan alertli müşteriler"
+   "pop": "Tekrarlayan alertli müşteriler",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-19",
@@ -2576,7 +2943,9 @@ const DATA = {
    "evidence": "Araç kullanım kaydı",
    "source": "FATF tipoloji rehberleri",
    "qa": true,
-   "pop": "Karmaşık vakalar"
+   "pop": "Karmaşık vakalar",
+   "sectionKey": "Alert Operasyonu",
+   "critKey": "Orta"
   },
   {
    "id": "D7-20",
@@ -2589,7 +2958,9 @@ const DATA = {
    "evidence": "Dönüşüm oranı raporu",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etkinlik Ölçümü",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-21",
@@ -2602,7 +2973,9 @@ const DATA = {
    "evidence": "Senaryo performans raporu",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etkinlik Ölçümü",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-22",
@@ -2615,7 +2988,9 @@ const DATA = {
    "evidence": "QA test raporu",
    "source": "QA programı",
    "qa": true,
-   "pop": "Kapatılan alert ve vakalar"
+   "pop": "Kapatılan alert ve vakalar",
+   "sectionKey": "Kalite Kontrol",
+   "critKey": "Kritik"
   },
   {
    "id": "D7-23",
@@ -2628,7 +3003,9 @@ const DATA = {
    "evidence": "Geri bildirim kayıtları",
    "source": "QA programı",
    "qa": true,
-   "pop": "QA hatası tespit edilen dosyalar"
+   "pop": "QA hatası tespit edilen dosyalar",
+   "sectionKey": "Kalite Kontrol",
+   "critKey": "Yüksek"
   },
   {
    "id": "D7-24",
@@ -2641,7 +3018,9 @@ const DATA = {
    "evidence": "Kesinti ve telafi kaydı",
    "source": "İş sürekliliği standardı",
    "qa": true,
-   "pop": "Kesinti dönemleri"
+   "pop": "Kesinti dönemleri",
+   "sectionKey": "Süreklilik",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-01",
@@ -2654,7 +3033,9 @@ const DATA = {
    "evidence": "Prosedür dokümanı",
    "source": "5549 s.K. m.4; Tedbirler Yön.",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "ŞİB Süreci",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-02",
@@ -2667,7 +3048,9 @@ const DATA = {
    "evidence": "Süre ölçüm raporu",
    "source": "5549 s.K.; MASAK tebliğleri",
    "qa": true,
-   "pop": "Verilen ŞİB dosyaları"
+   "pop": "Verilen ŞİB dosyaları",
+   "sectionKey": "ŞİB Süreci",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-03",
@@ -2680,7 +3063,9 @@ const DATA = {
    "evidence": "Gecikme analizi",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Gecikmiş ŞİB dosyaları"
+   "pop": "Gecikmiş ŞİB dosyaları",
+   "sectionKey": "ŞİB Süreci",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-04",
@@ -2693,7 +3078,9 @@ const DATA = {
    "evidence": "Karar kayıtları",
    "source": "FATF R.20; denetlenebilirlik",
    "qa": true,
-   "pop": "ŞİB verilmeyen kapatılmış vakalar"
+   "pop": "ŞİB verilmeyen kapatılmış vakalar",
+   "sectionKey": "ŞİB Süreci",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-05",
@@ -2706,7 +3093,9 @@ const DATA = {
    "evidence": "Narratif örnekleri",
    "source": "FATF R.20; FIU rehberleri",
    "qa": true,
-   "pop": "Verilen ŞİB dosyaları"
+   "pop": "Verilen ŞİB dosyaları",
+   "sectionKey": "ŞİB Kalitesi",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-06",
@@ -2719,7 +3108,9 @@ const DATA = {
    "evidence": "Şablon, QA raporu",
    "source": "QA programı",
    "qa": true,
-   "pop": "Verilen ŞİB dosyaları"
+   "pop": "Verilen ŞİB dosyaları",
+   "sectionKey": "ŞİB Kalitesi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-07",
@@ -2732,7 +3123,9 @@ const DATA = {
    "evidence": "İzleme kaydı",
    "source": "FATF R.10 IN",
    "qa": true,
-   "pop": "ŞİB verilen müşteriler"
+   "pop": "ŞİB verilen müşteriler",
+   "sectionKey": "ŞİB Kalitesi",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-08",
@@ -2745,7 +3138,9 @@ const DATA = {
    "evidence": "Değerlendirme kaydı",
    "source": "Risk iştahı beyanı",
    "qa": true,
-   "pop": "Birden fazla ŞİB verilen müşteriler"
+   "pop": "Birden fazla ŞİB verilen müşteriler",
+   "sectionKey": "ŞİB Kalitesi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-09",
@@ -2758,7 +3153,9 @@ const DATA = {
    "evidence": "Prosedür, eğitim kaydı",
    "source": "5549 s.K. m.5; FATF R.21",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Gizlilik",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-10",
@@ -2771,7 +3168,9 @@ const DATA = {
    "evidence": "Yetki listesi, erişim logu",
    "source": "Gizlilik yükümlülüğü",
    "qa": true,
-   "pop": "Erişim logu örneklemi"
+   "pop": "Erişim logu örneklemi",
+   "sectionKey": "Gizlilik",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-11",
@@ -2784,7 +3183,9 @@ const DATA = {
    "evidence": "Uygulama zaman damgaları",
    "source": "FATF R.6; 7262 s.K.",
    "qa": true,
-   "pop": "Dondurma kararları"
+   "pop": "Dondurma kararları",
+   "sectionKey": "Dondurma",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-12",
@@ -2797,7 +3198,9 @@ const DATA = {
    "evidence": "Bildirim yazıları",
    "source": "7262 s.K.",
    "qa": true,
-   "pop": "Dondurma vakaları"
+   "pop": "Dondurma vakaları",
+   "sectionKey": "Dondurma",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-13",
@@ -2810,7 +3213,9 @@ const DATA = {
    "evidence": "Varlık envanteri",
    "source": "7262 s.K.",
    "qa": true,
-   "pop": "Dondurulan hesaplar"
+   "pop": "Dondurulan hesaplar",
+   "sectionKey": "Dondurma",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-14",
@@ -2823,7 +3228,9 @@ const DATA = {
    "evidence": "Prosedür, uygulama kayıtları",
    "source": "FATF R.6 IN",
    "qa": true,
-   "pop": "Kaldırma vakaları"
+   "pop": "Kaldırma vakaları",
+   "sectionKey": "Dondurma",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-15",
@@ -2836,7 +3243,9 @@ const DATA = {
    "evidence": "Talep ve onay kayıtları",
    "source": "BM 1452 sayılı Karar; 7262 s.K.",
    "qa": true,
-   "pop": "İstisna talepleri"
+   "pop": "İstisna talepleri",
+   "sectionKey": "Dondurma",
+   "critKey": "Orta"
   },
   {
    "id": "D8-16",
@@ -2849,7 +3258,9 @@ const DATA = {
    "evidence": "Exit politikası",
    "source": "Risk iştahı beyanı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Müşteri Çıkışı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-17",
@@ -2862,7 +3273,9 @@ const DATA = {
    "evidence": "Komite tutanakları",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Exit kararları"
+   "pop": "Exit kararları",
+   "sectionKey": "Müşteri Çıkışı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-18",
@@ -2875,7 +3288,9 @@ const DATA = {
    "evidence": "Değerlendirme kaydı",
    "source": "FATF R.20",
    "qa": true,
-   "pop": "Exit kararları"
+   "pop": "Exit kararları",
+   "sectionKey": "Müşteri Çıkışı",
+   "critKey": "Kritik"
   },
   {
    "id": "D8-19",
@@ -2888,7 +3303,9 @@ const DATA = {
    "evidence": "Etki analizi",
    "source": "FATF De-risking Guidance",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Müşteri Çıkışı",
+   "critKey": "Orta"
   },
   {
    "id": "D8-20",
@@ -2901,7 +3318,9 @@ const DATA = {
    "evidence": "İade işlem kayıtları",
    "source": "FATF tipolojileri",
    "qa": true,
-   "pop": "Exit sonrası iade işlemleri"
+   "pop": "Exit sonrası iade işlemleri",
+   "sectionKey": "Müşteri Çıkışı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D8-21",
@@ -2914,7 +3333,9 @@ const DATA = {
    "evidence": "Red listesi, kontrol kuralı",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Reddedilen başvurular"
+   "pop": "Reddedilen başvurular",
+   "sectionKey": "Müşteri Çıkışı",
+   "critKey": "Orta"
   },
   {
    "id": "D8-22",
@@ -2927,7 +3348,9 @@ const DATA = {
    "evidence": "Yönetim raporu",
    "source": "Uyum Programı Yön.",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Raporlama",
+   "critKey": "Orta"
   },
   {
    "id": "D9-01",
@@ -2940,7 +3363,9 @@ const DATA = {
    "evidence": "Bulgu takip listesi",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Denetim Bulguları",
+   "critKey": "Yüksek"
   },
   {
    "id": "D9-02",
@@ -2953,7 +3378,9 @@ const DATA = {
    "evidence": "Re-test raporları",
    "source": "İç denetim standardı",
    "qa": true,
-   "pop": "Kapatılan bulgular"
+   "pop": "Kapatılan bulgular",
+   "sectionKey": "Denetim Bulguları",
+   "critKey": "Kritik"
   },
   {
    "id": "D9-03",
@@ -2966,7 +3393,9 @@ const DATA = {
    "evidence": "Kök neden analizi",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Denetim Bulguları",
+   "critKey": "Yüksek"
   },
   {
    "id": "D9-04",
@@ -2979,7 +3408,9 @@ const DATA = {
    "evidence": "Tekrar bulgu raporu",
    "source": "İç denetim standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Denetim Bulguları",
+   "critKey": "Yüksek"
   },
   {
    "id": "D9-05",
@@ -2992,7 +3423,9 @@ const DATA = {
    "evidence": "Yazışma arşivi",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Düzenleyici İletişim",
+   "critKey": "Orta"
   },
   {
    "id": "D9-06",
@@ -3005,7 +3438,9 @@ const DATA = {
    "evidence": "Prosedür, SLA tanımı",
    "source": "5549 s.K. m.7",
    "qa": true,
-   "pop": "Alınan bilgi talepleri"
+   "pop": "Alınan bilgi talepleri",
+   "sectionKey": "Kolluk Talepleri",
+   "critKey": "Kritik"
   },
   {
    "id": "D9-07",
@@ -3018,7 +3453,9 @@ const DATA = {
    "evidence": "Yanıt süre raporu",
    "source": "İç raporlama",
    "qa": true,
-   "pop": "Yanıtlanan talepler"
+   "pop": "Yanıtlanan talepler",
+   "sectionKey": "Kolluk Talepleri",
+   "critKey": "Yüksek"
   },
   {
    "id": "D9-08",
@@ -3031,7 +3468,9 @@ const DATA = {
    "evidence": "Gözden geçirme kaydı",
    "source": "FATF R.10 IN",
    "qa": true,
-   "pop": "Kolluk talebine konu müşteriler"
+   "pop": "Kolluk talebine konu müşteriler",
+   "sectionKey": "Kolluk Talepleri",
+   "critKey": "Kritik"
   },
   {
    "id": "D9-09",
@@ -3044,7 +3483,9 @@ const DATA = {
    "evidence": "Erişim kısıtı, prosedür",
    "source": "5549 s.K. m.5",
    "qa": true,
-   "pop": "Kolluk talebi dosyaları"
+   "pop": "Kolluk talebi dosyaları",
+   "sectionKey": "Kolluk Talepleri",
+   "critKey": "Kritik"
   },
   {
    "id": "D9-10",
@@ -3057,7 +3498,9 @@ const DATA = {
    "evidence": "RFI kayıt sistemi",
    "source": "Wolfsberg CBDDQ",
    "qa": true,
-   "pop": "Gelen RFI'lar"
+   "pop": "Gelen RFI'lar",
+   "sectionKey": "Kurumlar Arası Talep",
+   "critKey": "Orta"
   },
   {
    "id": "D9-11",
@@ -3070,7 +3513,9 @@ const DATA = {
    "evidence": "Yanıtlanan anketler",
    "source": "Wolfsberg CBDDQ",
    "qa": true,
-   "pop": "Yanıtlanan anketler"
+   "pop": "Yanıtlanan anketler",
+   "sectionKey": "Kurumlar Arası Talep",
+   "critKey": "Orta"
   },
   {
    "id": "D9-12",
@@ -3083,7 +3528,9 @@ const DATA = {
    "evidence": "Mevzuat takip kaydı",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Mevzuat Takibi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D9-13",
@@ -3096,7 +3543,9 @@ const DATA = {
    "evidence": "Etki analizi dokümanları",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Son 12 aydaki değişiklikler"
+   "pop": "Son 12 aydaki değişiklikler",
+   "sectionKey": "Mevzuat Takibi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D9-14",
@@ -3109,7 +3558,9 @@ const DATA = {
    "evidence": "Kaynak-senaryo eşleme kaydı",
    "source": "FATF/Egmont tipoloji raporları",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Tipoloji Takibi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-01",
@@ -3122,7 +3573,9 @@ const DATA = {
    "evidence": "Onaylı eğitim planı",
    "source": "Uyum Programı Yön. m.13",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Eğitim Planı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-02",
@@ -3135,7 +3588,9 @@ const DATA = {
    "evidence": "Müfredat matrisi",
    "source": "FATF R.18",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Eğitim Planı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-03",
@@ -3148,7 +3603,9 @@ const DATA = {
    "evidence": "Oryantasyon kayıtları",
    "source": "Uyum Programı Yön. m.13",
    "qa": true,
-   "pop": "Son 12 ayda işe başlayanlar"
+   "pop": "Son 12 ayda işe başlayanlar",
+   "sectionKey": "Eğitim Planı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-04",
@@ -3161,7 +3618,9 @@ const DATA = {
    "evidence": "Eğitim katılım listesi",
    "source": "FATF R.14",
    "qa": true,
-   "pop": "Acente personeli"
+   "pop": "Acente personeli",
+   "sectionKey": "Eğitim Planı",
+   "critKey": "Orta"
   },
   {
    "id": "D10-05",
@@ -3174,7 +3633,9 @@ const DATA = {
    "evidence": "Tamamlanma raporu",
    "source": "Uyum Programı Yön.",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Katılım ve Takip",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-06",
@@ -3187,7 +3648,9 @@ const DATA = {
    "evidence": "Eskalasyon kayıtları",
    "source": "İç kontrol standardı",
    "qa": true,
-   "pop": "Tamamlamayan personel"
+   "pop": "Tamamlamayan personel",
+   "sectionKey": "Katılım ve Takip",
+   "critKey": "Orta"
   },
   {
    "id": "D10-07",
@@ -3200,7 +3663,9 @@ const DATA = {
    "evidence": "Arşiv örneği",
    "source": "FATF R.11",
    "qa": true,
-   "pop": "Eğitim kayıtları"
+   "pop": "Eğitim kayıtları",
+   "sectionKey": "Katılım ve Takip",
+   "critKey": "Orta"
   },
   {
    "id": "D10-08",
@@ -3213,7 +3678,9 @@ const DATA = {
    "evidence": "Sınav sonuçları",
    "source": "Wolfsberg Culture Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etkinlik",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-09",
@@ -3226,7 +3693,9 @@ const DATA = {
    "evidence": "İçerik revizyon kaydı",
    "source": "EWRA çıktıları",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etkinlik",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-10",
@@ -3239,7 +3708,9 @@ const DATA = {
    "evidence": "Ek eğitim kayıtları",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etkinlik",
+   "critKey": "Orta"
   },
   {
    "id": "D10-11",
@@ -3252,7 +3723,9 @@ const DATA = {
    "evidence": "Dahili bildirim istatistiği",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etkinlik",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-12",
@@ -3265,7 +3738,9 @@ const DATA = {
    "evidence": "YK toplantı tutanakları",
    "source": "Uyum Programı Yön. m.17",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Yönetim Geri Bildirimi",
+   "critKey": "Kritik"
   },
   {
    "id": "D10-13",
@@ -3278,7 +3753,9 @@ const DATA = {
    "evidence": "Karar ve aksiyon kayıtları",
    "source": "Basel AML Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Yönetim Geri Bildirimi",
+   "critKey": "Yüksek"
   },
   {
    "id": "D10-14",
@@ -3291,7 +3768,9 @@ const DATA = {
    "evidence": "Oturum kayıtları",
    "source": "Basel AML Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Yönetim Geri Bildirimi",
+   "critKey": "Orta"
   },
   {
    "id": "D11-01",
@@ -3304,7 +3783,9 @@ const DATA = {
    "evidence": "EWRA metodoloji dokümanı",
    "source": "FATF R.1; Uyum Programı Yön. m.5",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Metodoloji",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-02",
@@ -3317,7 +3798,9 @@ const DATA = {
    "evidence": "Son EWRA tarihi, revizyon kaydı",
    "source": "FATF R.1",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Metodoloji",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-03",
@@ -3330,7 +3813,9 @@ const DATA = {
    "evidence": "EWRA raporu",
    "source": "FATF R.1 IN",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kapsam",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-04",
@@ -3343,7 +3828,9 @@ const DATA = {
    "evidence": "TF risk bölümü",
    "source": "FATF R.1; 6415 s.K.",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kapsam",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-05",
@@ -3356,7 +3843,9 @@ const DATA = {
    "evidence": "PF risk bölümü",
    "source": "FATF R.1 (2020 revizyonu), R.7",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Kapsam",
+   "critKey": "Yüksek"
   },
   {
    "id": "D11-06",
@@ -3369,7 +3858,9 @@ const DATA = {
    "evidence": "Skorlama tablosu",
    "source": "FATF R.1; EBA GL",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Skorlama",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-07",
@@ -3382,7 +3873,9 @@ const DATA = {
    "evidence": "Test bulguları referansı",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Skorlama",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-08",
@@ -3395,7 +3888,9 @@ const DATA = {
    "evidence": "Veri kaynağı listesi",
    "source": "BCBS 239",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Skorlama",
+   "critKey": "Yüksek"
   },
   {
    "id": "D11-09",
@@ -3408,7 +3903,9 @@ const DATA = {
    "evidence": "Varsayım bölümü",
    "source": "Model risk yönetimi",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Skorlama",
+   "critKey": "Orta"
   },
   {
    "id": "D11-10",
@@ -3421,7 +3918,9 @@ const DATA = {
    "evidence": "Kaynak referansları",
    "source": "FATF R.1 (NRA kullanımı)",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Girdi Kaynakları",
+   "critKey": "Yüksek"
   },
   {
    "id": "D11-11",
@@ -3434,7 +3933,9 @@ const DATA = {
    "evidence": "Risk iştahı beyanı",
    "source": "Basel AML Guidelines",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Risk İştahı",
+   "critKey": "Yüksek"
   },
   {
    "id": "D11-12",
@@ -3447,7 +3948,9 @@ const DATA = {
    "evidence": "Aksiyon planı",
    "source": "FATF R.1",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Risk İştahı",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-13",
@@ -3460,7 +3963,9 @@ const DATA = {
    "evidence": "Değişiklik kayıtları (EWRA referanslı)",
    "source": "FATF R.1 IN",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Etki",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-14",
@@ -3473,7 +3978,9 @@ const DATA = {
    "evidence": "YK onay kararı",
    "source": "Uyum Programı Yön.",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Yönetişim",
+   "critKey": "Kritik"
   },
   {
    "id": "D11-15",
@@ -3486,7 +3993,9 @@ const DATA = {
    "evidence": "Konsolidasyon tablosu",
    "source": "FATF R.18",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Yönetişim",
+   "critKey": "Orta"
   },
   {
    "id": "D11-16",
@@ -3499,7 +4008,9 @@ const DATA = {
    "evidence": "Kapanış raporu",
    "source": "İç kontrol standardı",
    "qa": false,
-   "pop": ""
+   "pop": "",
+   "sectionKey": "Yönetişim",
+   "critKey": "Yüksek"
   }
  ],
  "domains": [
@@ -3583,7 +4094,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Çeyreklik",
-   "focus": "Süre, narratif kalitesi, artırılmış izleme"
+   "focus": "Süre, narratif kalitesi, artırılmış izleme",
+   "key": "Verilen ŞİB dosyaları",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "ŞİB verilmeyen ancak eşiği geçen kapatılmış vakalar",
@@ -3593,7 +4107,10 @@ const DATA = {
    "rate": 0.15,
    "min": 25,
    "freq": "Çeyreklik",
-   "focus": "Karar gerekçesi yeterli mi, kaçırılmış ŞİB var mı"
+   "focus": "Karar gerekçesi yeterli mi, kaçırılmış ŞİB var mı",
+   "key": "ŞİB verilmeyen ancak eşiği geçen kapatılmış vakalar",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Dondurma ve varlık kısıtlama kararları",
@@ -3603,7 +4120,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Çeyreklik",
-   "focus": "Uygulama süresi, bildirim, envanter mutabakatı"
+   "focus": "Uygulama süresi, bildirim, envanter mutabakatı",
+   "key": "Dondurma ve varlık kısıtlama kararları",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Yaptırım gerçek eşleşme (true match) vakaları",
@@ -3613,7 +4133,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Çeyreklik",
-   "focus": "Blokaj/red kararı, bildirim, audit trail"
+   "focus": "Blokaj/red kararı, bildirim, audit trail",
+   "key": "Yaptırım gerçek eşleşme (true match) vakaları",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Kapatılan yaptırım alertleri",
@@ -3623,7 +4146,10 @@ const DATA = {
    "rate": 0.1,
    "min": 30,
    "freq": "Çeyreklik",
-   "focus": "Dört göz, gerekçe kalitesi, yanlış negatif"
+   "focus": "Dört göz, gerekçe kalitesi, yanlış negatif",
+   "key": "Kapatılan yaptırım alertleri",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "PEP müşteri dosyaları",
@@ -3633,7 +4159,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Altı Aylık",
-   "focus": "Onay, SoF/SoW, periyodik gözden geçirme"
+   "focus": "Onay, SoF/SoW, periyodik gözden geçirme",
+   "key": "PEP müşteri dosyaları",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Müşteri çıkış (exit) kararları",
@@ -3643,7 +4172,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Altı Aylık",
-   "focus": "ŞİB değerlendirmesi, onay, bakiye iadesi"
+   "focus": "ŞİB değerlendirmesi, onay, bakiye iadesi",
+   "key": "Müşteri çıkış (exit) kararları",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Kolluk ve yargı bilgi talepleri",
@@ -3653,7 +4185,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Çeyreklik",
-   "focus": "Yanıt süresi, eksiksizlik, risk gözden geçirme"
+   "focus": "Yanıt süresi, eksiksizlik, risk gözden geçirme",
+   "key": "Kolluk ve yargı bilgi talepleri",
+   "riskKey": "Çok Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "EDD dosyaları",
@@ -3663,7 +4198,10 @@ const DATA = {
    "rate": 0.1,
    "min": 25,
    "freq": "Çeyreklik",
-   "focus": "SoF/SoW kanıtı, onay, adverse media"
+   "focus": "SoF/SoW kanıtı, onay, adverse media",
+   "key": "EDD dosyaları",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Kapatılan izleme (monitoring) alertleri",
@@ -3673,7 +4211,10 @@ const DATA = {
    "rate": 0.05,
    "min": 30,
    "freq": "Çeyreklik",
-   "focus": "Karar kalitesi, kaçırılmış tipoloji, bulk kapatma"
+   "focus": "Karar kalitesi, kaçırılmış tipoloji, bulk kapatma",
+   "key": "Kapatılan izleme (monitoring) alertleri",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Yüksek riskli yeni müşteri hesap açılışları",
@@ -3683,7 +4224,10 @@ const DATA = {
    "rate": 0.1,
    "min": 25,
    "freq": "Çeyreklik",
-   "focus": "CDD tamlığı, GF tespiti, üst yönetim onayı"
+   "focus": "CDD tamlığı, GF tespiti, üst yönetim onayı",
+   "key": "Yüksek riskli yeni müşteri hesap açılışları",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Muhabir banka ilişkileri",
@@ -3693,7 +4237,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Yıllık",
-   "focus": "CBDDQ, üst yönetim onayı, nested tespiti"
+   "focus": "CBDDQ, üst yönetim onayı, nested tespiti",
+   "key": "Muhabir banka ilişkileri",
+   "riskKey": "Yüksek",
+   "freqKey": "Yıllık"
   },
   {
    "pop": "Trade finance dosyaları",
@@ -3703,7 +4250,10 @@ const DATA = {
    "rate": 0.1,
    "min": 20,
    "freq": "Altı Aylık",
-   "focus": "Mal/gemi/liman taraması, dual-use, fiyat makullüğü"
+   "focus": "Mal/gemi/liman taraması, dual-use, fiyat makullüğü",
+   "key": "Trade finance dosyaları",
+   "riskKey": "Yüksek",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Risk skoru override edilen müşteriler",
@@ -3713,7 +4263,10 @@ const DATA = {
    "rate": 0.15,
    "min": 20,
    "freq": "Altı Aylık",
-   "focus": "Gerekçe, onay seviyesi, örüntü analizi"
+   "focus": "Gerekçe, onay seviyesi, örüntü analizi",
+   "key": "Risk skoru override edilen müşteriler",
+   "riskKey": "Yüksek",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Gecikmiş periyodik KYC dosyaları",
@@ -3723,7 +4276,10 @@ const DATA = {
    "rate": 0.1,
    "min": 20,
    "freq": "Çeyreklik",
-   "focus": "Gecikme nedeni, kısıtlama uygulanmış mı"
+   "focus": "Gecikme nedeni, kısıtlama uygulanmış mı",
+   "key": "Gecikmiş periyodik KYC dosyaları",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Uzaktan açılan hesaplar",
@@ -3733,7 +4289,10 @@ const DATA = {
    "rate": 0.05,
    "min": 25,
    "freq": "Altı Aylık",
-   "focus": "Canlılık, belge doğrulama, sahtecilik tespiti"
+   "focus": "Canlılık, belge doğrulama, sahtecilik tespiti",
+   "key": "Uzaktan açılan hesaplar",
+   "riskKey": "Yüksek",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Eksik bilgili elektronik transferler",
@@ -3743,7 +4302,10 @@ const DATA = {
    "rate": 0.1,
    "min": 20,
    "freq": "Çeyreklik",
-   "focus": "R.16 uyumu, askıya alma/iade kararı"
+   "focus": "R.16 uyumu, askıya alma/iade kararı",
+   "key": "Eksik bilgili elektronik transferler",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Sanal varlık transferleri",
@@ -3753,7 +4315,10 @@ const DATA = {
    "rate": 0.1,
    "min": 20,
    "freq": "Çeyreklik",
-   "focus": "Travel Rule, unhosted cüzdan kontrolü"
+   "focus": "Travel Rule, unhosted cüzdan kontrolü",
+   "key": "Sanal varlık transferleri",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   },
   {
    "pop": "Standart yeni müşteri hesap açılışları",
@@ -3763,7 +4328,10 @@ const DATA = {
    "rate": 0.02,
    "min": 30,
    "freq": "Altı Aylık",
-   "focus": "Kimlik doğrulama, veri kalitesi"
+   "focus": "Kimlik doğrulama, veri kalitesi",
+   "key": "Standart yeni müşteri hesap açılışları",
+   "riskKey": "Orta",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Eşik üstü nakit işlemler",
@@ -3773,7 +4341,10 @@ const DATA = {
    "rate": 0.02,
    "min": 25,
    "freq": "Altı Aylık",
-   "focus": "Kimlik tespiti, kaynak sorgusu"
+   "focus": "Kimlik tespiti, kaynak sorgusu",
+   "key": "Eşik üstü nakit işlemler",
+   "riskKey": "Orta",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Reddedilen müşteri başvuruları",
@@ -3783,7 +4354,10 @@ const DATA = {
    "rate": 0.1,
    "min": 15,
    "freq": "Yıllık",
-   "focus": "Red gerekçesi, ŞİB değerlendirmesi, tekrar başvuru"
+   "focus": "Red gerekçesi, ŞİB değerlendirmesi, tekrar başvuru",
+   "key": "Reddedilen müşteri başvuruları",
+   "riskKey": "Orta",
+   "freqKey": "Yıllık"
   },
   {
    "pop": "Eğitim tamamlama kayıtları",
@@ -3793,7 +4367,10 @@ const DATA = {
    "rate": 0.05,
    "min": 15,
    "freq": "Yıllık",
-   "focus": "Katılım, sınav sonucu, arşiv"
+   "focus": "Katılım, sınav sonucu, arşiv",
+   "key": "Eğitim tamamlama kayıtları",
+   "riskKey": "Düşük",
+   "freqKey": "Yıllık"
   },
   {
    "pop": "Kapatılan denetim ve validasyon bulguları",
@@ -3803,7 +4380,10 @@ const DATA = {
    "rate": 1.0,
    "min": 0,
    "freq": "Altı Aylık",
-   "focus": "Kapanış kanıtı, bağımsız re-test"
+   "focus": "Kapanış kanıtı, bağımsız re-test",
+   "key": "Kapatılan denetim ve validasyon bulguları",
+   "riskKey": "Yüksek",
+   "freqKey": "Altı Aylık"
   },
   {
    "pop": "Veri mutabakatı ve besleme hatası kayıtları",
@@ -3813,7 +4393,10 @@ const DATA = {
    "rate": 0.1,
    "min": 20,
    "freq": "Çeyreklik",
-   "focus": "Fark açıklaması, yeniden işleme, telafi"
+   "focus": "Fark açıklaması, yeniden işleme, telafi",
+   "key": "Veri mutabakatı ve besleme hatası kayıtları",
+   "riskKey": "Yüksek",
+   "freqKey": "Çeyreklik"
   }
  ],
  "kpis": [
@@ -3823,7 +4406,8 @@ const DATA = {
    "unit": "%",
    "dir": "neutral",
    "placeholder": "12",
-   "help": "Üretilen alertlerin kaç yüzdesi vakaya dönüştü. Çok düşük değer aşırı gürültüye, çok yüksek değer dar senaryo kapsamına işaret eder."
+   "help": "Üretilen alertlerin kaç yüzdesi vakaya dönüştü. Çok düşük değer aşırı gürültüye, çok yüksek değer dar senaryo kapsamına işaret eder.",
+   "key": "Alert - vaka dönüşüm oranı"
   },
   {
    "name": "Vaka - ŞİB dönüşüm oranı",
@@ -3831,7 +4415,8 @@ const DATA = {
    "unit": "%",
    "dir": "neutral",
    "placeholder": "8",
-   "help": "Açılan vakaların kaç yüzdesi ŞİB ile sonuçlandı."
+   "help": "Açılan vakaların kaç yüzdesi ŞİB ile sonuçlandı.",
+   "key": "Vaka - ŞİB dönüşüm oranı"
   },
   {
    "name": "Ortalama ŞİB bildirim süresi (gün)",
@@ -3839,7 +4424,8 @@ const DATA = {
    "unit": "gün",
    "dir": "down",
    "placeholder": "7",
-   "help": "Şüphenin oluştuğu andan MASAK bildirimine kadar geçen ortalama süre."
+   "help": "Şüphenin oluştuğu andan MASAK bildirimine kadar geçen ortalama süre.",
+   "key": "Ortalama ŞİB bildirim süresi (gün)"
   },
   {
    "name": "Yaptırım alerti ortalama kapanış süresi (saat)",
@@ -3847,7 +4433,8 @@ const DATA = {
    "unit": "saat",
    "dir": "down",
    "placeholder": "4",
-   "help": "Alert üretiminden karara kadar geçen ortalama süre."
+   "help": "Alert üretiminden karara kadar geçen ortalama süre.",
+   "key": "Yaptırım alerti ortalama kapanış süresi (saat)"
   },
   {
    "name": "Liste güncelleme yansıma süresi (saat)",
@@ -3855,7 +4442,8 @@ const DATA = {
    "unit": "saat",
    "dir": "down",
    "placeholder": "4",
-   "help": "Yaptırım listesi yayımlandıktan sonra üretim ortamına yansıma süresi."
+   "help": "Yaptırım listesi yayımlandıktan sonra üretim ortamına yansıma süresi.",
+   "key": "Liste güncelleme yansıma süresi (saat)"
   },
   {
    "name": "Bekleyen alert sayısı (backlog)",
@@ -3863,7 +4451,8 @@ const DATA = {
    "unit": "adet",
    "dir": "down",
    "placeholder": "150",
-   "help": "Dönem sonunda henüz karara bağlanmamış alert sayısı."
+   "help": "Dönem sonunda henüz karara bağlanmamış alert sayısı.",
+   "key": "Bekleyen alert sayısı (backlog)"
   },
   {
    "name": "Gecikmiş periyodik KYC dosya sayısı",
@@ -3871,7 +4460,8 @@ const DATA = {
    "unit": "adet",
    "dir": "down",
    "placeholder": "320",
-   "help": "Periyodik gözden geçirme tarihi geçmiş müşteri dosyası sayısı."
+   "help": "Periyodik gözden geçirme tarihi geçmiş müşteri dosyası sayısı.",
+   "key": "Gecikmiş periyodik KYC dosya sayısı"
   },
   {
    "name": "QA kritik hata oranı",
@@ -3879,7 +4469,8 @@ const DATA = {
    "unit": "%",
    "dir": "down",
    "placeholder": "2",
-   "help": "QA testinde kritik hata bulunan dosyaların test edilen dosyalara oranı."
+   "help": "QA testinde kritik hata bulunan dosyaların test edilen dosyalara oranı.",
+   "key": "QA kritik hata oranı"
   },
   {
    "name": "QA majör hata oranı",
@@ -3887,7 +4478,8 @@ const DATA = {
    "unit": "%",
    "dir": "down",
    "placeholder": "8",
-   "help": "QA testinde majör hata bulunan dosyaların oranı."
+   "help": "QA testinde majör hata bulunan dosyaların oranı.",
+   "key": "QA majör hata oranı"
   },
   {
    "name": "Eğitim tamamlanma oranı",
@@ -3895,7 +4487,8 @@ const DATA = {
    "unit": "%",
    "dir": "up",
    "placeholder": "98",
-   "help": "Zorunlu AML eğitimini tamamlayan personelin oranı."
+   "help": "Zorunlu AML eğitimini tamamlayan personelin oranı.",
+   "key": "Eğitim tamamlanma oranı"
   },
   {
    "name": "Dahili şüphe bildirimi sayısı",
@@ -3903,7 +4496,8 @@ const DATA = {
    "unit": "adet",
    "dir": "up",
    "placeholder": "45",
-   "help": "Şube ve iş birimlerinden uyum birimine gelen dahili bildirim sayısı. Sıfıra yakın değer farkındalık sorununa işaret eder."
+   "help": "Şube ve iş birimlerinden uyum birimine gelen dahili bildirim sayısı. Sıfıra yakın değer farkındalık sorununa işaret eder.",
+   "key": "Dahili şüphe bildirimi sayısı"
   },
   {
    "name": "Kolluk talebi ortalama yanıt süresi (gün)",
@@ -3911,7 +4505,8 @@ const DATA = {
    "unit": "gün",
    "dir": "down",
    "placeholder": "5",
-   "help": "Kolluk ve yargı bilgi taleplerine ortalama yanıt süresi."
+   "help": "Kolluk ve yargı bilgi taleplerine ortalama yanıt süresi.",
+   "key": "Kolluk talebi ortalama yanıt süresi (gün)"
   },
   {
    "name": "Aksiyon kapanış oranı",
@@ -3919,7 +4514,8 @@ const DATA = {
    "unit": "%",
    "dir": "up",
    "help": "Aksiyon planındaki kapalı bulguların toplam bulguya oranı. Aksiyon planı sayfasından otomatik hesaplanır.",
-   "auto": "actionClosure"
+   "auto": "actionClosure",
+   "key": "Aksiyon kapanış oranı"
   },
   {
    "name": "Son senaryo tuning üzerinden geçen süre (ay)",
@@ -3927,7 +4523,8 @@ const DATA = {
    "unit": "ay",
    "dir": "down",
    "help": "Künyedeki senaryo tuning tarihinden bugüne geçen süre. Otomatik hesaplanır.",
-   "auto": "monthsSince:son_senaryo_tuning_tarihi"
+   "auto": "monthsSince:son_senaryo_tuning_tarihi",
+   "key": "Son senaryo tuning üzerinden geçen süre (ay)"
   },
   {
    "name": "Son tarama kalibrasyonu üzerinden geçen süre (ay)",
@@ -3935,7 +4532,8 @@ const DATA = {
    "unit": "ay",
    "dir": "down",
    "help": "Künyedeki tarama eşiği kalibrasyon tarihinden bugüne geçen süre. Otomatik hesaplanır.",
-   "auto": "monthsSince:son_tarama_esigi_kalibrasyon_tarihi"
+   "auto": "monthsSince:son_tarama_esigi_kalibrasyon_tarihi",
+   "key": "Son tarama kalibrasyonu üzerinden geçen süre (ay)"
   }
  ],
  "ref": {
@@ -4075,27 +4673,33 @@ const DATA = {
  "kunyeGroups": [
   {
    "name": "Kurum kimliği",
-   "help": "Raporun kime ait olduğunu ve hangi mevzuata tabi olduğunuzu belirler."
+   "help": "Raporun kime ait olduğunu ve hangi mevzuata tabi olduğunuzu belirler.",
+   "key": "Kurum kimliği"
   },
   {
    "name": "Değerlendirme",
-   "help": "Anketin kapsadığı dönem ve değerlendirmeyi yapan taraf. Skorların ispat gücünü etkiler."
+   "help": "Anketin kapsadığı dönem ve değerlendirmeyi yapan taraf. Skorların ispat gücünü etkiler.",
+   "key": "Değerlendirme"
   },
   {
    "name": "Ölçek ve maruziyet",
-   "help": "Doğuştan risk sayfasındaki dört faktör için otomatik skor önerisi bu sayılardan üretilir."
+   "help": "Doğuştan risk sayfasındaki dört faktör için otomatik skor önerisi bu sayılardan üretilir.",
+   "key": "Ölçek ve maruziyet"
   },
   {
    "name": "Sistemler",
-   "help": "Soru bankasındaki sistem sorularının hangi ürüne atıfla yanıtlandığını netleştirir."
+   "help": "Soru bankasındaki sistem sorularının hangi ürüne atıfla yanıtlandığını netleştirir.",
+   "key": "Sistemler"
   },
   {
    "name": "Faaliyet kapsamı",
-   "help": "\"Hayır\" yanıtı ilgili soruları ve risk faktörlerini otomatik olarak kapsam dışına alır."
+   "help": "\"Hayır\" yanıtı ilgili soruları ve risk faktörlerini otomatik olarak kapsam dışına alır.",
+   "key": "Faaliyet kapsamı"
   },
   {
    "name": "Denetim ve model geçmişi",
-   "help": "Tarihler yaşlandırma uyarısı üretir ve iki KPI'yı otomatik doldurur."
+   "help": "Tarihler yaşlandırma uyarısı üretir ve iki KPI'yı otomatik doldurur.",
+   "key": "Denetim ve model geçmişi"
   }
  ]
 };

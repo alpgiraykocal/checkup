@@ -29,14 +29,15 @@ const Calc = (() => {
     const out = new Map(); // "domain|section" -> gerekçe
     DATA.scopeRules.forEach(rule => {
       if ((state.kunye[rule.field] || '') === 'Hayır') {
-        rule.match.forEach(([dom, sec]) => out.set(dom + '|' + sec, rule.label + ' faaliyeti yok'));
+        rule.match.forEach(([dom, sec]) => out.set(dom + '|' + sec,
+          I18n.t('scopeNoActivity', { label: rule.label })));
       }
     });
     return out;
   }
 
   function questionScope(q, scopeMap) {
-    return scopeMap.get(q.domain + '|' + q.section) || null;
+    return scopeMap.get(q.domain + '|' + q.sectionKey) || null;
   }
 
   /* ---------- Künye ---------- */
@@ -70,40 +71,41 @@ const Calc = (() => {
         return { field: f, months: m, overdue: m !== null && m > f.staleMonths };
       });
 
+    const T = I18n.t;
     const ratios = [
-      { id: 'highRisk', label: 'Yüksek riskli müşteri payı',
+      { id: 'highRisk', label: T('ratioHighRisk'),
         value: ratio(state, 'yuksek_riskli_musteri_sayisi', 'toplam_musteri_sayisi'),
-        note: 'Doğuştan risk — Müşteri boyutu' },
-      { id: 'pep', label: 'PEP müşteri payı',
+        note: T('ratioNoteHighRisk') },
+      { id: 'pep', label: T('ratioPep'),
         value: ratio(state, 'pep_musteri_sayisi', 'toplam_musteri_sayisi'),
-        note: 'Doğuştan risk — PEP maruziyeti' },
-      { id: 'crossBorder', label: 'Sınır ötesi işlem payı',
+        note: T('ratioNotePep') },
+      { id: 'crossBorder', label: T('ratioCrossBorder'),
         value: ratio(state, 'yillik_sinir_otesi_islem_adedi', 'yillik_islem_adedi'),
-        note: 'Doğuştan risk — Coğrafya ve İşlem' },
-      { id: 'load', label: 'Uyum personeli başına müşteri',
+        note: T('ratioNoteCross') },
+      { id: 'load', label: T('ratioLoad'),
         value: ratio(state, 'toplam_musteri_sayisi', 'uyum_birimi_kadrosu_fte'),
-        format: 'int', note: 'Kaynak yeterliliği göstergesi' }
+        format: 'int', note: T('ratioNoteLoad') }
     ];
 
     // Dönem tutarlılığı
     const bas = state.kunye.donem_baslangic, bit = state.kunye.donem_bitis;
     let periodError = null;
-    if (bas && bit && new Date(bit) < new Date(bas)) periodError = 'Bitiş tarihi başlangıçtan önce olamaz.';
+    if (bas && bit && new Date(bit) < new Date(bas)) periodError = T('errPeriod');
 
     // Sayısal tutarlılık
     const warnings = [];
     const tot = Number(state.kunye.toplam_musteri_sayisi);
-    [['yuksek_riskli_musteri_sayisi', 'Yüksek riskli müşteri sayısı'],
-     ['pep_musteri_sayisi', 'PEP müşteri sayısı']].forEach(([id, label]) => {
+    [['yuksek_riskli_musteri_sayisi', T('lblHighRiskCount')],
+     ['pep_musteri_sayisi', T('lblPepCount')]].forEach(([id, label]) => {
       const v = Number(state.kunye[id]);
       if (Number.isFinite(v) && Number.isFinite(tot) && tot > 0 && v > tot) {
-        warnings.push(`${label} toplam müşteri sayısını aşıyor.`);
+        warnings.push(T('errExceedsTotal', { label }));
       }
     });
     const cb = Number(state.kunye.yillik_sinir_otesi_islem_adedi);
     const ti = Number(state.kunye.yillik_islem_adedi);
     if (Number.isFinite(cb) && Number.isFinite(ti) && ti > 0 && cb > ti) {
-      warnings.push('Sınır ötesi işlem adedi toplam işlem adedini aşıyor.');
+      warnings.push(T('errCrossBorder'));
     }
     if (periodError) warnings.push(periodError);
 
@@ -118,7 +120,7 @@ const Calc = (() => {
 
   function fmtTR(iso) {
     const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('tr-TR');
+    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(I18n.locale);
   }
 
   /** Otomatik hesaplanabilen KPI değeri; elle girilen değer varsa o kazanır. */
@@ -151,8 +153,8 @@ const Calc = (() => {
       coef: inScope ? coef : null,
       applicableWeight: inScope ? q.weight : 0,
       earned: inScope ? q.weight * coef : 0,
-      openCritical: inScope && q.crit === 'Kritik' && coef < 1,
-      actionNeeded: !inScope ? '' : (coef === 1 ? 'Hayır' : (q.crit === 'Kritik' ? 'EVET - ÖNCELİKLİ' : 'Evet'))
+      openCritical: inScope && q.critKey === 'Kritik' && coef < 1,
+      actionNeeded: !inScope ? '' : (coef === 1 ? 'Hayır' : (q.critKey === 'Kritik' ? 'EVET - ÖNCELİKLİ' : 'Evet'))
     };
   }
 
@@ -194,7 +196,7 @@ const Calc = (() => {
 
     const factors = DATA.inherentFactors.map(f => {
       const st = factorState(f, state);
-      const b = byDim[f.dim];
+      const b = byDim[f.dimKey];
       if (b) {
         b.total += 1;
         b.factors.push({ f, st });
@@ -238,7 +240,7 @@ const Calc = (() => {
     // En yüksek ağırlıklı katkıyı veren faktörler — yönetime "neden yüksek" cevabı.
     const drivers = factors
       .filter(x => x.st.scored)
-      .map(x => ({ dim: x.f.dim, factor: x.f.factor, score: x.st.score, weight: x.st.weight, weighted: x.st.weighted }))
+      .map(x => ({ dim: x.f.dim, dimKey: x.f.dimKey, factor: x.f.factor, score: x.st.score, weight: x.st.weight, weighted: x.st.weighted }))
       .sort((a, b) => b.weighted - a.weighted || b.score - a.score);
 
     return {
@@ -349,7 +351,7 @@ const Calc = (() => {
 
     // QA örneklem planı (06_QA_Orneklem)
     const qa = DATA.qaPopulations.map(p => {
-      const vol = Number(state.qaVolumes[p.pop]);
+      const vol = Number(state.qaVolumes[p.key]);
       const has = Number.isFinite(vol) && vol > 0;
       const yearly = !has ? null
         : (p.full ? vol : Math.min(vol, Math.max(Math.round(vol * p.rate), p.min)));

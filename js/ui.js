@@ -41,19 +41,20 @@ const UI = (() => {
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  const nf0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
-  const nf1 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const nf2 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Sayı ve tarih biçimi seçili dile göre çözülür.
+  const nf = (min, max) => new Intl.NumberFormat(I18n.locale,
+    { minimumFractionDigits: min, maximumFractionDigits: max });
+  const empty = v => (v === null || v === undefined || v === '');
 
-  const fmtInt = v => (v === null || v === undefined || v === '') ? '—' : nf0.format(v);
-  const fmtPct = v => (v === null || v === undefined || v === '') ? '—' : nf0.format(v * 100) + '%';
-  const fmtPct1 = v => (v === null || v === undefined || v === '') ? '—' : nf1.format(v * 100) + '%';
-  const fmtNum1 = v => (v === null || v === undefined || v === '') ? '—' : nf1.format(v);
-  const fmtNum2 = v => (v === null || v === undefined || v === '') ? '—' : nf2.format(v);
+  const fmtInt = v => empty(v) ? '—' : nf(0, 0).format(v);
+  const fmtPct = v => empty(v) ? '—' : nf(0, 0).format(v * 100) + '%';
+  const fmtPct1 = v => empty(v) ? '—' : nf(1, 1).format(v * 100) + '%';
+  const fmtNum1 = v => empty(v) ? '—' : nf(1, 1).format(v);
+  const fmtNum2 = v => empty(v) ? '—' : nf(2, 2).format(v);
   const fmtDate = s => {
     if (!s) return '—';
     const d = new Date(s);
-    return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString('tr-TR');
+    return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString(I18n.locale);
   };
 
   function levelClass(level) {
@@ -72,9 +73,10 @@ const UI = (() => {
     return 'lvl-cok-yuksek';
   }
 
-  function critChip(crit) {
-    const cls = { 'Kritik': 'chip-critical', 'Yüksek': 'chip-high', 'Orta': 'chip-mid', 'Düşük': 'chip' }[crit] || 'chip';
-    return `<span class="chip ${cls}">${esc(crit)}</span>`;
+  /** Kritiklik rozeti — değer Türkçe anahtardır, etiket dile göre çözülür. */
+  function critChip(critKey) {
+    const cls = { 'Kritik': 'chip-critical', 'Yüksek': 'chip-high', 'Orta': 'chip-mid', 'Düşük': 'chip' }[critKey] || 'chip';
+    return `<span class="chip ${cls}">${esc(I18n.ref('crit', critKey))}</span>`;
   }
 
   /* ---------- Toast ---------- */
@@ -173,9 +175,18 @@ const UI = (() => {
     return `<div class="empty">${Icons.file()}<h3>${esc(title)}</h3><p>${esc(msg)}</p>${action || ''}</div>`;
   }
 
-  function selectOptions(list, selected, placeholder) {
-    const opts = list.map(v => `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(v)}</option>`).join('');
+  function selectOptions(list, selected, placeholder, labels) {
+    const opts = list.map((v, i) => {
+      const label = labels ? labels[i] : v;
+      return `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(label)}</option>`;
+    }).join('');
     return (placeholder !== undefined ? `<option value=""${!selected ? ' selected' : ''}>${esc(placeholder)}</option>` : '') + opts;
+  }
+
+  /** Referans listesi seçenekleri: değer Türkçe kalır, etiket çevrilir. */
+  function refOptions(kind, selected, placeholder) {
+    const list = DATA.ref[kind];
+    return selectOptions(list, selected, placeholder, list.map(v => I18n.ref(kind, v)));
   }
 
   /** Uzun listeleri parça parça basar; ana iş parçacığını bloklamaz. */
@@ -198,6 +209,6 @@ const UI = (() => {
   return {
     el, els, esc, fmtInt, fmtPct, fmtPct1, fmtNum1, fmtNum2, fmtDate,
     levelClass, effClass, critChip, toast, modal, closeModal, confirmDialog,
-    meter, statTile, emptyState, selectOptions, chunkRender
+    meter, statTile, emptyState, selectOptions, refOptions, chunkRender
   };
 })();

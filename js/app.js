@@ -2,16 +2,21 @@
 
 const App = (() => {
   const ROUTES = [
-    { id: 'pano', label: 'Pano', icon: 'dashboard', group: 'Genel', view: Views.dashboard, title: 'Uyum Check-up Panosu', sub: 'Genel durum, ısı haritası ve operasyonel KPI\'lar' },
-    { id: 'kunye', label: 'Künye', icon: 'building', group: 'Girdi', view: Views.kunye, title: 'Kurum Künyesi', sub: 'Kapsam ve uygulanabilirlik burada belirlenir' },
-    { id: 'dogustan', label: 'Doğuştan Risk', icon: 'gauge', group: 'Girdi', view: Views.inherent, title: 'Doğuştan Risk Değerlendirmesi', sub: '25 alt faktör · 5 boyut · 1–5 skorlama' },
-    { id: 'anket', label: 'Anket', icon: 'list', group: 'Girdi', view: Views.questions, title: 'AML/CFT Uyum Soru Bankası', sub: '218 soru · 11 domain · kanıta dayalı yanıt' },
-    { id: 'qa', label: 'QA Planı', icon: 'flask', group: 'Girdi', view: Views.qa, title: 'Yıllık QA Planı ve Risk Bazlı Örnekleme', sub: 'Yıllık hacmi girin; örneklem otomatik hesaplanır' },
-    { id: 'skorlar', label: 'Kontrol Skorları', icon: 'layers', group: 'Sonuç', view: Views.domainScores, title: 'Domain Bazlı Kontrol Etkinliği', sub: 'Soru bankasından türetilir; girdi yoktur' },
-    { id: 'artik', label: 'Artık Risk', icon: 'target', group: 'Sonuç', view: Views.residual, title: 'Artık Risk Matrisi', sub: 'Doğuştan Risk × (1 − Kontrol Etkinliği)' },
-    { id: 'aksiyon', label: 'Aksiyon Planı', icon: 'clipboard', group: 'Sonuç', view: Actions.view, title: 'Bulgu ve Aksiyon Planı', sub: 'Kök neden · sahip · termin · doğrulama' },
-    { id: 'rapor', label: 'Yönetici Raporu', icon: 'print', group: 'Sonuç', view: Exporter.report, title: 'Yönetici Raporu', sub: 'Yazdırma ve PDF çıktısı' }
+    { id: 'pano', key: 'Dash', icon: 'dashboard', group: 'groupGeneral', view: Views.dashboard },
+    { id: 'kunye', key: 'Kunye', icon: 'building', group: 'groupInput', view: Views.kunye },
+    { id: 'dogustan', key: 'Inherent', icon: 'gauge', group: 'groupInput', view: Views.inherent },
+    { id: 'anket', key: 'Survey', icon: 'list', group: 'groupInput', view: Views.questions },
+    { id: 'qa', key: 'Qa', icon: 'flask', group: 'groupInput', view: Views.qa },
+    { id: 'skorlar', key: 'Scores', icon: 'layers', group: 'groupResult', view: Views.domainScores },
+    { id: 'artik', key: 'Residual', icon: 'target', group: 'groupResult', view: Views.residual },
+    { id: 'aksiyon', key: 'Actions', icon: 'clipboard', group: 'groupResult', view: Actions.view },
+    { id: 'rapor', key: 'Report', icon: 'print', group: 'groupResult', view: Exporter.report }
   ];
+
+  const t = (k, p) => I18n.t(k, p);
+  const routeLabel = r => t('nav' + r.key);
+  const routeTitle = r => t('ttl' + r.key);
+  const routeSub = r => t('sub' + r.key);
 
   let current = 'pano';
   let calc = null;
@@ -48,9 +53,9 @@ const App = (() => {
     const nav = UI.el('#nav');
     let html = '', lastGroup = null;
     ROUTES.forEach(r => {
-      if (r.group !== lastGroup) { html += `<div class="nav-group-label">${r.group}</div>`; lastGroup = r.group; }
+      if (r.group !== lastGroup) { html += `<div class="nav-group-label">${t(r.group)}</div>`; lastGroup = r.group; }
       html += `<button class="nav-item" data-route="${r.id}" ${current === r.id ? 'aria-current="page"' : ''}>
-        ${Icons[r.icon]()}<span class="label">${r.label}</span>${badges(r)}</button>`;
+        ${Icons[r.icon]()}<span class="label">${UI.esc(routeLabel(r))}</span>${badges(r)}</button>`;
     });
     nav.innerHTML = html;
   }
@@ -80,8 +85,31 @@ const App = (() => {
   /** Kenar çubuğu rozetleri ve kayıt zamanı — tam yeniden çizim olmadan tazelenir. */
   function refreshChrome() {
     renderNav();
+    paintChrome();
+  }
+
+  /** Kabuğun sabit metinleri — dil değiştiğinde de tazelenir. */
+  function paintChrome() {
     const saved = Store.state.updatedAt;
-    UI.el('#saved-at').textContent = saved ? 'Son kayıt ' + new Date(saved).toLocaleTimeString('tr-TR') : 'Kayıt yok';
+    UI.el('#saved-at').textContent = saved
+      ? `${t('lastSave')} ${new Date(saved).toLocaleTimeString(I18n.locale)}`
+      : t('noSave');
+    UI.el('#brand-title').textContent = t('appTitle');
+    UI.el('#brand-sub').textContent = t('appSub');
+    UI.el('#skip-link').textContent = t('skipToContent');
+    UI.el('#nav').setAttribute('aria-label', t('navMain'));
+    UI.el('#local-only').textContent = t('localOnly');
+    UI.el('#print-btn').setAttribute('aria-label', t('print'));
+    UI.els('[data-act]').forEach(b => {
+      const map = { export: 'dataBackup', import: 'importBtn', reset: 'resetBtn' };
+      const label = t(map[b.dataset.act]);
+      const span = b.querySelector('.btn-label');
+      if (span) span.textContent = label;
+      b.setAttribute('aria-label', label);
+    });
+    UI.els('[data-lang]').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === I18n.lang));
+    });
   }
 
   function render() {
@@ -91,9 +119,9 @@ const App = (() => {
     const r = ROUTES.find(x => x.id === current);
 
     renderNav();
-    UI.el('#page-title').textContent = r.title;
-    UI.el('#page-sub').textContent = r.sub;
-    document.title = `${r.label} · AML/CFT Uyum Check-up`;
+    UI.el('#page-title').textContent = routeTitle(r);
+    UI.el('#page-sub').textContent = routeSub(r);
+    document.title = `${routeLabel(r)} · ${t('appTitle')}`;
 
     // Dinleyicilerin birikmemesi için içerik düğümü her seferinde yenilenir.
     const old = UI.el('#content');
@@ -105,8 +133,7 @@ const App = (() => {
 
     r.view(host, { state, calc });
 
-    const saved = Store.state.updatedAt;
-    UI.el('#saved-at').textContent = saved ? 'Son kayıt ' + new Date(saved).toLocaleTimeString('tr-TR') : 'Kayıt yok';
+    paintChrome();
     restoreFocus(snap);
   }
 
@@ -123,39 +150,47 @@ const App = (() => {
     document.documentElement.setAttribute('data-theme', mode);
     const btn = UI.el('#theme-btn');
     btn.innerHTML = mode === 'dark' ? Icons.sun() : Icons.moon();
-    btn.setAttribute('aria-label', mode === 'dark' ? 'Açık temaya geç' : 'Koyu temaya geç');
+    btn.setAttribute('aria-label', mode === 'dark' ? t('toLight') : t('toDark'));
+  }
+
+  function setLanguage(next) {
+    if (next === I18n.lang) return;
+    I18n.apply(next);
+    Store.update(s => { s.ui.lang = next; }, { silent: true });
+    applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+    render();
   }
 
   function exportMenu() {
     const saved = Store.state.updatedAt;
     UI.modal({
-      title: 'Veri ve yedekleme',
+      title: t('exportTitle'),
       width: 560,
       body: `
-        <p class="subtle">Veriler yalnızca bu tarayıcıda saklanır ve hiçbir sunucuya gönderilmez.
-          ${saved ? 'Son kayıt: ' + new Date(saved).toLocaleString('tr-TR') + '.' : 'Henüz kayıt yok.'}
-          Yedek almak veya başka bir cihaza taşımak için çalışma dosyasını indirin.</p>
+        <p class="subtle">${t('exportIntro')}
+          ${saved ? t('exportLastSave', { t: new Date(saved).toLocaleString(I18n.locale) }) : t('exportNoSave')}
+          ${t('exportBackupTip')}</p>
         <div class="divider"></div>
-        <h3>Çalışma dosyası</h3>
-        <p class="subtle">Tüm yanıtları, skorları ve aksiyon kayıtlarını içerir; geri yüklenebilir.</p>
+        <h3>${t('workingFile')}</h3>
+        <p class="subtle">${t('workingFileDesc')}</p>
         <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:16px">
-          <button class="btn btn-primary" data-x="json">${Icons.download()} JSON indir</button>
-          <button class="btn" data-x="import">${Icons.upload()} Dosyadan yükle</button>
+          <button class="btn btn-primary" data-x="json">${Icons.download()} ${t('downloadJson')}</button>
+          <button class="btn" data-x="import">${Icons.upload()} ${t('loadFromFile')}</button>
         </div>
-        <h3>Tablo çıktıları (CSV)</h3>
-        <p class="subtle">Excel'de noktalı virgül ayracıyla açılır.</p>
+        <h3>${t('tableExports')}</h3>
+        <p class="subtle">${t('csvNote')}</p>
         <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
-          <button class="btn" data-x="questions">${Icons.list()} Soru bankası</button>
-          <button class="btn" data-x="domains">${Icons.layers()} Domain skorları</button>
-          <button class="btn" data-x="inherent">${Icons.gauge()} Doğuştan risk</button>
-          <button class="btn" data-x="qa">${Icons.flask()} QA örneklem planı</button>
-          <button class="btn" data-x="actions">${Icons.clipboard()} Aksiyon planı</button>
+          <button class="btn" data-x="questions">${Icons.list()} ${t('csvQuestions')}</button>
+          <button class="btn" data-x="domains">${Icons.layers()} ${t('csvDomains')}</button>
+          <button class="btn" data-x="inherent">${Icons.gauge()} ${t('csvInherent')}</button>
+          <button class="btn" data-x="qa">${Icons.flask()} ${t('csvQa')}</button>
+          <button class="btn" data-x="actions">${Icons.clipboard()} ${t('csvActions')}</button>
         </div>
         <div class="divider"></div>
-        <h3>Çalışma alanı</h3>
-        <p class="subtle">Sıfırlama tüm girdileri kalıcı olarak siler; önce yedek alın.</p>
-        <button class="btn btn-danger btn-block" data-x="reset">${Icons.trash()} Her şeyi sıfırla</button>`,
-      footer: `<button class="btn" data-close>Kapat</button>`,
+        <h3>${t('workspace')}</h3>
+        <p class="subtle">${t('resetWarn')}</p>
+        <button class="btn btn-danger btn-block" data-x="reset">${Icons.trash()} ${t('resetAll')}</button>`,
+      footer: `<button class="btn" data-close>${t('close')}</button>`,
       onMount(scrim) {
         UI.els('[data-x]', scrim).forEach(b => b.addEventListener('click', () => {
           const kind = b.dataset.x;
@@ -170,17 +205,20 @@ const App = (() => {
 
   async function resetAll() {
     const ok = await UI.confirmDialog({
-      title: 'Tüm veriler silinsin mi?',
-      message: 'Künye, doğuştan risk skorları, 218 sorunun yanıtları, QA hacimleri ve aksiyon kayıtları kalıcı olarak silinir. Bu işlem geri alınamaz — önce çalışma dosyasını indirmeniz önerilir.',
-      confirmLabel: 'Her şeyi sil', danger: true
+      title: t('resetTitle'),
+      message: t('resetMsg'),
+      confirmLabel: t('resetAll'), danger: true
     });
     if (!ok) return;
+    const lang = Store.state.ui.lang, theme = Store.state.ui.theme;
     Store.reset();
-    UI.toast('Çalışma alanı sıfırlandı.');
+    Store.update(s => { s.ui.lang = lang; s.ui.theme = theme; }, { silent: true });
+    UI.toast(t('resetDone'));
   }
 
   function init() {
     Store.init();
+    I18n.apply(Store.state.ui.lang || 'tr');
     applyTheme(Store.state.ui.theme || 'light');
     current = route();
 
@@ -196,6 +234,8 @@ const App = (() => {
         applyTheme(next);
         return;
       }
+      const langBtn = e.target.closest('[data-lang]');
+      if (langBtn) { setLanguage(langBtn.dataset.lang); return; }
       if (e.target.closest('#print-btn')) { window.print(); return; }
       const act = e.target.closest('[data-act]');
       if (act) {
@@ -214,7 +254,7 @@ const App = (() => {
     render();
   }
 
-  return { init, rerender: render, go, recompute, refreshChrome, get calc() { return calc; } };
+  return { init, rerender: render, go, recompute, refreshChrome, setLanguage, get calc() { return calc; } };
 })();
 
 document.addEventListener('DOMContentLoaded', App.init);
