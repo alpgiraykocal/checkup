@@ -80,15 +80,16 @@ const Views = (() => {
         </div>
       </div>
 
-      <div class="grid grid-2" style="margin-top:16px">
-        <div class="card">
-          <div class="card-head"><h2>Doğuştan risk boyutları</h2></div>
-          <div class="card-body">${inherentBars(calc)}</div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h2>Operasyonel KPI'lar</h2><span class="subtle">Dönemsel olarak elle girilir</span></div>
-          <div class="card-body" style="padding:0">${kpiTable(state)}</div>
-        </div>
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h2>Doğuştan risk boyutları</h2>
+          <span class="subtle">Her boyut, beslediği domainlerin artık riskini belirler</span></div>
+        <div class="card-body"><div class="grid grid-2">${inherentBars(calc)}</div></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h2>Operasyonel KPI'lar</h2>
+          <span class="subtle">Hedefi kurumun risk iştahına göre siz belirlersiniz; üç KPI otomatik hesaplanır</span></div>
+        <div class="card-body" style="padding:0">${kpiTable(state, calc)}</div>
       </div>
     `;
 
@@ -98,9 +99,14 @@ const Views = (() => {
       const name = f.dataset.kpi, field = f.dataset.field;
       Store.update(s => {
         s.kpis[name] = s.kpis[name] || {};
-        s.kpis[name][field] = f.value;
+        if (f.value.trim()) s.kpis[name][field] = f.value;
+        else delete s.kpis[name][field];
       }, { silent: true });
     });
+    // Durum sütunu yazma bitince güncellensin
+    host.addEventListener('blur', e => {
+      if (e.target.closest('[data-kpi]')) App.rerender();
+    }, true);
   }
 
   function banner(kind, title, msg) {
@@ -151,58 +157,167 @@ const Views = (() => {
     }).join('');
   }
 
-  function kpiTable(state) {
-    const rows = DATA.kpis.map(k => {
-      const v = state.kpis[k.name] || {};
+  /** Hedefe göre durum. dir: down = küçük iyi, up = büyük iyi, neutral = yorum gerektirir. */
+  function kpiStatus(k, target, value) {
+    if (target === null || value === null) return null;
+    if (k.dir === 'neutral') return { cls: 'chip-mid', text: 'Yorum gerektirir' };
+    const ok = k.dir === 'down' ? value <= target : value >= target;
+    return ok ? { cls: 'chip-ok', text: 'Hedefte' } : { cls: 'chip-critical', text: 'Hedef dışı' };
+  }
+
+  function kpiTable(state, calc) {
+    const num = v => {
+      const n = Number(String(v).replace(',', '.'));
+      return String(v).trim() !== '' && Number.isFinite(n) ? n : null;
+    };
+
+    const rows = DATA.kpis.map((k, i) => {
+      const rec = state.kpis[k.name] || {};
+      const auto = Calc.autoKpi(k, state, { closureRate: calc.actionStats.closureRate });
+      const target = num(rec.target);
+      const manual = num(rec.value);
+      const value = manual !== null ? manual : auto;
+      const st = kpiStatus(k, target, value);
+      const dirHint = k.dir === 'down' ? 'küçük olan iyi' : k.dir === 'up' ? 'büyük olan iyi' : 'yön yorum gerektirir';
+      const statusCell = st
+        ? `<span class="chip ${st.cls}">${esc(st.text)}</span>`
+        : target === null && value === null ? '<span class="subtle">—</span>'
+        : target === null ? '<span class="subtle">hedef belirlenmedi</span>'
+        : '<span class="subtle">değer bekleniyor</span>';
+
       return `<tr>
-        <td>${esc(k.name)}<div class="subtle">${esc(k.source)}</div></td>
-        <td style="width:110px"><input type="text" inputmode="decimal" data-kpi="${esc(k.name)}" data-field="target" value="${esc(v.target || '')}" aria-label="${esc(k.name)} hedef"></td>
-        <td style="width:110px"><input type="text" inputmode="decimal" data-kpi="${esc(k.name)}" data-field="value" value="${esc(v.value || '')}" aria-label="${esc(k.name)} dönem değeri"></td>
+        <td>
+          <label for="kpi-v-${i}" style="font-weight:500;color:inherit;margin:0">${esc(k.name.replace(/\s*\((gün|saat|ay)\)/, ''))}</label>
+          <div class="subtle">${esc(k.help)}</div>
+          <div class="subtle">Kaynak: ${esc(k.auto ? 'uygulama içi hesaplama' : k.source)} · ${dirHint}</div>
+        </td>
+        <td style="width:120px">
+          <div class="input-unit">
+            <input type="text" inputmode="decimal" id="kpi-t-${i}" data-kpi="${esc(k.name)}" data-field="target"
+              value="${esc(rec.target || '')}" placeholder="${esc(k.placeholder || 'hedef')}"
+              aria-label="${esc(k.name)} hedef" title="Örnek hedef: ${esc(k.placeholder || '')} ${esc(k.unit)}">
+            <span class="unit-tag">${esc(k.unit)}</span>
+          </div>
+        </td>
+        <td style="width:120px">
+          ${k.auto && manual === null
+            ? `<div class="auto-value" title="Uygulamadan otomatik hesaplandı">
+                 <b class="num">${auto === null ? '—' : fmtInt(auto)}</b> <span class="subtle">${esc(k.unit)}</span>
+                 <div class="subtle">otomatik</div>
+               </div>`
+            : `<div class="input-unit">
+                 <input type="text" inputmode="decimal" id="kpi-v-${i}" data-kpi="${esc(k.name)}" data-field="value"
+                   value="${esc(rec.value || '')}" placeholder="ölçüm" aria-label="${esc(k.name)} dönem değeri">
+                 <span class="unit-tag">${esc(k.unit)}</span>
+               </div>`}
+        </td>
+        <td style="width:130px">${statusCell}</td>
       </tr>`;
     }).join('');
+
     return `<div class="table-wrap"><table>
-      <thead><tr><th>KPI</th><th>Hedef</th><th>Dönem değeri</th></tr></thead>
+      <thead><tr><th>KPI</th><th>Hedef</th><th>Dönem değeri</th><th>Durum</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
   }
 
   /* =========================================================
      KÜNYE
      ========================================================= */
+  function kunyeField(f, state) {
+    const val = state.kunye[f.id] || '';
+    const id = 'k-' + f.id;
+    const described = (f.help || f.scopeNote) ? ` aria-describedby="${id}-help"` : '';
+    let input;
+
+    switch (f.type) {
+      case 'yesno':
+        input = `<select id="${id}" data-kunye="${f.id}"${described}>
+          ${selectOptions(['Evet', 'Hayır'], val, 'Seçiniz')}</select>`;
+        break;
+      case 'select':
+        input = `<select id="${id}" data-kunye="${f.id}"${described}>
+          ${selectOptions(f.options, val, 'Seçiniz')}</select>`;
+        break;
+      case 'date':
+        input = `<input type="date" id="${id}" data-kunye="${f.id}" value="${esc(val)}"${described}>`;
+        break;
+      case 'number':
+        input = `<div class="input-unit">
+          <input type="number" min="0" step="${f.step || 1}" inputmode="decimal" id="${id}"
+            data-kunye="${f.id}" value="${esc(val)}" placeholder="${esc(f.placeholder || '')}"${described}>
+          ${f.unit ? `<span class="unit-tag">${esc(f.unit)}</span>` : ''}
+        </div>`;
+        break;
+      default:
+        input = `<input type="text" id="${id}" data-kunye="${f.id}" value="${esc(val)}"
+          placeholder="${esc(f.placeholder || '')}"${described}>`;
+    }
+
+    // Sayı alanlarında binlik ayraçlı okuma yardımı
+    const readable = (f.type === 'number' && val !== '' && Number.isFinite(Number(val)))
+      ? `<span class="read-back">${fmtInt(Number(val))}${f.unit ? ' ' + esc(f.unit) : ''}</span>` : '';
+
+    return `<div class="field">
+      <label for="${id}" class="${f.required ? 'req' : ''}">${esc(f.label)}</label>
+      ${input}
+      ${(f.help || f.scopeNote || readable) ? `<div class="help" id="${id}-help">
+        ${esc(f.help || '')}${readable}
+        ${f.scopeNote ? `<div class="scope-note">${Icons.link()}${esc(f.scopeNote)}</div>` : ''}
+      </div>` : ''}
+    </div>`;
+  }
+
   function kunye(host, { state, calc }) {
-    const yesNo = new Set(DATA.yesNoFields);
-    const fields = DATA.kunyeFields.map(f => {
-      const val = state.kunye[f.id] || '';
-      const input = yesNo.has(f.id)
-        ? `<select data-kunye="${f.id}" id="k-${f.id}">${selectOptions(['Evet', 'Hayır'], val, 'Seçiniz')}</select>`
-        : /tarih/i.test(f.label)
-          ? `<input type="date" data-kunye="${f.id}" id="k-${f.id}" value="${esc(val)}">`
-          : /sayısı|adedi|kadrosu/i.test(f.label)
-            ? `<input type="number" min="0" step="1" data-kunye="${f.id}" id="k-${f.id}" value="${esc(val)}" placeholder="0">`
-            : `<input type="text" data-kunye="${f.id}" id="k-${f.id}" value="${esc(val)}">`;
-      return `<div class="field">
-        <label for="k-${f.id}">${esc(f.label)}</label>
-        ${input}
-        ${f.hint ? `<div class="help">${esc(f.hint)}</div>` : ''}
+    const k = calc.kunye;
+
+    const groups = DATA.kunyeGroups.map(g => {
+      const fields = DATA.kunyeFields.filter(f => f.group === g.name);
+      const done = fields.filter(f => String(state.kunye[f.id] || '').trim()).length;
+      return `<div class="card">
+        <div class="card-head">
+          <div style="flex:1;min-width:180px">
+            <h3>${esc(g.name)}</h3>
+            <div class="subtle">${esc(g.help)}</div>
+          </div>
+          <span class="chip ${done === fields.length ? 'chip-ok' : ''}">${done}/${fields.length}</span>
+        </div>
+        <div class="card-body">
+          <div class="field-row">${fields.map(f => kunyeField(f, state)).join('')}</div>
+        </div>
       </div>`;
     }).join('');
 
     const scoped = Array.from(calc.scopeMap.entries());
     const scopedQ = DATA.questions.filter(q => calc.scopeMap.has(q.domain + '|' + q.section)).length;
+    const scopedFactors = calc.inherent.factors.filter(x => x.st.autoNA).length;
 
     host.innerHTML = `
-      ${banner('info', 'Künye kapsamı belirler',
-        'Faaliyet sorularına "Hayır" yanıtı, ilgili soru bölümlerini otomatik olarak "Uygulanamaz" yapar ve skorlamadan çıkarır.')}
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="card-head"><h2>Kurum künyesi</h2></div>
-          <div class="card-body">${fields}</div>
-        </div>
+      ${k.warnings.length ? banner('danger', 'Tutarsız giriş', k.warnings.join(' ')) : ''}
+      ${k.missingRequired.length
+        ? banner('warn', `${k.missingRequired.length} zorunlu alan boş`,
+            k.missingRequired.map(f => f.label).join(' · '))
+        : banner('info', 'Künye kapsamı ve öneriyi belirler',
+            'Faaliyet sorularına "Hayır" yanıtı ilgili soruları ve risk faktörlerini kapsam dışına alır. Müşteri ve işlem sayıları doğuştan risk sayfasında skor önerisi üretir.')}
+
+      <div class="grid grid-kpi" style="margin-bottom:16px">
+        ${statTile({ label: 'Künye tamlığı', value: fmtPct(k.progress),
+          tone: k.progress === 1 ? 'ok' : k.missingRequired.length ? 'warn' : '',
+          foot: `${k.filled}/${k.total} alan dolu` + meter(k.progress, k.progress === 1 ? 'ok' : '') })}
+        ${k.ratios.map(r => statTile({
+          label: r.label,
+          value: r.value === null ? '—' : (r.format === 'int' ? fmtInt(Math.round(r.value)) : fmtPct1(r.value)),
+          foot: r.value === null ? 'İlgili sayılar girilmedi' : esc(r.note)
+        })).join('')}
+      </div>
+
+      <div class="grid grid-dims">
+        ${groups}
         <div>
           <div class="card">
-            <div class="card-head"><h2>Kapsam etkisi</h2></div>
+            <div class="card-head"><h3>Kapsam etkisi</h3></div>
             <div class="card-body">
               ${scoped.length ? `
-                <p class="subtle">Aşağıdaki bölümler kapsam dışı; ${fmtInt(scopedQ)} soru otomatik "Uygulanamaz" sayılıyor.</p>
+                <p class="subtle">${fmtInt(scopedQ)} soru ve ${fmtInt(scopedFactors)} risk faktörü otomatik "Uygulanamaz" sayılıyor.</p>
                 <div class="table-wrap"><table>
                   <thead><tr><th>Bölüm</th><th>Gerekçe</th><th class="num">Soru</th></tr></thead>
                   <tbody>${scoped.map(([key, reason]) => {
@@ -212,7 +327,23 @@ const Views = (() => {
                   }).join('')}</tbody></table></div>`
                 : `<p class="muted">Kapsam daraltan bir yanıt yok. Tüm ${fmtInt(DATA.questions.length)} soru skorlamaya dahil.</p>`}
               <div class="divider"></div>
-              <p class="subtle">Bir soruya elle yanıt verilirse otomatik kapsam kuralı o soru için geçersiz olur.</p>
+              <p class="subtle">Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için geçersiz olur.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Tarih yaşlandırma</h3></div>
+            <div class="card-body" style="padding:0">
+              <div class="table-wrap"><table>
+                <thead><tr><th>Kalem</th><th class="num">Geçen süre</th><th>Beklenen</th></tr></thead>
+                <tbody>${k.stale.map(s => `<tr>
+                  <td>${esc(s.field.label.replace(' tarihi', ''))}</td>
+                  <td class="num">${s.months === null ? '—' : fmtInt(s.months) + ' ay'}</td>
+                  <td>${s.months === null ? '<span class="chip chip-na">tarih girilmedi</span>'
+                    : s.overdue ? `<span class="chip chip-critical">${Icons.alert()} ${s.field.staleMonths} ayı aştı</span>`
+                    : `<span class="chip chip-ok">${s.field.staleMonths} ay içinde</span>`}</td>
+                </tr>`).join('')}</tbody>
+              </table></div>
             </div>
           </div>
         </div>
@@ -221,14 +352,17 @@ const Views = (() => {
     host.addEventListener('change', e => {
       const f = e.target.closest('[data-kunye]');
       if (!f) return;
-      const isScopeField = DATA.scopeRules.some(r => r.field === f.dataset.kunye);
-      Store.update(s => { s.kunye[f.dataset.kunye] = f.value; }, { silent: !isScopeField });
+      Store.update(s => { s.kunye[f.dataset.kunye] = f.value; });
     });
     host.addEventListener('input', e => {
       const f = e.target.closest('input[data-kunye]');
       if (!f) return;
       Store.update(s => { s.kunye[f.dataset.kunye] = f.value; }, { silent: true });
     });
+    // Sayı ve metin alanlarında yazma bitince türetilenleri tazele
+    host.addEventListener('blur', e => {
+      if (e.target.closest('input[data-kunye]')) App.rerender();
+    }, true);
   }
 
   /* =========================================================
@@ -782,12 +916,15 @@ const Views = (() => {
           <div class="field" style="margin:0">
             <label for="ev-${q.id}">Kanıt referansı</label>
             <input type="text" id="ev-${q.id}" data-evidence="${q.id}" value="${esc(rec.evidence || '')}"
-              placeholder="Dosya adı, sistem raporu, tarih">
+              placeholder="${esc(q.evidence)} — dosya adı ve tarihi" aria-describedby="ev-${q.id}-h">
+            <div class="help" id="ev-${q.id}-h">Kanıtın nerede olduğunu yazın; denetimde bu satır üzerinden aranır.</div>
           </div>
           <div class="field" style="margin:0">
             <label for="nt-${q.id}">Bulgu / not</label>
             <input type="text" id="nt-${q.id}" data-note="${q.id}" value="${esc(rec.note || '')}"
-              placeholder="Tespit, sapma, gerekçe">
+              placeholder="${s.answer === 'Evet' ? 'İsteğe bağlı açıklama' : 'Eksik ne, hangi kısmı çalışmıyor'}"
+              aria-describedby="nt-${q.id}-h">
+            <div class="help" id="nt-${q.id}-h">"Evet" dışındaki yanıtlarda buraya yazdığınız metin aksiyon kaydına taşınır.</div>
           </div>
         </div>
         ${s.actionNeeded && s.actionNeeded !== 'Hayır'
@@ -913,21 +1050,28 @@ const Views = (() => {
         <td>${esc(p.pop)}<div class="subtle">${esc(p.focus)}</div></td>
         <td><span class="chip">${esc(p.domain)}</span></td>
         <td><span class="chip ${levelClass(p.risk)}">${esc(p.risk)}</span></td>
-        <td style="width:130px">
-          <input type="number" min="0" step="1" id="qa-vol-${i}" data-vol="${esc(p.pop)}" value="${p.volume === null ? '' : p.volume}"
-            placeholder="0" aria-label="${esc(p.pop)} yıllık hacim">
+        <td style="width:150px">
+          <div class="input-unit">
+            <input type="number" min="0" step="1" inputmode="numeric" id="qa-vol-${i}" data-vol="${esc(p.pop)}"
+              value="${p.volume === null ? '' : p.volume}" placeholder="0"
+              aria-label="${esc(p.pop)} dönem içi hacim">
+            <span class="unit-tag">adet</span>
+          </div>
+          ${p.volume !== null ? `<div class="subtle">${fmtInt(p.volume)} kayıt</div>` : ''}
         </td>
-        <td>${p.full ? '<span class="chip chip-critical">Tam kapsam</span>' : `%${fmtInt(p.rate * 100)} · min ${fmtInt(p.min)}`}</td>
+        <td>${p.full
+          ? '<span class="chip chip-critical">Tam kapsam</span><div class="subtle">tamamı test edilir</div>'
+          : `%${fmtInt(p.rate * 100)} · en az ${fmtInt(p.min)}<div class="subtle">hangisi büyükse</div>`}</td>
         <td class="num"><b>${fmtInt(p.yearlySample)}</b></td>
-        <td>${esc(p.freq)}</td>
+        <td>${esc(p.freq)}<div class="subtle">yılda ${p.tests}×</div></td>
         <td class="num">${fmtInt(p.perTest)}</td>
       </tr>`).join('');
 
     const covered = calc.qa.filter(p => p.volume !== null).length;
 
     host.innerHTML = `
-      ${banner('info', 'Örneklem kuralı',
-        'Tam kapsam "Evet" ise tüm popülasyon test edilir. Diğerlerinde örneklem = MAK(hacim × oran, asgari sayı), hacmi aşamaz. Test başına örneklem = yıllık örneklem / frekans, yukarı yuvarlanır.')}
+      ${banner('info', 'Ne gireceksiniz: her popülasyonun dönem içi toplam adedi',
+        'Örneğin "EDD dosyaları" satırına, değerlendirme döneminde açılan toplam EDD dosyası sayısını yazın. Örneklem büyüklüğü otomatik hesaplanır: tam kapsam "Evet" ise tüm popülasyon test edilir, diğerlerinde MAK(hacim × oran, asgari sayı) — hacmi aşamaz. Test başına örneklem = yıllık örneklem / frekans, yukarı yuvarlanır. Hacmini bilmediğiniz satırı boş bırakabilirsiniz.')}
       <div class="grid grid-kpi" style="margin-bottom:16px">
         ${statTile({ label: 'Popülasyon', value: fmtInt(calc.qa.length), foot: `${fmtInt(covered)} tanesinin hacmi girildi` })}
         ${statTile({ label: 'Toplam yıllık hacim', value: fmtInt(calc.qaTotals.volume) })}
@@ -939,7 +1083,7 @@ const Views = (() => {
         <div class="card-body" style="padding:0">
           <div class="table-wrap"><table>
             <thead><tr>
-              <th>Popülasyon / test odağı</th><th>Domain</th><th>Risk</th><th>Yıllık hacim</th>
+              <th>Popülasyon / test odağı</th><th>Domain</th><th>Risk</th><th>Dönem içi hacim</th>
               <th>Örneklem kuralı</th><th class="num">Yıllık örneklem</th><th>Frekans</th><th class="num">Test başına</th>
             </tr></thead>
             <tbody>${rows}</tbody>

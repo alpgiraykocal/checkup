@@ -86,7 +86,8 @@ const Exporter = (() => {
         const r = byCode[d.code];
         rows.push([d.code, d.name, d.count, d.answered, d.na, dec(d.applicableWeight), dec(d.earned),
           dec(d.effectiveness === null ? '' : d.effectiveness.toFixed(4)), d.maturity, d.openCritical, d.actionsNeeded,
-          dec(r.inherentRisk.toFixed(2)), dec(r.residual === null ? '' : r.residual.toFixed(2)),
+          dec(r.inherentRisk === null ? '' : r.inherentRisk.toFixed(2)),
+          dec(r.residual === null ? '' : r.residual.toFixed(2)),
           r.level, dec(r.appetite), r.breach === null ? '' : (r.breach ? 'AŞIM - AKSİYON' : 'İştah İçinde')]);
       });
     } else if (kind === 'qa') {
@@ -150,7 +151,7 @@ const Exporter = (() => {
         <div class="card-head">
           <div>
             <h2>AML/CFT Uyum Check-up — Yönetici Özeti</h2>
-            <div class="subtle">${esc(k.kurum_unvani || 'Kurum adı girilmedi')} · Değerlendirme dönemi: ${esc(k.degerlendirme_donemi || '—')} · Rapor tarihi: ${fmtDate(new Date())}</div>
+            <div class="subtle">${esc(k.kurum_unvani || 'Kurum adı girilmedi')} · Değerlendirme dönemi: ${esc(calc.kunye.periodLabel || '—')} · Rapor tarihi: ${fmtDate(new Date())}</div>
           </div>
         </div>
         <div class="card-body">
@@ -170,10 +171,13 @@ const Exporter = (() => {
             ${kv('Faaliyet gösterilen ülkeler', k.faaliyet_gosterilen_ulkeler)}
             ${kv('Değerlendirmeyi yapan', k.degerlendirmeyi_yapan)}
             ${kv('Uyum görevlisi', k.uyum_gorevlisi)}
-            ${kv('Toplam müşteri sayısı', k.toplam_musteri_sayisi)}
+            ${kv('Toplam müşteri sayısı', k.toplam_musteri_sayisi ? UI.fmtInt(Number(k.toplam_musteri_sayisi)) : '')}
             ${kv('Uyum birimi kadrosu (FTE)', k.uyum_birimi_kadrosu_fte)}
-            ${kv('Son bağımsız AML denetimi', k.son_bagimsiz_aml_denetimi_tarihi)}
-            ${kv('Son EWRA tarihi', k.son_ewra_tarihi)}
+            ${calc.kunye.ratios.filter(r => r.value !== null).map(r =>
+              kv(r.label, r.format === 'int' ? UI.fmtInt(Math.round(r.value)) : UI.fmtPct1(r.value))).join('')}
+            ${calc.kunye.stale.map(s => kv(s.field.label.replace(' tarihi', ''),
+              (k[s.field.id] ? fmtDate(k[s.field.id]) : '—') +
+              (s.overdue ? ` — ${s.months} ay geçti, beklenen ${s.field.staleMonths} ay` : ''))).join('')}
           </tbody></table></div>
 
           <div class="divider"></div>

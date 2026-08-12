@@ -39,6 +39,100 @@ const Calc = (() => {
     return scopeMap.get(q.domain + '|' + q.section) || null;
   }
 
+  /* ---------- Künye ---------- */
+
+  function monthsSince(dateStr) {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return null;
+    const now = new Date();
+    return (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth())
+      + (now.getDate() < d.getDate() ? -1 : 0);
+  }
+
+  function ratio(state, numId, denId) {
+    const n = Number(state.kunye[numId]), d = Number(state.kunye[denId]);
+    if (!Number.isFinite(n) || !Number.isFinite(d) || d <= 0) return null;
+    return n / d;
+  }
+
+  /** Künye tamlığı, türetilen oranlar ve tarih yaşlandırma uyarıları. */
+  function kunye(state) {
+    const filled = f => String(state.kunye[f.id] || '').trim() !== '';
+    const required = DATA.kunyeFields.filter(f => f.required);
+    const missingRequired = required.filter(f => !filled(f));
+    const missing = DATA.kunyeFields.filter(f => !filled(f));
+
+    const stale = DATA.kunyeFields
+      .filter(f => f.staleMonths)
+      .map(f => {
+        const m = monthsSince(state.kunye[f.id]);
+        return { field: f, months: m, overdue: m !== null && m > f.staleMonths };
+      });
+
+    const ratios = [
+      { id: 'highRisk', label: 'Yüksek riskli müşteri payı',
+        value: ratio(state, 'yuksek_riskli_musteri_sayisi', 'toplam_musteri_sayisi'),
+        note: 'Doğuştan risk — Müşteri boyutu' },
+      { id: 'pep', label: 'PEP müşteri payı',
+        value: ratio(state, 'pep_musteri_sayisi', 'toplam_musteri_sayisi'),
+        note: 'Doğuştan risk — PEP maruziyeti' },
+      { id: 'crossBorder', label: 'Sınır ötesi işlem payı',
+        value: ratio(state, 'yillik_sinir_otesi_islem_adedi', 'yillik_islem_adedi'),
+        note: 'Doğuştan risk — Coğrafya ve İşlem' },
+      { id: 'load', label: 'Uyum personeli başına müşteri',
+        value: ratio(state, 'toplam_musteri_sayisi', 'uyum_birimi_kadrosu_fte'),
+        format: 'int', note: 'Kaynak yeterliliği göstergesi' }
+    ];
+
+    // Dönem tutarlılığı
+    const bas = state.kunye.donem_baslangic, bit = state.kunye.donem_bitis;
+    let periodError = null;
+    if (bas && bit && new Date(bit) < new Date(bas)) periodError = 'Bitiş tarihi başlangıçtan önce olamaz.';
+
+    // Sayısal tutarlılık
+    const warnings = [];
+    const tot = Number(state.kunye.toplam_musteri_sayisi);
+    [['yuksek_riskli_musteri_sayisi', 'Yüksek riskli müşteri sayısı'],
+     ['pep_musteri_sayisi', 'PEP müşteri sayısı']].forEach(([id, label]) => {
+      const v = Number(state.kunye[id]);
+      if (Number.isFinite(v) && Number.isFinite(tot) && tot > 0 && v > tot) {
+        warnings.push(`${label} toplam müşteri sayısını aşıyor.`);
+      }
+    });
+    const cb = Number(state.kunye.yillik_sinir_otesi_islem_adedi);
+    const ti = Number(state.kunye.yillik_islem_adedi);
+    if (Number.isFinite(cb) && Number.isFinite(ti) && ti > 0 && cb > ti) {
+      warnings.push('Sınır ötesi işlem adedi toplam işlem adedini aşıyor.');
+    }
+    if (periodError) warnings.push(periodError);
+
+    return {
+      total: DATA.kunyeFields.length,
+      filled: DATA.kunyeFields.length - missing.length,
+      progress: (DATA.kunyeFields.length - missing.length) / DATA.kunyeFields.length,
+      missing, missingRequired, stale, ratios, warnings,
+      periodLabel: (bas && bit) ? `${fmtTR(bas)} – ${fmtTR(bit)}` : (state.kunye.degerlendirme_donemi || '')
+    };
+  }
+
+  function fmtTR(iso) {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('tr-TR');
+  }
+
+  /** Otomatik hesaplanabilen KPI değeri; elle girilen değer varsa o kazanır. */
+  function autoKpi(spec, state, ctx) {
+    if (!spec.auto) return null;
+    if (spec.auto === 'actionClosure') {
+      return ctx.closureRate === null ? null : Math.round(ctx.closureRate * 100);
+    }
+    if (spec.auto.startsWith('monthsSince:')) {
+      return monthsSince(state.kunye[spec.auto.split(':')[1]]);
+    }
+    return null;
+  }
+
   /* ---------- Soru düzeyi ---------- */
 
   /** 03_Soru_Bankasi G/I/J/R sütunları. */
@@ -292,7 +386,7 @@ const Calc = (() => {
     actionStats.closureRate = actionStats.total ? actionStats.closed / actionStats.total : null;
 
     return {
-      scopeMap, perQuestion, domains, totals,
+      scopeMap, perQuestion, domains, totals, kunye: kunye(state),
       inherent: inh, residual, generalResidual,
       breaches: residual.filter(r => r.breach).length,
       qa, qaTotals, actions, actionStats
@@ -313,6 +407,7 @@ const Calc = (() => {
     return d.toISOString().slice(0, 10);
   }
 
-  return { compute, inherent, factorState, maturity, riskLevel5, residualLevel, slaDueDate,
+  return { compute, inherent, factorState, kunye, autoKpi, monthsSince,
+           maturity, riskLevel5, residualLevel, slaDueDate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

@@ -257,8 +257,32 @@ input:focus, select:focus, textarea:focus {
 input::placeholder, textarea::placeholder { color: var(--fg-subtle); }
 select { cursor: pointer; }
 .field { margin-bottom: 14px; }
-.field .help { font-size: 12px; color: var(--fg-subtle); margin-top: 4px; }
-.field-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.field .help { font-size: 12px; color: var(--fg-subtle); margin-top: 4px; line-height: 1.45; }
+.field-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+/* Birim etiketli sayı girişi */
+.input-unit { position: relative; display: block; }
+.input-unit > input { padding-right: 58px; }
+.unit-tag {
+  position: absolute; right: 1px; top: 1px; bottom: 1px;
+  display: flex; align-items: center; padding: 0 10px;
+  background: var(--surface-2); border-left: 1px solid var(--border);
+  border-radius: 0 var(--r) var(--r) 0;
+  font-size: 12px; color: var(--fg-subtle); pointer-events: none; white-space: nowrap;
+}
+.read-back { display: block; color: var(--fg-muted); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.auto-value { font-size: 13px; }
+.auto-value b { font-size: 15px; }
+
+.scope-note {
+  display: flex; gap: 6px; align-items: flex-start; margin-top: 5px;
+  padding: 5px 8px; border-radius: var(--r-sm);
+  background: var(--info-bg); color: var(--fg-muted);
+}
+.scope-note .ico { flex: 0 0 13px; width: 13px; height: 13px; margin-top: 2px; color: var(--primary); }
+
+.q-echo { margin-top: 4px; line-height: 1.4; }
+.q-echo.is-error { color: var(--danger); }
 
 /* ---------- Segmented answer control ---------- */
 .answers { display: flex; flex-wrap: wrap; gap: 6px; }

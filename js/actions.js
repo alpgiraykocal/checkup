@@ -2,6 +2,7 @@
 
 const Actions = (() => {
   const { esc, fmtInt, fmtDate, critChip, selectOptions, emptyState, statTile, fmtPct } = UI;
+  const banner = Views.banner;
 
   const filter = { status: '', crit: '', domain: '', delay: '' };
 
@@ -30,8 +31,17 @@ const Actions = (() => {
         ${statTile({ label: 'Toplam bulgu', value: fmtInt(st.total) })}
         ${statTile({ label: 'Açık', value: fmtInt(st.open), tone: st.open ? 'warn' : 'ok' })}
         ${statTile({ label: 'Gecikmiş', value: fmtInt(st.overdue), tone: st.overdue ? 'danger' : 'ok', foot: 'Termin geçmiş ve kapanmamış' })}
+        ${(() => {
+          const incomplete = calc.actions.filter(a => gaps(a).length).length;
+          return statTile({ label: 'Eksik alanlı bulgu', value: fmtInt(incomplete),
+            tone: incomplete ? 'warn' : 'ok',
+            foot: incomplete ? 'Kök neden, sahip, termin veya doğrulama boş' : 'Tüm kayıtlar eksiksiz' });
+        })()}
         ${statTile({ label: 'Kapanış oranı', value: fmtPct(st.closureRate), foot: UI.meter(st.closureRate) })}
       </div>
+
+      ${banner('info', 'Bir bulgunun denetimde savunulabilmesi için beş alan şart',
+        'Kök neden, aksiyon, sahip, termin ve doğrulama yöntemi. "Eksik kontrollerden üret" düğmesi taslak açar; bu alanları sizin doldurmanız gerekir.')}
 
       <div class="toolbar no-print">
         <div class="field">
@@ -87,13 +97,27 @@ const Actions = (() => {
     });
   }
 
+  /** Denetimde savunulabilir bir bulgu satırında bulunması gereken alanlar. */
+  function gaps(a) {
+    const missing = [];
+    if (!a.rootCause) missing.push('kök neden');
+    if (!a.action) missing.push('aksiyon');
+    if (!a.owner) missing.push('sahip');
+    if (!a.due) missing.push('termin');
+    if (!a.verification) missing.push('doğrulama');
+    return missing;
+  }
+
   function table(list) {
-    const rows = list.map(a => `
+    const rows = list.map(a => {
+      const missing = gaps(a);
+      return `
       <tr>
         <td><b class="mono">${esc(a.id)}</b>${a.questionId ? `<div class="subtle mono">${esc(a.questionId)}</div>` : ''}</td>
         <td><span class="chip">${esc(a.domain || '—')}</span></td>
         <td style="min-width:240px">${esc(a.finding)}
-          ${a.rootCause ? `<div class="subtle">Kök neden: ${esc(a.rootCause)}</div>` : ''}</td>
+          ${a.rootCause ? `<div class="subtle">Kök neden: ${esc(a.rootCause)}</div>` : ''}
+          ${missing.length ? `<div style="margin-top:4px"><span class="chip chip-high" title="Bu alanlar doldurulmadan bulgu denetimde savunulamaz">${Icons.alert()} Eksik: ${esc(missing.join(', '))}</span></div>` : ''}</td>
         <td style="min-width:220px">${esc(a.action || '—')}
           ${a.verification ? `<div class="subtle">Doğrulama: ${esc(a.verification)}</div>` : ''}</td>
         <td>${a.crit ? critChip(a.crit) : '—'}</td>
@@ -106,7 +130,8 @@ const Actions = (() => {
             <button class="btn btn-sm btn-icon btn-danger" data-del="${esc(a.id)}" aria-label="${esc(a.id)} sil">${Icons.trash()}</button>
           </div>
         </td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
 
     return `<div class="table-wrap"><table>
       <thead><tr>
@@ -145,36 +170,57 @@ const Actions = (() => {
       residualAfter: ''
     }, prefill);
 
-    const f = (label, name, input, help) => `<div class="field">
-      <label for="af-${name}">${esc(label)}</label>${input}${help ? `<div class="help">${esc(help)}</div>` : ''}</div>`;
+    const f = (label, name, input, help, req) => `<div class="field">
+      <label for="af-${name}" class="${req ? 'req' : ''}">${esc(label)}</label>${input}${help ? `<div class="help">${esc(help)}</div>` : ''}</div>`;
 
     UI.modal({
       title: existing ? `Bulgu düzenle — ${a.id}` : 'Yeni bulgu',
-      width: 780,
+      width: 800,
       body: `
+        <p class="subtle" style="margin-bottom:14px">Her bulgu tek satırda kapanış disiplinini taşır:
+          ne eksik → neden eksik → ne yapılacak → kim → ne zaman → nasıl doğrulanacak.</p>
         <div class="field-row">
-          ${f('Bulgu ID', 'id', `<input type="text" id="af-id" name="id" value="${esc(a.id)}" ${existing ? 'readonly' : ''}>`)}
-          ${f('Domain', 'domain', `<select id="af-domain" name="domain">${UI.selectOptions(DATA.domains.map(d => d.code + ' — ' + d.name), (DATA.domains.find(d => d.code === a.domain) ? a.domain + ' — ' + DATA.domains.find(d => d.code === a.domain).name : ''), 'Seçiniz')}</select>`)}
-          ${f('İlgili soru ID', 'questionId', `<input type="text" id="af-questionId" name="questionId" value="${esc(a.questionId)}" placeholder="D6-02">`)}
+          ${f('Bulgu ID', 'id', `<input type="text" id="af-id" name="id" value="${esc(a.id)}" ${existing ? 'readonly' : ''}>`,
+            existing ? 'Kayıt oluşturulduktan sonra değişmez.' : 'Sıradaki numara önerildi; değiştirebilirsiniz.')}
+          ${f('Domain', 'domain', `<select id="af-domain" name="domain">${UI.selectOptions(DATA.domains.map(d => d.code + ' — ' + d.name), (DATA.domains.find(d => d.code === a.domain) ? a.domain + ' — ' + DATA.domains.find(d => d.code === a.domain).name : ''), 'Seçiniz')}</select>`,
+            'Bulgunun ait olduğu kontrol alanı.')}
+          ${f('İlgili soru ID', 'questionId',
+            `<input type="text" id="af-questionId" name="questionId" value="${esc(a.questionId)}"
+               list="af-qids" placeholder="D6-02" autocomplete="off">
+             <datalist id="af-qids">${DATA.questions.map(q => `<option value="${esc(q.id)}">${esc(q.text.slice(0, 70))}</option>`).join('')}</datalist>
+             <div class="q-echo subtle" id="af-qecho"></div>`,
+            'Anketteki soruyla bağlantı. Yazmaya başlayın, liste açılır.')}
         </div>
-        ${f('Bulgu / kontrol eksikliği', 'finding', `<textarea id="af-finding" name="finding" required>${esc(a.finding)}</textarea>`)}
+        ${f('Bulgu / kontrol eksikliği', 'finding',
+          `<textarea id="af-finding" name="finding" required placeholder="Ne eksik veya ne çalışmıyor — ölçülebilir biçimde yazın">${esc(a.finding)}</textarea>`,
+          'Örnek: "Liste güncellemeleri kaynaktan üretime ortalama 26 saatte yansıyor."', true)}
         <div class="field-row">
-          ${f('Kaynak', 'source', `<input type="text" id="af-source" name="source" value="${esc(a.source)}" placeholder="Anket / QA testi / Örneklem testi">`)}
+          ${f('Kaynak', 'source', `<input type="text" id="af-source" name="source" value="${esc(a.source)}" placeholder="Anket — D6-02 / QA testi / Örneklem testi (25 dosya)">`,
+            'Bulgunun nereden çıktığı. Denetimde ilk sorulan budur.')}
           ${f('Kök neden', 'rootCause', `<select id="af-rootCause" name="rootCause">${UI.selectOptions(DATA.ref.rootCause, a.rootCause, 'Seçiniz')}</select>`,
-            'Kök neden sınıflandırması olmadan aksiyon planı "eğitim verilecek" listesine döner.')}
-          ${f('Kritiklik', 'crit', `<select id="af-crit" name="crit">${UI.selectOptions(DATA.ref.crit, a.crit)}</select>`)}
+            'Sınıflandırma olmadan aksiyon planı "eğitim verilecek" listesine döner.', true)}
+          ${f('Kritiklik', 'crit', `<select id="af-crit" name="crit">${UI.selectOptions(DATA.ref.crit, a.crit)}</select>`,
+            'Termini otomatik belirler: Kritik 5 iş günü · Yüksek 30 gün · Orta 90 gün · Düşük sonraki QA döngüsü.')}
         </div>
-        ${f('Aksiyon', 'action', `<textarea id="af-action" name="action">${esc(a.action)}</textarea>`)}
+        ${f('Aksiyon', 'action',
+          `<textarea id="af-action" name="action" placeholder="Yapılacak somut iş — sistem, süreç veya doküman düzeyinde">${esc(a.action)}</textarea>`,
+          'Örnek: "Otomatik liste besleme kurulacak, 4 saatlik SLA tanımlanacak."')}
         <div class="field-row">
-          ${f('Sahip', 'owner', `<input type="text" id="af-owner" name="owner" value="${esc(a.owner)}" placeholder="Birim / kişi">`)}
-          ${f('Termin', 'due', `<input type="date" id="af-due" name="due" value="${esc(a.due)}">`, 'Kritik 5 iş günü · Yüksek 30 gün · Orta 90 gün')}
-          ${f('Durum', 'status', `<select id="af-status" name="status">${UI.selectOptions(DATA.ref.status, a.status)}</select>`)}
+          ${f('Sahip', 'owner', `<input type="text" id="af-owner" name="owner" value="${esc(a.owner)}" placeholder="Uyum — CDD Birimi / BT Entegrasyon">`,
+            'Aksiyonu kapatmakla yükümlü birim veya kişi.', true)}
+          ${f('Termin', 'due', `<input type="date" id="af-due" name="due" value="${esc(a.due)}">`,
+            'Kritikliğe göre önerildi; kurumun taahhüdüne göre değiştirin.', true)}
+          ${f('Durum', 'status', `<select id="af-status" name="status">${UI.selectOptions(DATA.ref.status, a.status)}</select>`,
+            '"Kabul Edilen Risk" seçimi yönetim onayı gerektirir.')}
         </div>
-        ${f('Doğrulama yöntemi (re-test)', 'verification', `<textarea id="af-verification" name="verification">${esc(a.verification)}</textarea>`,
-          'Re-test tanımı olmadan kapanış denetimde geçerli sayılmaz.')}
+        ${f('Doğrulama yöntemi (re-test)', 'verification',
+          `<textarea id="af-verification" name="verification" placeholder="Kapanışın nasıl kanıtlanacağı — örneklem, hedef hata oranı, dönem">${esc(a.verification)}</textarea>`,
+          'Re-test tanımı olmadan kapanış denetimde geçerli sayılmaz. Örnek: "Yeni 25 dosyalık re-test, hedef hata oranı <%5."')}
         <div class="field-row">
-          ${f('Kapanış tarihi', 'closedAt', `<input type="date" id="af-closedAt" name="closedAt" value="${esc(a.closedAt)}">`)}
-          ${f('Kapanış sonrası artık risk', 'residualAfter', `<select id="af-residualAfter" name="residualAfter">${UI.selectOptions(DATA.ref.riskLevel, a.residualAfter, '—')}</select>`)}
+          ${f('Kapanış tarihi', 'closedAt', `<input type="date" id="af-closedAt" name="closedAt" value="${esc(a.closedAt)}">`,
+            'Yalnızca doğrulama tamamlandığında doldurun.')}
+          ${f('Kapanış sonrası artık risk', 'residualAfter', `<select id="af-residualAfter" name="residualAfter">${UI.selectOptions(DATA.ref.riskLevel, a.residualAfter, '—')}</select>`,
+            'Aksiyon kapandığında bu kontrolde beklenen kalıntı risk seviyesi.')}
         </div>`,
       footer: `<button class="btn" data-close>Vazgeç</button>
                <button class="btn btn-primary" data-save>${Icons.check()} Kaydet</button>`,
@@ -184,6 +230,17 @@ const Actions = (() => {
         critSel.addEventListener('change', () => {
           if (!existing || !dueInp.value) dueInp.value = Calc.slaDueDate(critSel.value);
         });
+
+        // Soru ID yazıldıkça sorunun metnini göster — doğru soruya bağlandığı görülsün
+        const qInp = UI.el('#af-questionId', scrim);
+        const qEcho = UI.el('#af-qecho', scrim);
+        const syncEcho = () => {
+          const q = DATA.questions.find(x => x.id === qInp.value.trim().toUpperCase());
+          qEcho.textContent = q ? `${q.domain} · ${q.section} — ${q.text}` : (qInp.value.trim() ? 'Bu ID ile soru bulunamadı.' : '');
+          qEcho.classList.toggle('is-error', Boolean(qInp.value.trim() && !q));
+        };
+        qInp.addEventListener('input', syncEcho);
+        syncEcho();
         UI.el('[data-save]', scrim).addEventListener('click', () => {
           const get = n => { const e = UI.el(`[name="${n}"]`, scrim); return e ? e.value.trim() : ''; };
           const rec = {
@@ -202,7 +259,21 @@ const Actions = (() => {
             closedAt: get('closedAt'),
             residualAfter: get('residualAfter')
           };
-          if (!rec.finding) { UI.toast('Bulgu alanı zorunlu.', 'err'); UI.el('#af-finding', scrim).focus(); return; }
+          const problems = [];
+          if (!rec.finding) problems.push(['af-finding', 'Bulgu alanı zorunlu.']);
+          if (!rec.rootCause) problems.push(['af-rootCause', 'Kök neden seçilmeli.']);
+          if (!rec.owner) problems.push(['af-owner', 'Sahip alanı zorunlu.']);
+          if (!rec.due) problems.push(['af-due', 'Termin girilmeli.']);
+          if (rec.questionId && !DATA.questions.some(q => q.id === rec.questionId.toUpperCase())) {
+            problems.push(['af-questionId', 'Girilen soru ID bulunamadı.']);
+          }
+          if (problems.length) {
+            UI.toast(problems[0][1] + (problems.length > 1 ? ` (${problems.length} eksik alan)` : ''), 'err');
+            const first = UI.el('#' + problems[0][0], scrim);
+            if (first) first.focus();
+            return;
+          }
+          rec.questionId = rec.questionId.toUpperCase();
           Store.update(s => {
             s.actions = s.actions || [];
             const i = s.actions.findIndex(x => x.id === (existing ? existing.id : rec.id));

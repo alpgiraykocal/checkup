@@ -18,7 +18,7 @@ Kaynak: `AML_Uyum_Checkup_Anket_QA_Aksiyon.xlsx` + `Anket.docx` (mimari notları
 
 | Sıra | Ekran | Ne yapılır |
 |---|---|---|
-| 1 | **Künye** | Kurum profili. Faaliyet sorularına "Hayır" yanıtı ilgili soru bölümlerini otomatik "Uygulanamaz" yapar. |
+| 1 | **Künye** | Kurum profili, altı gruba ayrılmış 26 alan. Her alanda örnek değer ve ne yazılacağını anlatan açıklama var. Faaliyet sorularına "Hayır" yanıtı ilgili soru bölümlerini otomatik "Uygulanamaz" yapar. Girilen sayılardan oranlar ve tarih yaşlandırma uyarıları türetilir. |
 | 2 | **Doğuştan Risk** | 5 boyut, 25 alt faktör. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
 | 3 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
 | 4 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
@@ -28,6 +28,23 @@ Kaynak: `AML_Uyum_Checkup_Anket_QA_Aksiyon.xlsx` + `Anket.docx` (mimari notları
 | 8 | **Yönetici Raporu** | Yazdırma / PDF çıktısı. |
 
 QA testi sonucunda beyan ile dosya bulgusu çelişiyorsa ilgili sorunun yanıtı "Kısmen" veya "Hayır" olarak güncellenmelidir. Anket beyanı tek başına kontrol etkinliği sayılmaz.
+
+## Alanları doldurma rehberi
+
+Her giriş alanının yanında ne yazılacağını anlatan bir açıklama ve örnek değer bulunur. Özet:
+
+| Ekran | Ne girilir | Uygulama ne yapar |
+|---|---|---|
+| Künye — Ölçek | Dönem sonu müşteri sayısı, yüksek riskli ve PEP müşteri adedi, işlem adetleri, uyum kadrosu (FTE) | Oranları hesaplar ve doğuştan riskte dört faktör için skor önerir |
+| Künye — Faaliyet kapsamı | Altı faaliyet sorusuna Evet/Hayır | "Hayır" seçilen faaliyetin soruları ve risk faktörü kapsam dışına çıkar |
+| Künye — Denetim geçmişi | Son denetim, EWRA, senaryo tuning ve tarama kalibrasyon tarihleri | Yaşlandırma uyarısı üretir, iki KPI'yı otomatik doldurur |
+| Doğuştan Risk | Her faktöre 1–5 skor, 4–5 skorlarda gerekçe | Rubrik metnini gösterir, boyut skorunu ve artık riski hesaplar |
+| Anket | Yanıt, kanıt referansı, bulgu notu | Kontrol etkinliğini hesaplar; not, aksiyon kaydına taşınır |
+| QA Planı | Her popülasyonun dönem içi toplam adedi | Örneklem büyüklüğünü ve test başına örneklemi hesaplar |
+| Aksiyon Planı | Bulgu, kök neden, aksiyon, sahip, termin, doğrulama | Termini kritikliğe göre önerir, gecikmeyi ve eksik alanı işaretler |
+| Pano — KPI | Hedef ve dönem ölçümü (birim alanın yanında yazılı) | Hedefe göre "Hedefte / Hedef dışı" durumu üretir; üç KPI otomatik hesaplanır |
+
+Zorunlu alanlar yıldızla işaretlidir. Kaydetmeden önce aksiyon formu kök neden, sahip ve termini kontrol eder; künye eksik zorunlu alanları sayfa başında listeler.
 
 ## Hesaplama kuralları
 

@@ -4,127 +4,242 @@ const DATA = {
   {
    "id": "kurum_unvani",
    "label": "Kurum unvanı",
-   "hint": ""
+   "group": "Kurum kimliği",
+   "type": "text",
+   "placeholder": "Örnek Bank A.Ş.",
+   "help": "Ticaret sicilinde kayıtlı tam unvan. Rapor başlığında görünür.",
+   "required": true
   },
   {
    "id": "yukumlu_tipi",
    "label": "Yükümlü tipi",
-   "hint": "Banka / katılım bankası / aracı kurum / e-para / ödeme kuruluşu / sigorta / VASP / diğer"
-  },
-  {
-   "id": "faaliyet_gosterilen_ulkeler",
-   "label": "Faaliyet gösterilen ülkeler",
-   "hint": "Şube ve iştirak dahil"
+   "group": "Kurum kimliği",
+   "type": "select",
+   "options": [
+    "Banka",
+    "Katılım bankası",
+    "Kalkınma ve yatırım bankası",
+    "Aracı kurum",
+    "Portföy yönetim şirketi",
+    "Sigorta / emeklilik şirketi",
+    "Finansal kiralama",
+    "Faktoring",
+    "Finansman şirketi",
+    "Elektronik para kuruluşu",
+    "Ödeme kuruluşu",
+    "Kripto varlık hizmet sağlayıcı",
+    "Yetkili müessese (döviz)",
+    "PTT",
+    "Varlık yönetim şirketi",
+    "Diğer"
+   ],
+   "help": "5549 sayılı Kanun kapsamındaki yükümlü sınıfınız. Hangi mevzuat setine tabi olduğunuzu belirler.",
+   "required": true
   },
   {
    "id": "lisanslar",
    "label": "Lisanslar",
-   "hint": ""
+   "group": "Kurum kimliği",
+   "type": "text",
+   "placeholder": "BDDK bankacılık lisansı; SPK aracılık yetki belgeleri",
+   "help": "Düzenleyici kurum ve belge adları. Birden fazlaysa noktalı virgülle ayırın."
   },
   {
-   "id": "degerlendirme_donemi",
-   "label": "Değerlendirme dönemi",
-   "hint": "Ör. 01.01.2026 - 31.12.2026"
+   "id": "faaliyet_gosterilen_ulkeler",
+   "label": "Faaliyet gösterilen ülkeler",
+   "group": "Kurum kimliği",
+   "type": "text",
+   "placeholder": "TR, BG, DE",
+   "help": "Şube, iştirak ve temsilcilik dahil tüm ülkeler. Ülke kodu veya adı."
+  },
+  {
+   "id": "donem_baslangic",
+   "label": "Değerlendirme dönemi — başlangıç",
+   "group": "Değerlendirme",
+   "type": "date",
+   "help": "Anketin kapsadığı dönemin ilk günü.",
+   "required": true
+  },
+  {
+   "id": "donem_bitis",
+   "label": "Değerlendirme dönemi — bitiş",
+   "group": "Değerlendirme",
+   "type": "date",
+   "help": "Genellikle bir takvim yılı. Kanıtlar ve QA örneklemleri bu dönemden seçilir.",
+   "required": true
   },
   {
    "id": "degerlendirmeyi_yapan",
    "label": "Değerlendirmeyi yapan",
-   "hint": "Öz değerlendirme / bağımsız inceleme"
+   "group": "Değerlendirme",
+   "type": "select",
+   "options": [
+    "Öz değerlendirme — uyum birimi",
+    "Öz değerlendirme — uyum + iş birimleri",
+    "Bağımsız iç denetim",
+    "Bağımsız dış inceleme / danışman"
+   ],
+   "help": "Öz değerlendirmede beyanlar QA dosya testiyle doğrulanmadıkça kanıt sayılmaz; bağımsız incelemede skorların ispat gücü yüksektir.",
+   "required": true
   },
   {
    "id": "uyum_gorevlisi",
    "label": "Uyum görevlisi",
-   "hint": ""
+   "group": "Değerlendirme",
+   "type": "text",
+   "placeholder": "Ad Soyad",
+   "help": "MASAK'a bildirilmiş uyum görevlisi."
   },
   {
    "id": "toplam_musteri_sayisi",
    "label": "Toplam müşteri sayısı",
-   "hint": ""
+   "group": "Ölçek ve maruziyet",
+   "type": "number",
+   "placeholder": "412000",
+   "help": "Dönem sonu itibarıyla aktif müşteri sayısı. Oran hesapları bu sayıyı payda alır.",
+   "unit": "müşteri"
   },
   {
    "id": "yuksek_riskli_musteri_sayisi",
    "label": "Yüksek riskli müşteri sayısı",
-   "hint": "Risk derecelendirme çıktısına göre"
+   "group": "Ölçek ve maruziyet",
+   "type": "number",
+   "placeholder": "23000",
+   "help": "Kendi risk derecelendirmenizde yüksek ve çok yüksek sınıfına düşen müşteriler.",
+   "unit": "müşteri"
   },
   {
    "id": "pep_musteri_sayisi",
    "label": "PEP müşteri sayısı",
-   "hint": ""
+   "group": "Ölçek ve maruziyet",
+   "type": "number",
+   "placeholder": "2100",
+   "help": "PEP, aile üyeleri ve yakın çevre dahil toplam.",
+   "unit": "müşteri"
   },
   {
    "id": "yillik_islem_adedi",
    "label": "Yıllık işlem adedi",
-   "hint": ""
+   "group": "Ölçek ve maruziyet",
+   "type": "number",
+   "placeholder": "18000000",
+   "help": "Dönem içindeki toplam işlem adedi (tutar değil).",
+   "unit": "işlem"
   },
   {
    "id": "yillik_sinir_otesi_islem_adedi",
    "label": "Yıllık sınır ötesi işlem adedi",
-   "hint": ""
+   "group": "Ölçek ve maruziyet",
+   "type": "number",
+   "placeholder": "3600000",
+   "help": "Yurt dışına giden ve yurt dışından gelen transferlerin adedi.",
+   "unit": "işlem"
   },
   {
    "id": "uyum_birimi_kadrosu_fte",
    "label": "Uyum birimi kadrosu (FTE)",
-   "hint": ""
+   "group": "Ölçek ve maruziyet",
+   "type": "number",
+   "placeholder": "12,5",
+   "help": "Tam zaman eşdeğeri. Yarı zamanlı çalışan 0,5 sayılır.",
+   "unit": "FTE",
+   "step": "0.5"
   },
   {
    "id": "i_zleme_sistemi",
-   "label": "İzleme sistemi",
-   "hint": "Ürün adı ve sürümü"
+   "label": "İşlem izleme sistemi",
+   "group": "Sistemler",
+   "type": "text",
+   "placeholder": "Actimize SAM v9.1 / kural tabanlı iç geliştirme",
+   "help": "Ürün adı ve sürümü. İç geliştirme ise bunu belirtin."
   },
   {
    "id": "yaptirim_tarama_sistemi",
    "label": "Yaptırım tarama sistemi",
-   "hint": "Ürün adı ve sürümü"
+   "group": "Sistemler",
+   "type": "text",
+   "placeholder": "Fircosoft Continuity v7 / Bridger Insight",
+   "help": "Ürün adı ve sürümü. Müşteri ve işlem taraması farklı ürünlerse ikisini de yazın."
   },
   {
    "id": "trade_finance_faaliyeti_var_mi",
    "label": "Trade finance faaliyeti var mı?",
-   "hint": "Hayır ise D6 trade finance soruları 'Uygulanamaz'"
+   "group": "Faaliyet kapsamı",
+   "type": "yesno",
+   "help": "Akreditif, tahsilat, garanti gibi dış ticaret finansmanı ürünleri.",
+   "scopeNote": "Hayır: D6 Trade Finance soruları ve trade finance risk faktörü kapsam dışına alınır."
   },
   {
    "id": "muhabir_bankacilik_var_mi",
    "label": "Muhabir bankacılık var mı?",
-   "hint": "Hayır ise D2 muhabir soruları 'Uygulanamaz'"
+   "group": "Faaliyet kapsamı",
+   "type": "yesno",
+   "help": "Başka bir bankaya muhabir hizmeti verme veya alma ilişkisi.",
+   "scopeNote": "Hayır: D2 Muhabir Bankacılık soruları ve muhabir coğrafi risk faktörü kapsam dışına alınır."
   },
   {
    "id": "sanal_varlik_faaliyeti_var_mi",
    "label": "Sanal varlık faaliyeti var mı?",
-   "hint": "Hayır ise D3 sanal varlık soruları 'Uygulanamaz'"
+   "group": "Faaliyet kapsamı",
+   "type": "yesno",
+   "help": "Doğrudan kripto varlık hizmeti veya VASP müşteri ilişkisi.",
+   "scopeNote": "Hayır: D3 Sanal Varlık soruları ve sanal varlık risk faktörü kapsam dışına alınır."
   },
   {
    "id": "uzaktan_musteri_kabulu_var_mi",
    "label": "Uzaktan müşteri kabulü var mı?",
-   "hint": "Hayır ise D3 dijital kanal soruları 'Uygulanamaz'"
+   "group": "Faaliyet kapsamı",
+   "type": "yesno",
+   "help": "Yüz yüze olmayan yöntemlerle hesap açılışı (mobil, video, e-imza).",
+   "scopeNote": "Hayır: D3 Dijital Kanal soruları ve uzaktan kabul risk faktörü kapsam dışına alınır."
   },
   {
    "id": "acente_temsilci_agi_var_mi",
    "label": "Acente/temsilci ağı var mı?",
-   "hint": "Hayır ise ilgili sorular 'Uygulanamaz'"
+   "group": "Faaliyet kapsamı",
+   "type": "yesno",
+   "help": "Acente, temsilci veya dış hizmet sağlayıcı üzerinden müşteri kabulü ya da işlem.",
+   "scopeNote": "Hayır: D3 Aracılı Kanal ve D1 Dış Hizmet soruları ile acente risk faktörü kapsam dışına alınır."
   },
   {
    "id": "yurt_disi_sube_istirak_var_mi",
    "label": "Yurt dışı şube/iştirak var mı?",
-   "hint": "Hayır ise grup düzeyi soruları 'Uygulanamaz'"
+   "group": "Faaliyet kapsamı",
+   "type": "yesno",
+   "help": "Yurt dışında şube, iştirak veya bağlı ortaklık.",
+   "scopeNote": "Hayır: grup düzeyi politika ve bilgi paylaşımı soruları için not düşün."
   },
   {
    "id": "son_bagimsiz_aml_denetimi_tarihi",
    "label": "Son bağımsız AML denetimi tarihi",
-   "hint": ""
+   "group": "Denetim ve model geçmişi",
+   "type": "date",
+   "help": "İç denetim veya dış inceleme raporunun tarihi. 24 aydan eskiyse D1 bağımsız denetim soruları için risk sinyalidir.",
+   "staleMonths": 24
   },
   {
    "id": "son_ewra_tarihi",
    "label": "Son EWRA tarihi",
-   "hint": ""
+   "group": "Denetim ve model geçmişi",
+   "type": "date",
+   "help": "Kurumsal risk değerlendirmesinin yönetim kurulunca onaylandığı tarih. Yılda bir güncellenmesi beklenir.",
+   "staleMonths": 12
   },
   {
    "id": "son_senaryo_tuning_tarihi",
    "label": "Son senaryo tuning tarihi",
-   "hint": ""
+   "group": "Denetim ve model geçmişi",
+   "type": "date",
+   "help": "İzleme senaryo eşiklerinin en son kalibre edildiği tarih. D7 KPI'sını otomatik besler.",
+   "staleMonths": 12
   },
   {
    "id": "son_tarama_esigi_kalibrasyon_tarihi",
    "label": "Son tarama eşiği kalibrasyon tarihi",
-   "hint": ""
+   "group": "Denetim ve model geçmişi",
+   "type": "date",
+   "help": "Yaptırım tarama fuzzy eşiğinin en son kalibre edildiği tarih. D6 KPI'sını otomatik besler.",
+   "staleMonths": 12
   }
  ],
  "yesNoFields": [
@@ -3704,63 +3819,123 @@ const DATA = {
  "kpis": [
   {
    "name": "Alert - vaka dönüşüm oranı",
-   "source": "İzleme sistemi raporu"
+   "source": "İzleme sistemi raporu",
+   "unit": "%",
+   "dir": "neutral",
+   "placeholder": "12",
+   "help": "Üretilen alertlerin kaç yüzdesi vakaya dönüştü. Çok düşük değer aşırı gürültüye, çok yüksek değer dar senaryo kapsamına işaret eder."
   },
   {
    "name": "Vaka - ŞİB dönüşüm oranı",
-   "source": "Vaka yönetim sistemi"
+   "source": "Vaka yönetim sistemi",
+   "unit": "%",
+   "dir": "neutral",
+   "placeholder": "8",
+   "help": "Açılan vakaların kaç yüzdesi ŞİB ile sonuçlandı."
   },
   {
    "name": "Ortalama ŞİB bildirim süresi (gün)",
-   "source": "ŞİB kayıtları"
+   "source": "ŞİB kayıtları",
+   "unit": "gün",
+   "dir": "down",
+   "placeholder": "7",
+   "help": "Şüphenin oluştuğu andan MASAK bildirimine kadar geçen ortalama süre."
   },
   {
    "name": "Yaptırım alerti ortalama kapanış süresi (saat)",
-   "source": "Tarama sistemi"
+   "source": "Tarama sistemi",
+   "unit": "saat",
+   "dir": "down",
+   "placeholder": "4",
+   "help": "Alert üretiminden karara kadar geçen ortalama süre."
   },
   {
    "name": "Liste güncelleme yansıma süresi (saat)",
-   "source": "Tarama sistemi logları"
+   "source": "Tarama sistemi logları",
+   "unit": "saat",
+   "dir": "down",
+   "placeholder": "4",
+   "help": "Yaptırım listesi yayımlandıktan sonra üretim ortamına yansıma süresi."
   },
   {
    "name": "Bekleyen alert sayısı (backlog)",
-   "source": "İzleme sistemi raporu"
+   "source": "İzleme sistemi raporu",
+   "unit": "adet",
+   "dir": "down",
+   "placeholder": "150",
+   "help": "Dönem sonunda henüz karara bağlanmamış alert sayısı."
   },
   {
    "name": "Gecikmiş periyodik KYC dosya sayısı",
-   "source": "KYC yaşlandırma raporu"
+   "source": "KYC yaşlandırma raporu",
+   "unit": "adet",
+   "dir": "down",
+   "placeholder": "320",
+   "help": "Periyodik gözden geçirme tarihi geçmiş müşteri dosyası sayısı."
   },
   {
    "name": "QA kritik hata oranı",
-   "source": "QA test sonuçları"
+   "source": "QA test sonuçları",
+   "unit": "%",
+   "dir": "down",
+   "placeholder": "2",
+   "help": "QA testinde kritik hata bulunan dosyaların test edilen dosyalara oranı."
   },
   {
    "name": "QA majör hata oranı",
-   "source": "QA test sonuçları"
+   "source": "QA test sonuçları",
+   "unit": "%",
+   "dir": "down",
+   "placeholder": "8",
+   "help": "QA testinde majör hata bulunan dosyaların oranı."
   },
   {
    "name": "Eğitim tamamlanma oranı",
-   "source": "Eğitim yönetim sistemi"
+   "source": "Eğitim yönetim sistemi",
+   "unit": "%",
+   "dir": "up",
+   "placeholder": "98",
+   "help": "Zorunlu AML eğitimini tamamlayan personelin oranı."
   },
   {
    "name": "Dahili şüphe bildirimi sayısı",
-   "source": "Uyum birimi kayıtları"
+   "source": "Uyum birimi kayıtları",
+   "unit": "adet",
+   "dir": "up",
+   "placeholder": "45",
+   "help": "Şube ve iş birimlerinden uyum birimine gelen dahili bildirim sayısı. Sıfıra yakın değer farkındalık sorununa işaret eder."
   },
   {
    "name": "Kolluk talebi ortalama yanıt süresi (gün)",
-   "source": "Talep kayıt sistemi"
+   "source": "Talep kayıt sistemi",
+   "unit": "gün",
+   "dir": "down",
+   "placeholder": "5",
+   "help": "Kolluk ve yargı bilgi taleplerine ortalama yanıt süresi."
   },
   {
    "name": "Aksiyon kapanış oranı",
-   "source": "07_Aksiyon_Plani"
+   "source": "07_Aksiyon_Plani",
+   "unit": "%",
+   "dir": "up",
+   "help": "Aksiyon planındaki kapalı bulguların toplam bulguya oranı. Aksiyon planı sayfasından otomatik hesaplanır.",
+   "auto": "actionClosure"
   },
   {
    "name": "Son senaryo tuning üzerinden geçen süre (ay)",
-   "source": "Model yönetim kaydı"
+   "source": "Model yönetim kaydı",
+   "unit": "ay",
+   "dir": "down",
+   "help": "Künyedeki senaryo tuning tarihinden bugüne geçen süre. Otomatik hesaplanır.",
+   "auto": "monthsSince:son_senaryo_tuning_tarihi"
   },
   {
    "name": "Son tarama kalibrasyonu üzerinden geçen süre (ay)",
-   "source": "Model yönetim kaydı"
+   "source": "Model yönetim kaydı",
+   "unit": "ay",
+   "dir": "down",
+   "help": "Künyedeki tarama eşiği kalibrasyon tarihinden bugüne geçen süre. Otomatik hesaplanır.",
+   "auto": "monthsSince:son_tarama_esigi_kalibrasyon_tarihi"
   }
  ],
  "ref": {
@@ -3896,5 +4071,31 @@ const DATA = {
    "D8"
   ]
  },
- "dimNote": "Doğuştan risk, kontrollerin etkisinden bağımsız olarak kurumun maruz kaldığı yapısal risktir. Kontrollerin ne kadar iyi çalıştığı bu sayfada değil, soru bankasında ölçülür."
+ "dimNote": "Doğuştan risk, kontrollerin etkisinden bağımsız olarak kurumun maruz kaldığı yapısal risktir. Kontrollerin ne kadar iyi çalıştığı bu sayfada değil, soru bankasında ölçülür.",
+ "kunyeGroups": [
+  {
+   "name": "Kurum kimliği",
+   "help": "Raporun kime ait olduğunu ve hangi mevzuata tabi olduğunuzu belirler."
+  },
+  {
+   "name": "Değerlendirme",
+   "help": "Anketin kapsadığı dönem ve değerlendirmeyi yapan taraf. Skorların ispat gücünü etkiler."
+  },
+  {
+   "name": "Ölçek ve maruziyet",
+   "help": "Doğuştan risk sayfasındaki dört faktör için otomatik skor önerisi bu sayılardan üretilir."
+  },
+  {
+   "name": "Sistemler",
+   "help": "Soru bankasındaki sistem sorularının hangi ürüne atıfla yanıtlandığını netleştirir."
+  },
+  {
+   "name": "Faaliyet kapsamı",
+   "help": "\"Hayır\" yanıtı ilgili soruları ve risk faktörlerini otomatik olarak kapsam dışına alır."
+  },
+  {
+   "name": "Denetim ve model geçmişi",
+   "help": "Tarihler yaşlandırma uyarısı üretir ve iki KPI'yı otomatik doldurur."
+  }
+ ]
 };
