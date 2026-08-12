@@ -1,0 +1,187 @@
+/* Portföy ve maruziyet referans verileri.
+   Anahtarlar Türkçe ve kalıcıdır; görünen etiketler i18n katmanından gelir. */
+
+const PORTFOLIO = {
+
+  /* Müşteri tipi × risk seviyesi matrisinin satırları */
+  customerTypes: [
+    { key: 'gercek_kisi',        tr: 'Gerçek kişi',                        en: 'Natural person' },
+    { key: 'tuzel_kisi',         tr: 'Tüzel kişi',                          en: 'Legal entity' },
+    { key: 'tuzel_olmayan',      tr: 'Tüzel kişiliği olmayan teşekkül',     en: 'Unincorporated body' },
+    { key: 'trust_benzeri',      tr: 'Trust ve benzeri yapı',               en: 'Trust or similar arrangement' },
+    { key: 'finansal_kurulus',   tr: 'Finansal kuruluş',                    en: 'Financial institution' },
+    { key: 'kamu',               tr: 'Kamu kurumu',                         en: 'Public authority' },
+    { key: 'kar_amacsiz',        tr: 'Kâr amacı gütmeyen kuruluş',          en: 'Non-profit organisation' }
+  ],
+
+  /* Risk seviyesi sütunları — depolanan anahtar Türkçe kalır */
+  riskBands: [
+    { key: 'Düşük',      tone: 'lvl-dusuk' },
+    { key: 'Orta',       tone: 'lvl-orta' },
+    { key: 'Yüksek',     tone: 'lvl-yuksek' },
+    { key: 'Çok Yüksek', tone: 'lvl-cok-yuksek' }
+  ],
+
+  /* Doğuştan risk faktörlerini besleyen özel müşteri segmentleri.
+     feeds: bu segmentin oranını skor önerisine çeviren faktör anahtarı. */
+  segments: [
+    { key: 'pep', tr: 'PEP, aile üyeleri ve yakın çevre', en: 'PEPs, family members and close associates',
+      feeds: 'Müşteri|PEP ve ilişkili kişi maruziyeti', bands: [0.1, 0.5, 1, 3] },
+    { key: 'non_resident', tr: 'Yerleşik olmayan müşteriler', en: 'Non-resident customers',
+      feeds: 'Müşteri|Yerleşik olmayan (non-resident) müşteri oranı', bands: [1, 5, 15, 30] },
+    { key: 'karmasik_sahiplik', tr: 'Karmaşık sahiplik yapılı tüzel kişiler', en: 'Legal entities with complex ownership',
+      feeds: 'Müşteri|Karmaşık sahiplik yapılı tüzel kişi oranı', bands: [5, 15, 30, 100],
+      base: 'tuzel' },
+    { key: 'nakit_yogun', tr: 'Nakit yoğun sektör müşterileri', en: 'Cash-intensive sector customers',
+      feeds: 'Müşteri|Nakit yoğun sektör müşterilerinin payı', bands: [2, 5, 12, 25] },
+    { key: 'offshore', tr: 'Offshore / serbest bölge yapılı müşteriler', en: 'Offshore or free-zone structured customers',
+      feeds: 'Coğrafya ve Yaptırım|Offshore ve vergi cenneti bağlantılı müşteri hacmi', bands: [1, 5, 10, 100] },
+    { key: 'vasp', tr: 'Sanal varlık hizmet sağlayıcıları (VASP)', en: 'Virtual asset service providers (VASPs)' },
+    { key: 'ozel_bankacilik', tr: 'Özel bankacılık / servet yönetimi müşterileri', en: 'Private banking / wealth management customers',
+      feeds: 'Ürün|Özel bankacılık / servet yönetimi hacmi', bands: [2, 10, 20, 100] },
+    { key: 'kar_amacsiz', tr: 'Kâr amacı gütmeyen kuruluşlar', en: 'Non-profit organisations' },
+    { key: 'yeni_musteri', tr: 'Dönem içinde kabul edilen yeni müşteriler', en: 'New customers onboarded during the period' },
+    { key: 'reddedilen', tr: 'Reddedilen başvurular', en: 'Declined applications' },
+    { key: 'exit', tr: 'Sonlandırılan müşteri ilişkileri (exit)', en: 'Terminated customer relationships (exit)' },
+    { key: 'atil', tr: 'Atıl (dormant) hesaplar', en: 'Dormant accounts' }
+  ],
+
+  /* Ülke ilişki tipleri */
+  countryRelations: [
+    { key: 'yurt_ici',           short: { tr: 'Yurt içi', en: 'Domestic' },
+      tr: 'Yurt içi (sınır ötesi sayılmaz)', en: 'Domestic (not counted as cross-border)' },
+    { key: 'musteri_ikametgahi', short: { tr: 'Müşteri', en: 'Customers' },
+      tr: 'Müşteri ikametgâhı', en: 'Customer residence' },
+    { key: 'islem_karsi_taraf',  short: { tr: 'Karşı taraf', en: 'Counterparty' },
+      tr: 'İşlem karşı tarafı',  en: 'Transaction counterparty' },
+    { key: 'muhabir',            short: { tr: 'Muhabir', en: 'Correspondent' },
+      tr: 'Muhabir ilişkisi',    en: 'Correspondent relationship' },
+    { key: 'sube_istirak',       short: { tr: 'Şube', en: 'Branch' },
+      tr: 'Şube / iştirak',      en: 'Branch or subsidiary' },
+    { key: 'ticaret',            short: { tr: 'Ticaret', en: 'Trade' },
+      tr: 'Dış ticaret',         en: 'Trade finance' }
+  ],
+
+  /* Ülke risk işaretleri — her biri kullanıcı tarafından değiştirilebilir */
+  countryFlags: [
+    { key: 'fatfBlack',  short: { tr: 'FATF kara', en: 'FATF black' },
+      tr: 'FATF eylem çağrısı (kara liste)', en: 'FATF call for action (black list)', weight: 5, tone: 'chip-critical' },
+    { key: 'fatfGrey',   short: { tr: 'FATF gri', en: 'FATF grey' },
+      tr: 'FATF artırılmış izleme (gri liste)', en: 'FATF increased monitoring (grey list)', weight: 4, tone: 'chip-high' },
+    { key: 'sanctioned', short: { tr: 'Yaptırım', en: 'Sanctions' },
+      tr: 'Kapsamlı yaptırım rejimi', en: 'Comprehensive sanctions regime', weight: 5, tone: 'chip-critical' },
+    { key: 'euHighRisk', short: { tr: 'AB yüksek risk', en: 'EU high-risk' },
+      tr: 'AB yüksek riskli üçüncü ülke', en: 'EU high-risk third country', weight: 4, tone: 'chip-high' },
+    { key: 'offshore',   short: { tr: 'Offshore', en: 'Offshore' },
+      tr: 'Offshore finans merkezi / vergi cenneti', en: 'Offshore centre / tax haven', weight: 3, tone: 'chip-mid' },
+    { key: 'weakAml',    short: { tr: 'Zayıf AML', en: 'Weak AML' },
+      tr: 'Zayıf AML denetimi / yüksek yolsuzluk', en: 'Weak AML supervision / high corruption', weight: 3, tone: 'chip-mid' }
+  ],
+
+  /* Şube ve birim tipleri */
+  branchTypes: [
+    { key: 'merkez',      tr: 'Genel müdürlük',        en: 'Head office' },
+    { key: 'sube',        tr: 'Şube',                  en: 'Branch' },
+    { key: 'yurtdisi',    tr: 'Yurt dışı şube',        en: 'Foreign branch' },
+    { key: 'istirak',     tr: 'İştirak / bağlı ortaklık', en: 'Subsidiary' },
+    { key: 'temsilcilik', tr: 'Temsilcilik',           en: 'Representative office' },
+    { key: 'acente',      tr: 'Acente / temsilci',     en: 'Agent / representative' },
+    { key: 'dijital',     tr: 'Dijital kanal',         en: 'Digital channel' }
+  ],
+
+  /* Başlangıç ülke listesi. Bayraklar açılış değeridir ve doğrulanmalıdır.
+     asOf: bu değerlendirmenin dayandığı tarih. */
+  countryRiskAsOf: '2026-01-01',
+  knownCountries: [
+    { code: 'TR', tr: 'Türkiye', en: 'Türkiye', flags: [] },
+    { code: 'DE', tr: 'Almanya', en: 'Germany', flags: [] },
+    { code: 'GB', tr: 'Birleşik Krallık', en: 'United Kingdom', flags: [] },
+    { code: 'US', tr: 'Amerika Birleşik Devletleri', en: 'United States', flags: [] },
+    { code: 'NL', tr: 'Hollanda', en: 'Netherlands', flags: [] },
+    { code: 'FR', tr: 'Fransa', en: 'France', flags: [] },
+    { code: 'IT', tr: 'İtalya', en: 'Italy', flags: [] },
+    { code: 'ES', tr: 'İspanya', en: 'Spain', flags: [] },
+    { code: 'CH', tr: 'İsviçre', en: 'Switzerland', flags: [] },
+    { code: 'AT', tr: 'Avusturya', en: 'Austria', flags: [] },
+    { code: 'BE', tr: 'Belçika', en: 'Belgium', flags: [] },
+    { code: 'SE', tr: 'İsveç', en: 'Sweden', flags: [] },
+    { code: 'PL', tr: 'Polonya', en: 'Poland', flags: [] },
+    { code: 'RO', tr: 'Romanya', en: 'Romania', flags: [] },
+    { code: 'BG', tr: 'Bulgaristan', en: 'Bulgaria', flags: [] },
+    { code: 'GR', tr: 'Yunanistan', en: 'Greece', flags: [] },
+    { code: 'CN', tr: 'Çin', en: 'China', flags: [] },
+    { code: 'JP', tr: 'Japonya', en: 'Japan', flags: [] },
+    { code: 'KR', tr: 'Güney Kore', en: 'South Korea', flags: [] },
+    { code: 'IN', tr: 'Hindistan', en: 'India', flags: [] },
+    { code: 'SG', tr: 'Singapur', en: 'Singapore', flags: ['offshore'] },
+    { code: 'HK', tr: 'Hong Kong', en: 'Hong Kong', flags: ['offshore'] },
+    { code: 'AE', tr: 'Birleşik Arap Emirlikleri', en: 'United Arab Emirates', flags: ['offshore'] },
+    { code: 'SA', tr: 'Suudi Arabistan', en: 'Saudi Arabia', flags: [] },
+    { code: 'QA', tr: 'Katar', en: 'Qatar', flags: [] },
+    { code: 'KW', tr: 'Kuveyt', en: 'Kuwait', flags: [] },
+    { code: 'BH', tr: 'Bahreyn', en: 'Bahrain', flags: ['offshore'] },
+    { code: 'AZ', tr: 'Azerbaycan', en: 'Azerbaijan', flags: ['weakAml'] },
+    { code: 'GE', tr: 'Gürcistan', en: 'Georgia', flags: [] },
+    { code: 'KZ', tr: 'Kazakistan', en: 'Kazakhstan', flags: ['weakAml'] },
+    { code: 'UZ', tr: 'Özbekistan', en: 'Uzbekistan', flags: ['weakAml'] },
+    { code: 'KG', tr: 'Kırgızistan', en: 'Kyrgyzstan', flags: ['weakAml'] },
+    { code: 'TM', tr: 'Türkmenistan', en: 'Turkmenistan', flags: ['weakAml'] },
+    { code: 'UA', tr: 'Ukrayna', en: 'Ukraine', flags: ['weakAml'] },
+    { code: 'RU', tr: 'Rusya', en: 'Russia', flags: ['sanctioned', 'weakAml'] },
+    { code: 'BY', tr: 'Belarus', en: 'Belarus', flags: ['sanctioned', 'weakAml'] },
+    { code: 'IR', tr: 'İran', en: 'Iran', flags: ['fatfBlack', 'sanctioned', 'euHighRisk'] },
+    { code: 'KP', tr: 'Kuzey Kore', en: 'North Korea', flags: ['fatfBlack', 'sanctioned', 'euHighRisk'] },
+    { code: 'MM', tr: 'Myanmar', en: 'Myanmar', flags: ['fatfBlack', 'sanctioned', 'euHighRisk'] },
+    { code: 'SY', tr: 'Suriye', en: 'Syria', flags: ['sanctioned', 'fatfGrey', 'euHighRisk', 'weakAml'] },
+    { code: 'IQ', tr: 'Irak', en: 'Iraq', flags: ['weakAml'] },
+    { code: 'LB', tr: 'Lübnan', en: 'Lebanon', flags: ['fatfGrey', 'weakAml'] },
+    { code: 'YE', tr: 'Yemen', en: 'Yemen', flags: ['fatfGrey', 'sanctioned', 'euHighRisk', 'weakAml'] },
+    { code: 'LY', tr: 'Libya', en: 'Libya', flags: ['sanctioned', 'weakAml'] },
+    { code: 'AF', tr: 'Afganistan', en: 'Afghanistan', flags: ['sanctioned', 'weakAml'] },
+    { code: 'PK', tr: 'Pakistan', en: 'Pakistan', flags: ['weakAml'] },
+    { code: 'BD', tr: 'Bangladeş', en: 'Bangladesh', flags: ['weakAml'] },
+    { code: 'PH', tr: 'Filipinler', en: 'Philippines', flags: ['weakAml'] },
+    { code: 'VN', tr: 'Vietnam', en: 'Vietnam', flags: ['fatfGrey'] },
+    { code: 'KH', tr: 'Kamboçya', en: 'Cambodia', flags: ['weakAml'] },
+    { code: 'LA', tr: 'Laos', en: 'Laos', flags: ['fatfGrey'] },
+    { code: 'NG', tr: 'Nijerya', en: 'Nigeria', flags: ['fatfGrey', 'weakAml'] },
+    { code: 'ZA', tr: 'Güney Afrika', en: 'South Africa', flags: [] },
+    { code: 'KE', tr: 'Kenya', en: 'Kenya', flags: ['fatfGrey'] },
+    { code: 'TZ', tr: 'Tanzanya', en: 'Tanzania', flags: ['fatfGrey'] },
+    { code: 'CD', tr: 'Demokratik Kongo Cumhuriyeti', en: 'DR Congo', flags: ['fatfGrey', 'weakAml'] },
+    { code: 'CM', tr: 'Kamerun', en: 'Cameroon', flags: ['fatfGrey'] },
+    { code: 'ML', tr: 'Mali', en: 'Mali', flags: ['fatfGrey', 'weakAml'] },
+    { code: 'BF', tr: 'Burkina Faso', en: 'Burkina Faso', flags: ['fatfGrey'] },
+    { code: 'SN', tr: 'Senegal', en: 'Senegal', flags: ['fatfGrey'] },
+    { code: 'MZ', tr: 'Mozambik', en: 'Mozambique', flags: ['fatfGrey'] },
+    { code: 'SS', tr: 'Güney Sudan', en: 'South Sudan', flags: ['fatfGrey', 'weakAml'] },
+    { code: 'SD', tr: 'Sudan', en: 'Sudan', flags: ['sanctioned', 'weakAml'] },
+    { code: 'SO', tr: 'Somali', en: 'Somalia', flags: ['sanctioned', 'weakAml'] },
+    { code: 'HT', tr: 'Haiti', en: 'Haiti', flags: ['fatfGrey', 'weakAml'] },
+    { code: 'VE', tr: 'Venezuela', en: 'Venezuela', flags: ['sanctioned', 'weakAml'] },
+    { code: 'PA', tr: 'Panama', en: 'Panama', flags: ['offshore'] },
+    { code: 'KY', tr: 'Cayman Adaları', en: 'Cayman Islands', flags: ['offshore'] },
+    { code: 'VG', tr: 'Britanya Virjin Adaları', en: 'British Virgin Islands', flags: ['offshore'] },
+    { code: 'BS', tr: 'Bahamalar', en: 'Bahamas', flags: ['offshore'] },
+    { code: 'BM', tr: 'Bermuda', en: 'Bermuda', flags: ['offshore'] },
+    { code: 'JE', tr: 'Jersey', en: 'Jersey', flags: ['offshore'] },
+    { code: 'GG', tr: 'Guernsey', en: 'Guernsey', flags: ['offshore'] },
+    { code: 'IM', tr: 'Man Adası', en: 'Isle of Man', flags: ['offshore'] },
+    { code: 'MT', tr: 'Malta', en: 'Malta', flags: ['offshore'] },
+    { code: 'CY', tr: 'Kıbrıs', en: 'Cyprus', flags: ['offshore'] },
+    { code: 'LU', tr: 'Lüksemburg', en: 'Luxembourg', flags: ['offshore'] },
+    { code: 'LI', tr: 'Lihtenştayn', en: 'Liechtenstein', flags: ['offshore'] },
+    { code: 'MC', tr: 'Monako', en: 'Monaco', flags: ['offshore'] },
+    { code: 'SC', tr: 'Seyşeller', en: 'Seychelles', flags: ['offshore'] },
+    { code: 'MU', tr: 'Mauritius', en: 'Mauritius', flags: ['offshore'] },
+    { code: 'BZ', tr: 'Belize', en: 'Belize', flags: ['offshore'] },
+    { code: 'AD', tr: 'Andorra', en: 'Andorra', flags: ['offshore'] },
+    { code: 'GI', tr: 'Cebelitarık', en: 'Gibraltar', flags: ['offshore'] },
+    { code: 'BR', tr: 'Brezilya', en: 'Brazil', flags: [] },
+    { code: 'MX', tr: 'Meksika', en: 'Mexico', flags: ['weakAml'] },
+    { code: 'CO', tr: 'Kolombiya', en: 'Colombia', flags: ['weakAml'] },
+    { code: 'AR', tr: 'Arjantin', en: 'Argentina', flags: [] },
+    { code: 'CA', tr: 'Kanada', en: 'Canada', flags: [] },
+    { code: 'AU', tr: 'Avustralya', en: 'Australia', flags: [] }
+  ]
+};

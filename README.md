@@ -33,15 +33,48 @@ sonuçları birebir aynı.
 | Sıra | Ekran | Ne yapılır |
 |---|---|---|
 | 1 | **Künye** | Kurum profili, altı gruba ayrılmış 26 alan. Her alanda örnek değer ve ne yazılacağını anlatan açıklama var. Faaliyet sorularına "Hayır" yanıtı ilgili soru bölümlerini otomatik "Uygulanamaz" yapar. Girilen sayılardan oranlar ve tarih yaşlandırma uyarıları türetilir. |
-| 2 | **Doğuştan Risk** | 5 boyut, 25 alt faktör. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
-| 3 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
-| 4 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
-| 5 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
-| 6 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
-| 7 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
-| 8 | **Yönetici Raporu** | Yazdırma / PDF çıktısı. |
+| 2 | **Portföy** | Müşteri dağılımı (7 tip × 4 risk seviyesi), 12 risk segmenti, ülke maruziyeti ve şube/birim ağı. Girilen sayılardan doğuştan risk için 12 faktöre skor önerisi üretilir. |
+| 3 | **Doğuştan Risk** | 5 boyut, 25 alt faktör. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
+| 4 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
+| 5 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
+| 6 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
+| 7 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
+| 8 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
+| 9 | **Yönetici Raporu** | Yazdırma / PDF çıktısı. |
 
 QA testi sonucunda beyan ile dosya bulgusu çelişiyorsa ilgili sorunun yanıtı "Kısmen" veya "Hayır" olarak güncellenmelidir. Anket beyanı tek başına kontrol etkinliği sayılmaz.
+
+## Portföy ve maruziyet
+
+Dört tablo, dördü de isteğe bağlı; girdiğiniz kadarı kullanılır.
+
+**Müşteri dağılımı** — 7 müşteri tipi (gerçek kişi, tüzel kişi, tüzel kişiliği olmayan teşekkül, trust benzeri yapı, finansal kuruluş, kamu, kâr amacı gütmeyen kuruluş) × 4 risk seviyesi. Toplam, yüksek riskli pay ve tüzel kişi payı buradan hesaplanır ve künyedeki müşteri sayısıyla tutarlılığı denetlenir.
+
+**Risk segmentleri** — PEP, yerleşik olmayan, karmaşık sahiplik yapılı, nakit yoğun sektör, offshore yapılı, VASP, özel bankacılık, kâr amacı gütmeyen, yeni müşteri, reddedilen başvuru, exit ve atıl hesap. Her segment için müşteri ve yüksek riskli sayısı girilir.
+
+**Ülke maruziyeti** — temas ettiğiniz her ülke: risk işaretleri (FATF kara/gri, kapsamlı yaptırım, AB yüksek riskli üçüncü ülke, offshore, zayıf AML), ilişki tipi (yurt içi, müşteri ikametgâhı, işlem karşı tarafı, muhabir, şube/iştirak, dış ticaret), müşteri sayısı ve gelen/giden işlem adedi. 90 ülkelik başlangıç listesi risk işaretleriyle birlikte gelir; işaretler değiştirilebilir ve tarihi ekranda belirtilir. "Yurt içi" işaretli ülkeler sınır ötesi payına girmez.
+
+**Şube ve birim ağı** — genel müdürlük, şube, yurt dışı şube, iştirak, temsilcilik, acente ve dijital kanal. Her birim için ülke, müşteri sayısı, yüksek riskli müşteri, uyum FTE ve son denetim tarihi. FTE başına müşteri yükü ve 24 ayı aşan denetim yaşı otomatik işaretlenir.
+
+### Beslenen faktörler
+
+Bu tablolardan 12 doğuştan risk faktörü için skor önerisi üretilir:
+
+| Kaynak | Beslediği faktör |
+|---|---|
+| Yüksek riskli müşteri payı | Müşteri — yüksek riskli segment payı |
+| PEP segmenti | Müşteri — PEP maruziyeti |
+| Yerleşik olmayan segmenti | Müşteri — non-resident oranı |
+| Karmaşık sahiplik segmenti (taban: tüzel kişiler) | Müşteri — karmaşık sahiplik oranı |
+| Nakit yoğun segmenti | Müşteri — nakit yoğun sektör payı |
+| Offshore segmenti | Coğrafya — offshore bağlantılı hacim |
+| Özel bankacılık segmenti | Ürün — servet yönetimi hacmi |
+| FATF listeli ülke işlem payı | Coğrafya — FATF gri/kara liste iş hacmi |
+| Yaptırım rejimi işlem payı | Coğrafya — yaptırım altındaki ülkelerle ticaret |
+| İşaretli muhabir ülke payı | Coğrafya — muhabir ağının coğrafi riski |
+| Sınır ötesi işlem payı | Coğrafya — sınır ötesi transfer payı · İşlem — sınır ötesi yoğunluk |
+
+Öneriler bağlayıcı değildir: tek tıkla uygulanır, gerekçeyi yine siz yazarsınız. Portföy verisi yoksa künyedeki sayılar devreye girer.
 
 ## Alanları doldurma rehberi
 
@@ -49,6 +82,9 @@ Her giriş alanının yanında ne yazılacağını anlatan bir açıklama ve ör
 
 | Ekran | Ne girilir | Uygulama ne yapar |
 |---|---|---|
+| Portföy — Müşteri dağılımı | Tip × risk seviyesi müşteri sayıları | Toplam, yüksek riskli ve tüzel kişi paylarını hesaplar |
+| Portföy — Ülke maruziyeti | Ülke, risk işaretleri, ilişki tipi, müşteri ve işlem adedi | FATF, yaptırım, offshore ve sınır ötesi paylarını hesaplar |
+| Portföy — Şube ağı | Birim, tip, ülke, müşteri, uyum FTE, son denetim | FTE yükünü ve denetim gecikmesini işaretler |
 | Künye — Ölçek | Dönem sonu müşteri sayısı, yüksek riskli ve PEP müşteri adedi, işlem adetleri, uyum kadrosu (FTE) | Oranları hesaplar ve doğuştan riskte dört faktör için skor önerir |
 | Künye — Faaliyet kapsamı | Altı faaliyet sorusuna Evet/Hayır | "Hayır" seçilen faaliyetin soruları ve risk faktörü kapsam dışına çıkar |
 | Künye — Denetim geçmişi | Son denetim, EWRA, senaryo tuning ve tarama kalibrasyon tarihleri | Yaşlandırma uyarısı üretir, iki KPI'yı otomatik doldurur |
@@ -107,7 +143,7 @@ Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için ge�
 ## Dışa aktarım
 
 - **JSON** — tam çalışma dosyası, geri yüklenebilir.
-- **CSV** — soru bankası, domain skorları, doğuştan risk, QA örneklem planı, aksiyon planı. Noktalı virgül ayracı ve BOM ile üretilir; Türkçe Excel yerelinde sütunlar doğru ayrışır.
+- **CSV** — soru bankası, domain skorları, portföy ve maruziyet, doğuştan risk, QA örneklem planı, aksiyon planı. Noktalı virgül ayracı ve BOM ile üretilir; Türkçe Excel yerelinde sütunlar doğru ayrışır.
 - **Yazdır / PDF** — Yönetici Raporu ekranı.
 
 ## Dosya yapısı
@@ -115,6 +151,8 @@ Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için ge�
 ```
 index.html          kabuk, gezinme, dil değiştirici
 css/app.css         tasarım sistemi, açık/koyu tema, yazdırma stilleri
+js/portfolio.data.js portföy referansları (müşteri tipleri, segmentler, ülke listesi, birim tipleri)
+js/portfolio.js     portföy ekranı ve maruziyet hesapları
 js/data.js          xlsx'ten üretilmiş Türkçe veri (218 soru, 25 faktör, 24 popülasyon, 15 KPI)
 js/data.en.js       İngilizce içerik katmanı (domain, bölüm, faktör, künye, KPI, QA, referanslar)
 js/questions.en.js  218 sorunun İngilizce metni ve beklenen kanıtları
@@ -152,13 +190,14 @@ CSV exports. Stored data is language-independent, so switching never affects any
 | Step | Screen | What you do |
 |---|---|---|
 | 1 | Profile | Institution details. A "No" to a business scope question takes the related questions and risk factors out of scope. |
-| 2 | Inherent Risk | Score 25 sub-factors from 1 to 5 against written anchors; rationale required for 4 and 5. |
-| 3 | Questionnaire | Answer 218 questions with an evidence reference and a finding note. |
-| 4 | QA Plan | Enter each population's volume for the period; sample sizes are calculated. |
-| 5 | Control Scores | Derived control effectiveness and maturity per domain. |
-| 6 | Residual Risk | Inherent risk × (1 − control effectiveness), compared against appetite. |
-| 7 | Action Plan | Finding → root cause → action → owner → due date → verification. |
-| 8 | Executive Report | Print or export to PDF. |
+| 2 | Portfolio | Customer distribution (7 types × 4 risk bands), 12 risk segments, country exposure and the branch network. These figures produce score suggestions for 12 inherent risk factors. |
+| 3 | Inherent Risk | Score 25 sub-factors from 1 to 5 against written anchors; rationale required for 4 and 5. |
+| 4 | Questionnaire | Answer 218 questions with an evidence reference and a finding note. |
+| 5 | QA Plan | Enter each population's volume for the period; sample sizes are calculated. |
+| 6 | Control Scores | Derived control effectiveness and maturity per domain. |
+| 7 | Residual Risk | Inherent risk × (1 − control effectiveness), compared against appetite. |
+| 8 | Action Plan | Finding → root cause → action → owner → due date → verification. |
+| 9 | Executive Report | Print or export to PDF. |
 
 Scoring: Yes = 1.00 · Partial = 0.50 · No = 0.00 · Not applicable is excluded. Control
 effectiveness = points earned / applicable weight. Maturity bands: ≥90% Advanced, ≥75% Adequate,

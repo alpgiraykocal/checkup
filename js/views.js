@@ -375,15 +375,17 @@ const Views = (() => {
     return ['lvl-dusuk', 'lvl-dusuk', 'lvl-orta', 'lvl-yuksek', 'lvl-cok-yuksek'][n - 1] || 'lvl-none';
   }
 
-  /** Künyedeki sayılardan oran çıkarıp skor önerir. */
-  function kunyeHint(f, state) {
+  /** Skor önerisi: önce portföy tabloları, yoksa künyedeki sayılar. */
+  function factorHint(f, state, calc) {
+    const fromPortfolio = calc && calc.portfolio && calc.portfolio.hints[f.key];
+    if (fromPortfolio) return fromPortfolio;
     if (!f.hint) return null;
     const num = Number(state.kunye[f.hint.num]);
     const den = Number(state.kunye[f.hint.den]);
     if (!Number.isFinite(num) || !Number.isFinite(den) || den <= 0) return null;
     const pct = (num / den) * 100;
     const suggested = f.hint.bands.findIndex(b => pct < b) + 1 || 5;
-    return { pct, suggested, label: f.hint.label };
+    return { pct, suggested, label: f.hint.label, source: 'kunye' };
   }
 
   function inherentView(host, { state, calc }) {
@@ -393,7 +395,7 @@ const Views = (() => {
 
     const dimCards = Calc.DIMS
       .filter(dimKey => !inhUI.only || inhUI.only === dimKey)
-      .map(dimKey => dimCard(dimKey, byDim[dimKey] || [], inh.dims[dimKey], state))
+      .map(dimKey => dimCard(dimKey, byDim[dimKey] || [], inh.dims[dimKey], state, calc))
       .join('');
 
     host.innerHTML = `
@@ -486,7 +488,7 @@ const Views = (() => {
     </div>`;
   }
 
-  function dimCard(dimKey, items, d, state) {
+  function dimCard(dimKey, items, d, state, calc) {
     const domains = (DATA.dimDomains || {})[dimKey] || [];
     return `<div class="card">
       <div class="card-head">
@@ -499,7 +501,7 @@ const Views = (() => {
           : `<span class="chip chip-na">${t('notMeasured')}</span>`}
       </div>
       <div class="card-body" style="padding:0">
-        ${items.map(({ f, st }) => factorRow(f, st, state)).join('')}
+        ${items.map(({ f, st }) => factorRow(f, st, state, calc)).join('')}
       </div>
       <div class="card-head" style="border-top:1px solid var(--border-soft);border-bottom:0">
         <span class="subtle" style="flex:1">${d.scored}/${d.applicable} ${t('factorsScored')}${d.na ? ` · ${d.na} ${t('naCount')}` : ''}</span>
@@ -508,9 +510,9 @@ const Views = (() => {
     </div>`;
   }
 
-  function factorRow(f, st, state) {
+  function factorRow(f, st, state, calc) {
     const idx = DATA.inherentFactors.indexOf(f);
-    const hint = kunyeHint(f, state);
+    const hint = factorHint(f, state, calc);
     const anchorText = st.score ? f.anchors[st.score - 1] : null;
 
     const buttons = [1, 2, 3, 4, 5].map(n => `
@@ -531,7 +533,7 @@ const Views = (() => {
         </div>
         <div class="subtle">${esc(f.why)}</div>
         ${hint && !st.na ? `<div class="factor-hint">
-          ${Icons.info()}<span>${t('profileHint')}: <b>${esc(hint.label)} ${fmtPct1(hint.pct / 100)}</b> → ${t('suggestedScore')} <b>${hint.suggested}</b>
+          ${Icons.info()}<span>${hint.source === 'portfolio' ? t('pfSourcePortfolio') : t('profileHint')}: <b>${esc(hint.label)} ${fmtPct1(hint.pct / 100)}</b> → ${t('suggestedScore')} <b>${hint.suggested}</b>
           ${st.score === hint.suggested ? `(${t('applied')})` : `<button class="btn btn-sm" data-inh-apply="${esc(st.key)}" data-n="${hint.suggested}">${t('apply')}</button>`}</span>
         </div>` : ''}
       </div>

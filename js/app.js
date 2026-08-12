@@ -4,6 +4,7 @@ const App = (() => {
   const ROUTES = [
     { id: 'pano', key: 'Dash', icon: 'dashboard', group: 'groupGeneral', view: Views.dashboard },
     { id: 'kunye', key: 'Kunye', icon: 'building', group: 'groupInput', view: Views.kunye },
+    { id: 'portfoy', key: 'Portfolio', icon: 'users', group: 'groupInput', view: Portfolio.view },
     { id: 'dogustan', key: 'Inherent', icon: 'gauge', group: 'groupInput', view: Views.inherent },
     { id: 'anket', key: 'Survey', icon: 'list', group: 'groupInput', view: Views.questions },
     { id: 'qa', key: 'Qa', icon: 'flask', group: 'groupInput', view: Views.qa },
@@ -45,6 +46,10 @@ const App = (() => {
       const i = calc.inherent;
       if (i.scored === 0) return '';
       return `<span class="nav-badge ${i.complete ? '' : 'warn'}">${i.scored}/${i.applicable}</span>`;
+    }
+    if (r.id === 'portfoy' && calc.portfolio) {
+      const n = Object.keys(calc.portfolio.hints).length;
+      return n ? `<span class="nav-badge">${n}</span>` : '';
     }
     return '';
   }
@@ -182,6 +187,7 @@ const App = (() => {
         <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
           <button class="btn" data-x="questions">${Icons.list()} ${t('csvQuestions')}</button>
           <button class="btn" data-x="domains">${Icons.layers()} ${t('csvDomains')}</button>
+          <button class="btn" data-x="portfolio">${Icons.users()} ${t('csvPortfolio')}</button>
           <button class="btn" data-x="inherent">${Icons.gauge()} ${t('csvInherent')}</button>
           <button class="btn" data-x="qa">${Icons.flask()} ${t('csvQa')}</button>
           <button class="btn" data-x="actions">${Icons.clipboard()} ${t('csvActions')}</button>

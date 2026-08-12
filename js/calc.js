@@ -389,6 +389,7 @@ const Calc = (() => {
 
     return {
       scopeMap, perQuestion, domains, totals, kunye: kunye(state),
+      portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
       inherent: inh, residual, generalResidual,
       breaches: residual.filter(r => r.breach).length,
       qa, qaTotals, actions, actionStats

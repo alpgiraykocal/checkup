@@ -14,6 +14,9 @@ const Store = (() => {
       inherentNA: {},        // "dim|factor" -> true (skorlamadan çıkar)
       inherentNotes: {},     // "dim|factor" -> gerekçe / kanıt
       inherentWeights: {},   // "dim|factor" -> ağırlık geçersiz kılma
+      portfolio: {           // müşteri dağılımı, segmentler, ülke ve şube tabloları
+        matrix: {}, segments: {}, countries: [], branches: []
+      },
       answers: {},           // soruId -> {a, evidence, note, qaResult, qaNote}
       qaVolumes: {},         // popülasyon adı -> yıllık hacim
       actions: [],           // bulgu/aksiyon kayıtları

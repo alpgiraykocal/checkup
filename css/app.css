@@ -408,6 +408,30 @@ select { cursor: pointer; }
 }
 .factor-note label { margin-bottom: 4px; }
 
+/* ---------- Portföy: işaret seçicileri ---------- */
+.flag-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.flag-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 500; margin: 0;
+  padding: 4px 8px; min-height: 30px;
+  border: 1px solid var(--border-soft); border-radius: 999px;
+  background: var(--surface); color: var(--fg-subtle);
+  cursor: pointer; user-select: none;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.flag-chip:hover { border-color: var(--fg-subtle); color: var(--fg); }
+.flag-chip input { width: 13px; height: 13px; min-height: 0; margin: 0; accent-color: var(--primary); cursor: pointer; }
+.flag-chip input:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.flag-chip.on { font-weight: 600; }
+
+.exposure-row {
+  display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline;
+  padding: 7px 0; border-bottom: 1px solid var(--border-soft); font-size: 13px;
+}
+.exposure-row:last-child { border-bottom: 0; }
+.exposure-row > .chip { flex: 0 0 auto; min-width: 190px; }
+.exposure-row > .num:last-child { margin-left: auto; font-weight: 600; }
+
 /* ---------- Chips / badges ---------- */
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -548,6 +572,8 @@ select { cursor: pointer; }
   .topbar { padding: 10px 16px; }
   /* Dokunmatik ekranda tüm hedefler 44px asgarisine çıkar. */
   .btn, .btn-sm { min-height: 44px; }
+  .flag-chip { min-height: 40px; }
+  .flag-chip input { min-height: 0; }
   .btn-icon { min-width: 44px; }
   .lang-btn { min-height: 44px; }
   input[type="text"], input[type="number"], input[type="date"], select, textarea { min-height: 44px; }

@@ -117,6 +117,50 @@ const Exporter = (() => {
         a.action, a.owner, a.due, a.verification, I18n.ref('status', a.status),
         a.delay === 'GECİKMİŞ' ? t('overdue') : a.delay === 'Kapalı' ? t('closed') : a.delay,
         a.closedAt, I18n.ref('riskLevel', a.residualAfter)]));
+    } else if (kind === 'portfolio') {
+      name = t('filePortfolio');
+      const P = calc.portfolio;
+      const LL = o => (o ? (I18n.isEn ? (o.en || o.tr) : o.tr) : '');
+      rows = [[t('pfMatrixTitle')]];
+      rows.push([t('pfCustomerType'), ...DATA.ref.riskLevel.slice().reverse().map(r => I18n.ref('riskLevel', r)), t('total')]);
+      PORTFOLIO.customerTypes.forEach(ct => {
+        const row = (Store.state.portfolio.matrix || {})[ct.key] || {};
+        rows.push([LL(ct), ...PORTFOLIO.riskBands.map(b => row[b.key] ?? ''), P.byType[ct.key] || '']);
+      });
+      rows.push([t('total'), ...PORTFOLIO.riskBands.map(b => P.byBand[b.key] || ''), P.total || '']);
+
+      rows.push([]);
+      rows.push([t('pfSegmentTitle')]);
+      rows.push([t('pfSegment'), t('pfCustomers'), t('pfHighRisk'), t('pfShare'), t('pfBase')]);
+      PORTFOLIO.segments.forEach(sg => {
+        const g = P.segments[sg.key];
+        rows.push([LL(sg), g.filled ? g.customers : '', g.highRisk || '',
+          g.share === null ? '' : dec((g.share * 100).toFixed(2)) + '%',
+          sg.base === 'tuzel' ? t('pfBaseEntities') : t('pfBaseAll')]);
+      });
+
+      rows.push([]);
+      rows.push([t('pfCountryTitle')]);
+      rows.push([t('pfCountry'), t('csvH.code'), t('pfRiskFlags'), t('pfRelation'),
+        t('pfCustomers'), t('pfTxIn'), t('pfTxOut'), t('pfTxTotal')]);
+      P.countries.rows.forEach(c => {
+        rows.push([c.name || '', c.code || '',
+          (c.flags || []).map(f => LL(PORTFOLIO.countryFlags.find(x => x.key === f))).join(' | '),
+          (c.relations || []).map(r => LL(PORTFOLIO.countryRelations.find(x => x.key === r))).join(' | '),
+          c.customers || '', c.txIn || '', c.txOut || '', c.tx || '']);
+      });
+      rows.push([t('total'), '', '', '', P.countries.customers, P.countries.txIn, P.countries.txOut, P.countries.tx]);
+
+      rows.push([]);
+      rows.push([t('pfBranchTitle')]);
+      rows.push([t('pfBranchName'), t('pfBranchType'), t('pfCountry'), t('pfCustomers'),
+        t('pfHighRisk'), t('pfComplianceFte'), t('pfLoad'), t('pfLastAudit'), t('pfAuditAge')]);
+      P.branches.rows.forEach(b => {
+        rows.push([b.name || '', LL(PORTFOLIO.branchTypes.find(x => x.key === b.type)), b.country || '',
+          b.customers || '', b.highRiskCustomers || '', b.complianceFte ?? '',
+          b.load === null ? '' : Math.round(b.load), b.lastAudit || '',
+          b.auditMonths === null ? '' : b.auditMonths]);
+      });
     } else if (kind === 'inherent') {
       name = t('fileInherent');
       rows = [[H('riskDimension'), H('subFactor'), H('score'), H('scoreDesc'), H('state'),
@@ -198,6 +242,24 @@ const Exporter = (() => {
               (k[s.field.id] ? fmtDate(k[s.field.id]) : '—') +
               (s.overdue ? ` — ${s.months} ${t('monthsShort')}, ${t('exceededMonths', { n: s.field.staleMonths })}` : ''))).join('')}
           </tbody></table></div>
+
+          ${calc.portfolio && calc.portfolio.sectionsFilled ? `
+          <div class="divider"></div>
+          <h3>${t('ttlPortfolio')}</h3>
+          <div class="table-wrap"><table><tbody>
+            ${calc.portfolio.matrixFilled ? kv(t('pfTotalCustomers'), fmtInt(calc.portfolio.total)) : ''}
+            ${calc.portfolio.highRiskShare !== null ? kv(t('pfHighRiskShare'),
+               `${fmtPct1(calc.portfolio.highRiskShare)} (${fmtInt(calc.portfolio.highRisk)})`) : ''}
+            ${calc.portfolio.entityShare !== null ? kv(t('pfEntityShare'), fmtPct1(calc.portfolio.entityShare)) : ''}
+            ${calc.portfolio.countries.count ? kv(t('pfCountryExposure'),
+               `${fmtInt(calc.portfolio.countries.count)} · ${t('pfFlaggedCountries', { n: fmtInt(calc.portfolio.countries.flagged) })}`) : ''}
+            ${calc.portfolio.countries.shares.fatfTx !== null ? kv(t('pfFatfTxShare'), fmtPct1(calc.portfolio.countries.shares.fatfTx)) : ''}
+            ${calc.portfolio.countries.shares.sanctionedTx !== null ? kv(t('pfSanctionedTxShare'), fmtPct1(calc.portfolio.countries.shares.sanctionedTx)) : ''}
+            ${calc.portfolio.countries.shares.crossBorder !== null ? kv(t('pfCrossBorderShare'), fmtPct1(calc.portfolio.countries.shares.crossBorder)) : ''}
+            ${calc.portfolio.branches.count ? kv(t('pfBranchNetwork'),
+               `${fmtInt(calc.portfolio.branches.count)} · ${t('pfForeignUnits', { n: fmtInt(calc.portfolio.branches.foreign), c: fmtInt(calc.portfolio.branches.countries) })}`) : ''}
+            ${calc.portfolio.branches.count ? kv(t('pfAuditOverdue'), fmtInt(calc.portfolio.branches.auditOverdue)) : ''}
+          </tbody></table></div>` : ''}
 
           <div class="divider"></div>
           <h3>${t('sectionInherentProfile')}</h3>
