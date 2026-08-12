@@ -5,6 +5,18 @@ const Calc = (() => {
 
   const ANSWER_COEF = { 'Evet': 1, 'Kısmen': 0.5, 'Hayır': 0, 'Uygulanamaz': null };
 
+  /* Kontrolün artık riski azaltabileceği üst sınır.
+     FATF R.1, EBA ML/TF risk faktörleri kılavuzu ve Basel: kontroller riski
+     azaltır, sıfırlamaz. Sınır olmadan %100 etkinlik artık riski 0 gösterir;
+     bu hiçbir denetimde savunulamaz. Skorun kendisi değişmez, yalnızca artık
+     risk hesabında bu tavan uygulanır. */
+  const MAX_CONTROL_EFFECT = 0.95;
+
+  /* Bağımsız dosya testi sonucunun beyana uyguladığı tavan.
+     Wolfsberg Effectiveness Statement ve IIA üç savunma hattı: testte düşen
+     kontrol, beyan ne olursa olsun etkin çalışıyor sayılmaz. */
+  const QA_CAP = { 'Çelişkili': 0, 'Kısmen doğrulandı': 0.5 };
+
   // 05_Artik_Risk!D — her domainin doğuştan risk kaynağı (boyut ortalaması)
   const RESIDUAL_DIMS = {
     D1: ['GENEL'],
@@ -147,6 +159,7 @@ const Calc = (() => {
     const answered = answer !== '';
     const coef = answered ? ANSWER_COEF[answer] : undefined;
     const inScope = answered && coef !== null;      // Uygulanamaz => skorlamadan çıkar
+    const cap = (q.qa && rec) ? QA_CAP[rec.qaResult] : undefined;
 
     return {
       answer,
@@ -162,6 +175,10 @@ const Calc = (() => {
       qaNote: (rec && rec.qaNote) || '',
       // Beyan "Evet" ama dosya testi çelişkiliyse skor savunulamaz
       qaConflict: Boolean(q.qa && rec && rec.qaResult === 'Çelişkili' && answer === 'Evet'),
+      // Beyan edilen katsayı ile bağımsız testle düzeltilmiş katsayı ayrı tutulur
+      coefTested: inScope ? Math.min(coef, cap === undefined ? 1 : cap) : null,
+      earnedTested: inScope ? q.weight * Math.min(coef, cap === undefined ? 1 : cap) : 0,
+      qaAdjusted: inScope && cap !== undefined && cap < coef,
       openCritical: inScope && q.critKey === 'Kritik' && coef < 1,
       actionNeeded: !inScope ? '' : (coef === 1 ? 'Hayır' : (q.critKey === 'Kritik' ? 'EVET - ÖNCELİKLİ' : 'Evet'))
     };
@@ -302,22 +319,29 @@ const Calc = (() => {
     // Domain toplamları (04_Domain_Skorlari)
     const domains = DATA.domains.map(d => {
       const qs = DATA.questions.filter(q => q.domain === d.code);
-      let answered = 0, appW = 0, earned = 0, openCrit = 0, actions = 0, na = 0;
+      let answered = 0, appW = 0, earned = 0, earnedTested = 0, openCrit = 0, actions = 0, na = 0;
+      let qaReq = 0, qaDone = 0, qaAdj = 0;
       qs.forEach(q => {
         const s = perQuestion[q.id];
         if (s.answered) answered += 1;
         if (s.coef === null && s.answered) na += 1;
         appW += s.applicableWeight;
         earned += s.earned;
+        earnedTested += s.earnedTested;
         if (s.openCritical) openCrit += 1;
         if (s.actionNeeded && s.actionNeeded !== 'Hayır') actions += 1;
+        if (q.qa) { qaReq += 1; if (s.qaResult && s.qaResult !== 'Test edilmedi') qaDone += 1; }
+        if (s.qaAdjusted) qaAdj += 1;
       });
       const eff = appW ? earned / appW : null;
+      const effTested = appW ? earnedTested / appW : null;
       return {
         code: d.code, name: d.name,
         count: qs.length, answered, na,
-        applicableWeight: appW, earned,
-        effectiveness: eff, maturity: maturity(eff),
+        applicableWeight: appW, earned, earnedTested,
+        effectiveness: eff, effectivenessTested: effTested, maturity: maturity(effTested),
+        maturityDeclared: maturity(eff),
+        assurance: qaReq ? qaDone / qaReq : null, qaRequired: qaReq, qaTested: qaDone, qaAdjusted: qaAdj,
         openCritical: openCrit, actionsNeeded: actions,
         progress: qs.length ? answered / qs.length : 0
       };
@@ -333,12 +357,15 @@ const Calc = (() => {
 
     const totals = domains.reduce((t, d) => {
       t.count += d.count; t.answered += d.answered; t.na += d.na;
-      t.applicableWeight += d.applicableWeight; t.earned += d.earned;
+      t.applicableWeight += d.applicableWeight; t.earned += d.earned; t.earnedTested += d.earnedTested;
       t.openCritical += d.openCritical; t.actionsNeeded += d.actionsNeeded;
       return t;
-    }, { count: 0, answered: 0, na: 0, applicableWeight: 0, earned: 0, openCritical: 0, actionsNeeded: 0 });
+    }, { count: 0, answered: 0, na: 0, applicableWeight: 0, earned: 0, earnedTested: 0, openCritical: 0, actionsNeeded: 0 });
     totals.effectiveness = totals.applicableWeight ? totals.earned / totals.applicableWeight : null;
-    totals.maturity = maturity(totals.effectiveness);
+    totals.effectivenessTested = totals.applicableWeight ? totals.earnedTested / totals.applicableWeight : null;
+    totals.maturity = maturity(totals.effectivenessTested);
+    totals.maturityDeclared = maturity(totals.effectiveness);
+    totals.assurance = qaRequired.length ? qaTested.length / qaRequired.length : null;
     totals.progress = totals.count ? totals.answered / totals.count : 0;
 
     // Doğuştan + artık risk (05_Artik_Risk)
@@ -349,22 +376,41 @@ const Calc = (() => {
       const parts = dims.map(k => inh.dims[k]).filter(Boolean);
       const irMeasured = parts.length > 0 && parts.every(p => p.measured);
       const ir = parts.reduce((s, p) => s + p.value, 0) / (parts.length || 1);
-      const eff = byCode[d.code].effectiveness;
-      // Doğuştan risk ölçülmediyse artık risk hesaplanmaz; sıfır göstermek yanıltıcı olur.
-      const res = (eff === null || !irMeasured) ? null : ir * (1 - eff);
-      const limit = DATA.appetite[d.code];
+      const dom = byCode[d.code];
+      const eff = dom.effectivenessTested;
+      // Kontrol etkisi tavanla sınırlanır: hiçbir kontrol seti riski sıfırlamaz.
+      const applied = eff === null ? null : Math.min(eff, MAX_CONTROL_EFFECT);
+      const res = (applied === null || !irMeasured) ? null : ir * (1 - applied);
+      const ovr = Number((state.appetite || {})[d.code]);
+      const limit = Number.isFinite(ovr) && ovr > 0 ? ovr : DATA.appetite[d.code];
       return {
         code: d.code, name: d.name,
         source: DATA.residualSource[d.code] || '',
-        inherentRisk: irMeasured ? ir : null, effectiveness: eff,
+        inherentRisk: irMeasured ? ir : null,
+        effectiveness: dom.effectiveness, effectivenessTested: eff, effectiveApplied: applied,
         residual: res, level: res === null ? '' : residualLevel(res),
-        appetite: limit,
+        appetite: limit, appetiteOverridden: Number.isFinite(ovr) && ovr > 0,
         breach: res === null ? null : res > limit
       };
     });
 
-    const generalResidual = (totals.effectiveness === null || !inh.measured)
-      ? null : inh.general * (1 - totals.effectiveness);
+    // Kurum geneli iki yoldan okunur:
+    //  a) kaynak çalışma kitabı formülü (genel doğuştan × genel etkinlik)
+    //  b) domain artık risklerinin ortalaması ve en yükseği
+    // (a) yoğunlaşmış bir zafiyeti seyreltebildiği için (b) de raporlanır.
+    const appliedTotal = totals.effectivenessTested === null
+      ? null : Math.min(totals.effectivenessTested, MAX_CONTROL_EFFECT);
+    const generalResidual = (appliedTotal === null || !inh.measured)
+      ? null : inh.general * (1 - appliedTotal);
+
+    const measuredRes = residual.filter(r => r.residual !== null);
+    const domainAvgResidual = measuredRes.length
+      ? measuredRes.reduce((a, r) => a + r.residual, 0) / measuredRes.length : null;
+    const worstDomain = measuredRes.length
+      ? measuredRes.slice().sort((a, b) => b.residual - a.residual)[0] : null;
+    // Genel görünüm bir domain aşımını gizliyorsa uyarı üretilir
+    const masksBreach = Boolean(worstDomain && worstDomain.breach
+      && generalResidual !== null && generalResidual <= worstDomain.appetite);
 
     // QA örneklem planı (06_QA_Orneklem)
     const qa = DATA.qaPopulations.map(p => {
@@ -415,6 +461,8 @@ const Calc = (() => {
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
       operations: (typeof Operations !== 'undefined') ? Operations.compute(state) : null,
       inherent: inh, residual, generalResidual,
+      domainAvgResidual, worstDomain, masksBreach,
+      maxControlEffect: MAX_CONTROL_EFFECT,
       breaches: residual.filter(r => r.breach).length,
       qa, qaTotals, actions, actionStats
     };

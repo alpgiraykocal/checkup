@@ -85,7 +85,7 @@ const Exporter = (() => {
     } else if (kind === 'domains') {
       name = t('fileDomains');
       rows = [[H('code'), H('domain'), H('questionCount'), H('answeredCount'), H('notApplicable'),
-        H('applicableWeight'), H('earned'), H('effectiveness'), H('maturity'), H('openCritical'),
+        H('applicableWeight'), H('earned'), H('effectiveness'), t('colEffTested'), t('colAssurance'), H('maturity'), H('openCritical'),
         H('actionRequired'), H('inherentRisk'), H('residualRisk'), H('residualLevel'),
         H('appetiteLimit'), H('appetiteBreach')]];
       const byCode = Object.fromEntries(calc.residual.map(r => [r.code, r]));
@@ -93,6 +93,8 @@ const Exporter = (() => {
         const r = byCode[d.code];
         rows.push([d.code, d.name, d.count, d.answered, d.na, dec(d.applicableWeight), dec(d.earned),
           dec(d.effectiveness === null ? '' : d.effectiveness.toFixed(4)),
+          dec(d.effectivenessTested === null ? '' : d.effectivenessTested.toFixed(4)),
+          dec(d.assurance === null ? '' : d.assurance.toFixed(4)),
           I18n.ref('maturity', d.maturity), d.openCritical, d.actionsNeeded,
           dec(r.inherentRisk === null ? '' : r.inherentRisk.toFixed(2)),
           dec(r.residual === null ? '' : r.residual.toFixed(2)),
@@ -244,7 +246,8 @@ const Exporter = (() => {
         </div>
         <div class="card-body">
           <div class="grid grid-kpi">
-            ${UI.statTile({ label: t('colEffectiveness'), value: fmtPct1(tot.effectiveness), foot: esc(tot.maturity ? I18n.ref('maturity', tot.maturity) : '—') })}
+            ${UI.statTile({ label: t('colEffTested'), value: fmtPct1(tot.effectivenessTested),
+              foot: `${t('colEffDeclared')} ${fmtPct1(tot.effectiveness)} · ${esc(tot.maturity ? I18n.ref('maturity', tot.maturity) : '—')}` })}
             ${UI.statTile({ label: t('csvH.inherentRisk'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/5',
               foot: inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) + ` · ${inh.scored}/${inh.applicable} ${t('factor')}` : t('notMeasured') })}
             ${UI.statTile({ label: t('colResidual'), value: fmtNum2(calc.generalResidual), unit: '/5',
@@ -271,6 +274,8 @@ const Exporter = (() => {
               (s.overdue ? ` — ${s.months} ${t('monthsShort')}, ${t('exceededMonths', { n: s.field.staleMonths })}` : ''))).join('')}
           </tbody></table></div>
 
+          ${calc.masksBreach ? `<p><b style="color:var(--warn)">${t('bnMasksTtl')}:</b>
+            ${t('bnMasksBody', { g: fmtNum2(calc.generalResidual), d: calc.worstDomain.code, r: fmtNum2(calc.worstDomain.residual) })}</p>` : ''}
           ${calc.portfolio && calc.portfolio.sectionsFilled ? `
           <div class="divider"></div>
           <h3>${t('ttlPortfolio')}</h3>
@@ -314,7 +319,8 @@ const Exporter = (() => {
               const d = calc.domains.find(x => x.code === r.code);
               return `<tr>
                 <td class="mono"><b>${esc(r.code)}</b></td><td>${esc(r.name)}</td>
-                <td class="num"><span class="heat-cell score-pill ${effClass(d.effectiveness)}">${fmtPct(d.effectiveness)}</span></td>
+                <td class="num"><span class="heat-cell score-pill ${effClass(d.effectivenessTested)}">${fmtPct(d.effectivenessTested)}</span>
+                  <div class="subtle">${t('colEffDeclared')} ${fmtPct(d.effectiveness)}</div></td>
                 <td>${esc(d.maturity ? I18n.ref('maturity', d.maturity) : '—')}</td>
                 <td class="num"><span class="heat-cell score-pill ${levelClass(r.level)}">${fmtNum2(r.residual)}</span></td>
                 <td>${esc(r.level ? I18n.ref('riskLevel', r.level) : '—')}</td>

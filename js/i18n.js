@@ -738,6 +738,36 @@ const I18n = (() => {
     csvOperations: ['İşlem detayı', 'Transaction detail'],
     fileOperations:['islem-detayi', 'transaction-detail'],
 
+
+    /* --- Bağımsız test, tavan ve kurum geneli --- */
+    colEffDeclared: ['Beyan edilen', 'Declared'],
+    colEffTested:   ['Test ile düzeltilmiş', 'Test-adjusted'],
+    colAssurance:   ['Güvence örtüsü', 'Assurance coverage'],
+    scAdjusted:     ['{n} kontrol testle düşürüldü', '{n} controls reduced by testing'],
+    bnTestedTtl:    ['Beyan ile bağımsız test ayrı raporlanır',
+                     'Declared and independently tested effectiveness are reported separately'],
+    bnTestedBody:   ['Anket yanıtı kurumun beyanıdır. QA dosya testi "Çelişkili" çıkan kontrol etkin sayılmaz (katsayı 0), "Kısmen doğrulandı" çıkan en çok yarım puan alır. Artık risk hesabı test ile düzeltilmiş etkinliği kullanır; Wolfsberg etkinlik beyanı ve IIA üç savunma hattı bunu gerektirir.',
+                     'The questionnaire answer is the institution\'s own statement. A control whose QA file test comes back "Contradicted" is not treated as effective (coefficient 0); "Partly confirmed" earns at most half. The residual risk calculation uses the test-adjusted effectiveness, as required by the Wolfsberg effectiveness statement and the IIA three lines of defence.'],
+    kpiFromOpsShort:['işlem detayından', 'from transactions'],
+
+    kpiWorstDomain: ['En yüksek domain artık riski', 'Highest domain residual risk'],
+    bnMasksTtl:     ['Kurum geneli, domain düzeyindeki aşımı gizliyor',
+                     'The enterprise view is masking a domain-level breach'],
+    bnMasksBody:    ['Genel artık risk {g} görünüyor ancak {d} domaininde {r} ile iştah aşılıyor. Yönetime sunumda genel skoru tek başına kullanmayın; kurumsal risk değerlendirmesinde yoğunlaşmış zafiyet ortalamayla seyreltilemez.',
+                     'The overall residual risk reads {g}, yet domain {d} breaches appetite at {r}. Do not present the overall score on its own; in an enterprise-wide risk assessment a concentrated weakness cannot be diluted by an average.'],
+    bnQaConflictTtl:['{n} kontrolde beyan ile dosya testi çelişiyor', 'Statement and file test conflict on {n} controls'],
+    bnQaConflictBody:['Bu kontroller etkin sayılmıyor ve artık riski yükseltiyor. Yanıtı düzeltin ya da testi gerekçelendirin.',
+                      'These controls are not counted as effective and raise the residual risk. Correct the answer or justify the test result.'],
+
+    rrCapped:       ['hesapta {p} ile sınırlandı', 'capped at {p} in the calculation'],
+    rrOwnLimit:     ['kurum kararı', 'institution decision'],
+    rrMethod1:      ['<b>Kontrol etkisi tavanı.</b> Artık risk hesabında kontrol etkinliği en çok {p} olarak uygulanır. FATF Tavsiye 1, EBA ML/TF risk faktörleri kılavuzu ve Basel yaklaşımı: kontroller riski azaltır, sıfırlamaz. Tavan olmadan tam puan alan bir domain sıfır artık risk gösterirdi.',
+                     '<b>Control effect cap.</b> In the residual calculation, control effectiveness is applied at no more than {p}. FATF Recommendation 1, the EBA ML/TF risk factors guidelines and the Basel approach all hold that controls mitigate risk rather than eliminate it. Without the cap, a domain scoring full marks would show zero residual risk.'],
+    rrMethod2:      ['<b>İştah limiti.</b> Varsayılan 1,50 sektör uygulamasına dayalı bir başlangıç değeridir. Her domain için yönetim kurulunun onayladığı limiti girin; risk iştahı kurumun kendi kararıdır.',
+                     '<b>Appetite limit.</b> The default of 1.50 is a starting value based on industry practice. Enter the limit approved by your board for each domain; risk appetite is the institution\'s own decision.'],
+    rrMethod3:      ['Artık risk = Doğuştan Risk × (1 − uygulanan kontrol etkinliği). Uygulanan etkinlik, bağımsız test ile düzeltilmiş etkinliğin tavanla sınırlanmış hâlidir.',
+                     'Residual risk = Inherent Risk × (1 − applied control effectiveness). The applied effectiveness is the test-adjusted effectiveness, limited by the cap.'],
+
     /* --- CSV başlıkları / CSV headers --- */
     csvH: {
       questionId: ['Soru ID', 'Question ID'], code: ['Kod', 'Code'],

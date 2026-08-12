@@ -149,13 +149,25 @@ Her giriş alanının yanında ne yazılacağını anlatan bir açıklama ve ör
 
 Zorunlu alanlar yıldızla işaretlidir. Kaydetmeden önce aksiyon formu kök neden, sahip ve termini kontrol eder; künye eksik zorunlu alanları sayfa başında listeler.
 
+## Metodoloji ve küresel standartlarla uyum
+
+Zincir: **kapsam → doğuştan risk → kontrol beyanı → bağımsız test → artık risk → iştah karşılaştırması → aksiyon**. Ekran sırası bu zinciri izler: Künye ve Portföy kapsamı belirler, İşlem Detayı hacim ve operasyon verisini toplar, Doğuştan Risk yapısal maruziyeti skorlar, Anket kontrol beyanını alır, QA testi beyanı doğrular, Kontrol Skorları ve Artık Risk sonucu üretir, Aksiyon Planı kapanışı yönetir.
+
+**Beyan ile bağımsız test ayrılır.** Anket yanıtı kurumun beyanıdır. QA dosya testi "Çelişkili" çıkan kontrol etkin sayılmaz (katsayı 0), "Kısmen doğrulandı" çıkan en çok yarım puan alır. Kontrol Skorları tablosunda üç sütun ayrı gösterilir: beyan edilen etkinlik, test ile düzeltilmiş etkinlik ve güvence örtüsü (test edilmiş / test gereken). Artık risk hesabı test ile düzeltilmiş etkinliği kullanır. Dayanak: Wolfsberg etkinlik beyanı, IIA üç savunma hattı, BSA bağımsız test sütunu.
+
+**Kontrol etkisi tavanı %95.** Artık risk hesabında kontrol etkinliği en çok %95 uygulanır. FATF Tavsiye 1, EBA ML/TF risk faktörleri kılavuzu ve Basel yaklaşımı kontrollerin riski azalttığını, sıfırlamadığını söyler. Tavan olmadan tam puan alan bir domain 0,00 artık risk gösterirdi; bu hiçbir denetimde savunulamaz. Tavan yalnız artık risk hesabına uygulanır, etkinlik skorunun kendisine değil.
+
+**Kurum geneli tek başına okunmaz.** Genel artık risk, kaynak çalışma kitabındaki formülle (genel doğuştan × genel etkinlik) hesaplanır. Bu formül yoğunlaşmış bir zafiyeti ortalamayla seyreltebilir. Bu nedenle panoda ayrıca **en yüksek domain artık riski** gösterilir ve genel skor bir domain aşımını gizlediğinde uyarı çıkar. Kurumsal risk değerlendirmesinde domain düzeyindeki aşım, genel ortalamayla kapatılamaz.
+
+**Risk iştahı kurumun kararıdır.** Varsayılan 1,50 sektör uygulamasına dayalı bir başlangıç değeridir. Artık Risk ekranında her domain için yönetim kurulunun onayladığı limit girilebilir; değiştirilen limit "kurum kararı" olarak işaretlenir.
+
 ## Hesaplama kuralları
 
-Tümü kaynak çalışma kitabındaki formüllerle birebir aynıdır (`js/calc.js`).
+Skorlama, kaynak çalışma kitabındaki formüllerle birebir aynıdır (`js/calc.js`); artık risk hesabına yukarıda açıklanan test düzeltmesi ve tavan eklenir.
 
 **Cevap katsayısı** — Evet 1,00 · Kısmen 0,50 · Hayır 0,00 · Uygulanamaz skorlamadan tamamen çıkar.
 
-**Kontrol etkinliği** = kazanılan puan / uygulanabilir toplam ağırlık (domain bazında).
+**Kontrol etkinliği** = kazanılan puan / uygulanabilir toplam ağırlık (domain bazında). Beyan edilen ve test ile düzeltilmiş olmak üzere ikisi de raporlanır.
 
 **Olgunluk** — ≥ %90 Gelişmiş · ≥ %75 Yeterli · ≥ %60 Gelişime Açık · ≥ %40 Zayıf · < %40 Kritik Zayıf.
 
@@ -169,7 +181,7 @@ Tümü kaynak çalışma kitabındaki formüllerle birebir aynıdır (`js/calc.j
 
 **Künye tabanlı öneri** — künyedeki sayılardan oran hesaplanabilen dört faktörde (yüksek riskli müşteri payı, PEP payı, sınır ötesi işlem payı ×2) önerilen skor gösterilir ve tek tıkla uygulanır. Öneri bağlayıcı değildir; gerekçe yine girilmelidir.
 
-**Artık risk** = doğuştan risk × (1 − kontrol etkinliği). Seviye: ≥ 3,50 Çok Yüksek · ≥ 2,50 Yüksek · ≥ 1,50 Orta · < 1,50 Düşük. Varsayılan iştah limiti 1,50.
+**Artık risk** = doğuştan risk × (1 − uygulanan kontrol etkinliği). Uygulanan etkinlik = MİN(test ile düzeltilmiş etkinlik, %95). Seviye: ≥ 3,50 Çok Yüksek · ≥ 2,50 Yüksek · ≥ 1,50 Orta · < 1,50 Düşük. Varsayılan iştah limiti 1,50.
 
 Domain başına doğuştan risk kaynağı: D1/D9/D10/D11 = GENEL · D2 = Müşteri + Coğrafya · D3 = Ürün + Kanal · D4 = İşlem · D5 = Müşteri · D6 = Coğrafya ve Yaptırım · D7 = İşlem + Ürün · D8 = Müşteri + İşlem.
 

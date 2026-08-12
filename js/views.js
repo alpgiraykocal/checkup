@@ -25,6 +25,14 @@ const Views = (() => {
         foot: `${inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) : t('notMeasured')} · ${inh.scored}/${inh.applicable} ${t('factor')}${inh.na ? ` · ${inh.na} N/A` : ''}`
       }),
       statTile({
+        label: t('kpiWorstDomain'),
+        value: calc.worstDomain ? fmtNum2(calc.worstDomain.residual) : '—', unit: '/ 5',
+        tone: !calc.worstDomain ? '' : calc.worstDomain.breach ? 'danger' : calc.worstDomain.residual >= 1.5 ? 'warn' : 'ok',
+        foot: calc.worstDomain
+          ? `${esc(calc.worstDomain.code)} · ${esc(I18n.ref('riskLevel', calc.worstDomain.level))}`
+          : t('effNotComputable')
+      }),
+      statTile({
         label: t('kpiResidual'), value: fmtNum2(calc.generalResidual), unit: '/ 5',
         tone: calc.generalResidual === null ? '' : calc.generalResidual >= 2.5 ? 'danger' : calc.generalResidual >= 1.5 ? 'warn' : 'ok',
         foot: calc.generalResidual === null ? t('effNotComputable') : esc(I18n.ref('riskLevel', Calc.residualLevel(calc.generalResidual)))
@@ -64,6 +72,13 @@ const Views = (() => {
     }
     if (tot.openCritical > 0) {
       banners.push(banner('danger', t('bnCritTtl', { n: tot.openCritical }), t('bnCritBody')));
+    }
+    if (calc.masksBreach) {
+      banners.push(banner('warn', t('bnMasksTtl'),
+        t('bnMasksBody', { g: fmtNum2(calc.generalResidual), d: calc.worstDomain.code, r: fmtNum2(calc.worstDomain.residual) })));
+    }
+    if (calc.qa2.conflicts.length) {
+      banners.push(banner('danger', t('bnQaConflictTtl', { n: calc.qa2.conflicts.length }), t('bnQaConflictBody')));
     }
 
     host.innerHTML = `
@@ -233,6 +248,9 @@ const Views = (() => {
         closureRate: calc.actionStats.closureRate,
         opsKpi: calc.operations ? calc.operations.kpi : null
       });
+      const fromOps = Boolean(calc.operations && calc.operations.kpi[k.key] !== undefined);
+      // Otomatik gelen her değer okunur biçimde gösterilir; boş kutu bırakılmaz
+      const isAuto = Boolean(k.auto) || fromOps;
       const target = num(rec.target);
       const manual = num(rec.value);
       const value = manual !== null ? manual : auto;
@@ -249,8 +267,7 @@ const Views = (() => {
           <label for="kpi-v-${i}" style="font-weight:500;color:inherit;margin:0">${esc(k.name.replace(/\s*\((gün|saat|ay)\)/, ''))}</label>
           <div class="subtle">${esc(k.help)}</div>
           <div class="subtle">${t('source')}: ${esc(
-             (calc.operations && calc.operations.kpi[k.key] !== undefined) ? t('kpiFromOps')
-             : k.auto ? t('kpiAutoSource') : k.source)} · ${dirHint}</div>
+             fromOps ? t('kpiFromOps') : k.auto ? t('kpiAutoSource') : k.source)} · ${dirHint}</div>
         </td>
         <td style="width:120px">
           <div class="input-unit">
@@ -261,10 +278,10 @@ const Views = (() => {
           </div>
         </td>
         <td style="width:120px">
-          ${k.auto && manual === null
+          ${isAuto && manual === null
             ? `<div class="auto-value" title="${t('kpiAutoTitle')}">
                  <b class="num">${auto === null ? '—' : fmtInt(auto)}</b> <span class="subtle">${esc(k.unit)}</span>
-                 <div class="subtle">${t('kpiAuto')}</div>
+                 <div class="subtle">${fromOps ? t('kpiFromOpsShort') : t('kpiAuto')}</div>
                </div>`
             : `<div class="input-unit">
                  <input type="text" inputmode="decimal" id="kpi-v-${i}" data-kpi="${esc(k.name)}" data-field="value"
@@ -1200,6 +1217,10 @@ const Views = (() => {
         <td class="num">${fmtNum1(d.applicableWeight)}</td>
         <td class="num">${fmtNum1(d.earned)}</td>
         <td class="num"><span class="heat-cell score-pill ${effClass(d.effectiveness)}">${fmtPct1(d.effectiveness)}</span></td>
+        <td class="num"><span class="heat-cell score-pill ${effClass(d.effectivenessTested)}">${fmtPct1(d.effectivenessTested)}</span>
+          ${d.qaAdjusted ? `<div class="subtle">${t('scAdjusted', { n: d.qaAdjusted })}</div>` : ''}</td>
+        <td class="num">${d.qaRequired ? fmtPct(d.assurance) : '—'}
+          ${d.qaRequired ? `<div class="subtle">${d.qaTested}/${d.qaRequired}</div>` : ''}</td>
         <td>${d.maturity ? `<span class="chip ${maturityClass(d.maturity)}">${esc(I18n.ref('maturity', d.maturity))}</span>` : '—'}</td>
         <td class="num">${d.openCritical ? `<b style="color:var(--danger)">${fmtInt(d.openCritical)}</b>` : '0'}</td>
         <td class="num">${fmtInt(d.actionsNeeded)}</td>
@@ -1207,6 +1228,7 @@ const Views = (() => {
 
     host.innerHTML = `
       ${banner('info', t('bnNoInputTtl'), t('bnNoInputBody'))}
+      ${banner('info', t('bnTestedTtl'), t('bnTestedBody'))}
       <div class="card">
         <div class="card-head"><h2>${t('ttlScores')}</h2>
           <span class="subtle">${t('scoreLegend')}</span></div>
@@ -1214,15 +1236,19 @@ const Views = (() => {
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colQuestions')}</th><th class="num">${t('colAnswers')}</th><th class="num">N/A</th>
-              <th class="num">${t('colApplicableW')}</th><th class="num">${t('colEarned')}</th><th class="num">${t('colEffectiveness')}</th>
-              <th>${t('maturityLabel')}</th><th class="num">${t('colOpenCrit')}</th><th class="num">${t('colActions')}</th>
+              <th class="num">${t('colApplicableW')}</th><th class="num">${t('colEarned')}</th>
+              <th class="num">${t('colEffDeclared')}</th><th class="num">${t('colEffTested')}</th>
+              <th class="num">${t('colAssurance')}</th><th>${t('maturityLabel')}</th><th class="num">${t('colOpenCrit')}</th><th class="num">${t('colActions')}</th>
             </tr></thead>
             <tbody>${rows}</tbody>
             <tfoot><tr>
               <td></td><td>${t('totalRow')}</td>
               <td class="num">${fmtInt(tot.count)}</td><td class="num">${fmtInt(tot.answered)}</td><td class="num">${fmtInt(tot.na)}</td>
               <td class="num">${fmtNum1(tot.applicableWeight)}</td><td class="num">${fmtNum1(tot.earned)}</td>
-              <td class="num">${fmtPct1(tot.effectiveness)}</td><td>${esc(tot.maturity ? I18n.ref('maturity', tot.maturity) : '—')}</td>
+              <td class="num">${fmtPct1(tot.effectiveness)}</td>
+              <td class="num">${fmtPct1(tot.effectivenessTested)}</td>
+              <td class="num">${tot.assurance === null ? '—' : fmtPct(tot.assurance)}</td>
+              <td>${esc(tot.maturity ? I18n.ref('maturity', tot.maturity) : '—')}</td>
               <td class="num">${fmtInt(tot.openCritical)}</td><td class="num">${fmtInt(tot.actionsNeeded)}</td>
             </tr></tfoot>
           </table></div>
@@ -1250,16 +1276,23 @@ const Views = (() => {
   /* =========================================================
      ARTIK RİSK
      ========================================================= */
-  function residual(host, { calc }) {
+  function residual(host, ctx) {
+    const { calc } = ctx;
     const rows = calc.residual.map(r => `
       <tr>
         <td><b class="mono">${esc(r.code)}</b></td>
         <td>${esc(r.name)}<div class="subtle">${t('inherentSource')}: ${esc(r.source)}</div></td>
         <td class="num">${fmtNum2(r.inherentRisk)}</td>
-        <td class="num">${fmtPct1(r.effectiveness)}</td>
+        <td class="num">${fmtPct1(r.effectivenessTested)}
+          ${r.effectiveApplied !== null && r.effectivenessTested > r.effectiveApplied
+            ? `<div class="subtle">${t('rrCapped', { p: fmtPct(r.effectiveApplied) })}</div>` : ''}</td>
         <td class="num"><span class="heat-cell score-pill ${levelClass(r.level)}">${fmtNum2(r.residual)}</span></td>
         <td>${r.level ? `<span class="chip ${levelClass(r.level)}">${esc(I18n.ref('riskLevel', r.level))}</span>` : '—'}</td>
-        <td class="num">${fmtNum1(r.appetite)}</td>
+        <td style="width:120px">
+          <input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-${r.code}"
+            data-appetite="${r.code}" value="${r.appetite}" aria-label="${esc(r.name)} — ${t('colAppetiteLimit')}">
+          ${r.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}
+        </td>
         <td>${r.breach === null ? '—' : r.breach
           ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
           : `<span class="chip chip-ok">${t('withinAppetiteFull')}</span>`}</td>
@@ -1269,13 +1302,15 @@ const Views = (() => {
       ${calc.breaches > 0
         ? banner('danger', t('bnBreachTtl', { n: calc.breaches }), t('bnBreachBody'))
         : banner('info', t('heatmapFormula'), t('bnResidBody'))}
+      ${calc.masksBreach ? banner('warn', t('bnMasksTtl'),
+        t('bnMasksBody', { g: fmtNum2(calc.generalResidual), d: calc.worstDomain.code, r: fmtNum2(calc.worstDomain.residual) })) : ''}
       <div class="card">
         <div class="card-head"><h2>${t('ttlResidual')}</h2></div>
         <div class="card-body" style="padding:0">
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th><th class="num">${t('colEffectiveness')}</th>
-              <th class="num">${t('colResidual')}</th><th>${t('level')}</th><th class="num">${t('colAppetiteLimit')}</th><th>${t('status')}</th>
+              <th class="num">${t('colResidual')}</th><th>${t('level')}</th><th>${t('colAppetiteLimit')}</th><th>${t('status')}</th>
             </tr></thead>
             <tbody>${rows}</tbody>
           </table></div>
@@ -1289,7 +1324,27 @@ const Views = (() => {
           <span class="chip lvl-orta">${esc(I18n.ref('riskLevel', 'Orta'))} ≥ ${fmtNum2(1.5)}</span>
           <span class="chip lvl-dusuk">${esc(I18n.ref('riskLevel', 'Düşük'))} &lt; ${fmtNum2(1.5)}</span>
         </div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>${t('method')}</h2></div>
+        <div class="card-body">
+          <p>${t('rrMethod1', { p: fmtPct(calc.maxControlEffect) })}</p>
+          <p>${t('rrMethod2')}</p>
+          <p class="subtle">${t('rrMethod3')}</p>
+        </div>
       </div>`;
+
+    host.addEventListener('change', e => {
+      const a = e.target.closest('[data-appetite]');
+      if (!a) return;
+      Store.update(s => {
+        const v = Number(a.value);
+        s.appetite = s.appetite || {};
+        if (!Number.isFinite(v) || v <= 0 || v === DATA.appetite[a.dataset.appetite]) delete s.appetite[a.dataset.appetite];
+        else s.appetite[a.dataset.appetite] = v;
+      });
+    });
   }
 
   /* =========================================================
