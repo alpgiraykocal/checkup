@@ -20,6 +20,8 @@ const Store = (() => {
       portfolio: {           // müşteri dağılımı, segmentler, ülke ve şube tabloları
         matrix: {}, segments: {}, countries: [], branches: []
       },
+      operations: {},        // ölçüt anahtarı -> {adet, tutar, gun, saat}
+      countryRisk: {},       // ülke kodu -> kurum kararı bayrak listesi (yalnız fark)
       answers: {},           // soruId -> {a, evidence, note, qaResult, qaNote}
       qaVolumes: {},         // popülasyon adı -> yıllık hacim
       actions: [],           // bulgu/aksiyon kayıtları

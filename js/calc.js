@@ -125,6 +125,9 @@ const Calc = (() => {
 
   /** Otomatik hesaplanabilen KPI değeri; elle girilen değer varsa o kazanır. */
   function autoKpi(spec, state, ctx) {
+    // Operasyon ekranından gelen ölçüm elle girilen hedefin yerine geçmez,
+    // ama boş KPI'yı doldurur.
+    if (ctx && ctx.opsKpi && ctx.opsKpi[spec.key] !== undefined) return ctx.opsKpi[spec.key];
     if (!spec.auto) return null;
     if (spec.auto === 'actionClosure') {
       return ctx.closureRate === null ? null : Math.round(ctx.closureRate * 100);
@@ -410,6 +413,7 @@ const Calc = (() => {
         conflicts: qaConflicts.map(q => q.id)
       },
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
+      operations: (typeof Operations !== 'undefined') ? Operations.compute(state) : null,
       inherent: inh, residual, generalResidual,
       breaches: residual.filter(r => r.breach).length,
       qa, qaTotals, actions, actionStats

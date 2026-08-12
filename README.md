@@ -35,12 +35,13 @@ sonuçları birebir aynı.
 | 1 | **Künye** | Kurum profili, altı gruba ayrılmış 26 alan. Her alanda örnek değer ve ne yazılacağını anlatan açıklama var. Faaliyet sorularına "Hayır" yanıtı ilgili soru bölümlerini otomatik "Uygulanamaz" yapar. Girilen sayılardan oranlar ve tarih yaşlandırma uyarıları türetilir. |
 | 2 | **Portföy** | Müşteri dağılımı (7 tip × 4 risk seviyesi), 12 risk segmenti, ülke maruziyeti ve şube/birim ağı. Girilen sayılardan doğuştan risk için 12 faktöre skor önerisi üretilir. |
 | 3 | **Doğuştan Risk** | 5 boyut, 25 alt faktör. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
-| 4 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
-| 5 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
-| 6 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
-| 7 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
-| 8 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
-| 9 | **Yönetici Raporu** | Yazdırma / PDF çıktısı. |
+| 4 | **İşlem Detayı** | 8 grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması ve blokaj, trade finance, muhabir bankacılık, izleme, ŞİB/dondurma/kolluk, müşteri kabul, kalite güvence. 16 türetilen oran hesaplanır; 12 KPI otomatik dolar. |
+| 5 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
+| 6 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
+| 7 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
+| 8 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
+| 9 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
+| 10 | **Yönetici Raporu** | Yazdırma / PDF çıktısı. |
 
 QA testi sonucunda beyan ile dosya bulgusu çelişiyorsa ilgili sorunun yanıtı "Kısmen" veya "Hayır" olarak güncellenmelidir. Anket beyanı tek başına kontrol etkinliği sayılmaz.
 
@@ -75,6 +76,33 @@ Bu tablolardan 12 doğuştan risk faktörü için skor önerisi üretilir:
 | Sınır ötesi işlem payı | Coğrafya — sınır ötesi transfer payı · İşlem — sınır ötesi yoğunluk |
 
 Öneriler bağlayıcı değildir: tek tıkla uygulanır, gerekçeyi yine siz yazarsınız. Portföy verisi yoksa künyedeki sayılar devreye girer.
+
+## Ülke yönetimi
+
+**Tüm ülke alanları açılır listeden gelir.** ISO 3166-1'in tamamı (211 ülke ve bölge) Türkçe ve İngilizce adlarıyla tanımlıdır; portföy ülke satırı ve şube ülkesi aynı listeyi kullanır. Seçenekte ülkenin en ağır risk işareti de görünür (ör. "İran (IR) — FATF kara").
+
+**Risk sınıflandırması tek yerden yönetilir.** *Ayarlar > Ülke Risk Ayarları* ekranında her ülke için altı işaret açılıp kapatılır: FATF kara liste, FATF gri liste, kapsamlı yaptırım rejimi, AB yüksek riskli üçüncü ülke, offshore merkez, zayıf AML denetimi. 137 ülke işaretli olarak gelir; bunlar başlangıç değeridir ve tarihi ekranda yazar. Değiştirdiğiniz her ülke "kurum kararı" olarak etiketlenir, tek tıkla varsayılana döner.
+
+Portföy ekranındaki ülke satırı artık işaret düzenlemiyor — yalnızca gösteriyor ve ayarlara bağlantı veriyor. Ayarlarda yaptığınız değişiklik anında tüm maruziyet hesaplarına yansır.
+
+## İşlem ve operasyon detayı
+
+Sekiz grup, 101 ölçüt. Her ölçüt adet, tutar, gün veya saat cinsinden girilir; hangi alanların açık olduğu ölçüte göre değişir.
+
+| Grup | Kapsam |
+|---|---|
+| İşlem evreni | Toplam ve izlenen işlem, nakit, eşik üstü/altı, sınır ötesi giden-gelen, eksik bilgili transfer, askıya alınan, gözetimsiz kanal, acente, sanal varlık, unhosted cüzdan |
+| Yaptırım taraması ve blokaj | Taranan müşteri ve işlem, müşteri/işlem alerti, true match, **bloke edilen işlem**, **reddedilen işlem**, serbest bırakılan, alert kapanış süresi, liste güncelleme ve yansıma süresi, rescreening, %50 kuralı tespiti, kesinti |
+| Trade finance | İthalat/ihracat akreditifi, vesaik mukabili, teminat mektubu, kabul-aval, toplam dosya, mal/gemi/liman/son kullanıcı taraması, dual-use, yüksek riskli koridor, fiyat makullüğü, transit-serbest bölge, kırmızı bayrak, reddedilen dosya, ŞİB verilen dosya |
+| Muhabir bankacılık | Aktif/yeni/kapanan ilişki, **muhabirin sonlandırdığı ilişki**, CBDDQ, nested tespit, **gelen ve giden RFI**, yanıtlanan RFI ve süresi, **muhabirden iade edilen işlem**, muhabire iade ettiğimiz işlem, muhabir üzerinden işlem, payable-through hesap |
+| İzleme | Aktif senaryo, değişen senaryo, üretilen/kapatılan alert, vakaya dönüşen, toplu kapatma, backlog, kapanış süresi, kesinti, dahili şüphe bildirimi |
+| ŞİB, dondurma, kolluk | ŞİB adedi ve tutarı, bildirim süresi, gecikmiş bildirim, ŞİB verilmeyen vaka, tekrar eden ŞİB, dondurma kararı, dondurulan hesap ve tutar, kaldırma, istisna talebi, kolluk talebi ve yanıt süresi, exit, reddedilen başvuru, tipping-off ihlali |
+| Müşteri kabul ve gözden geçirme | Yeni hesap, uzaktan hesap, canlılık başarısız, EDD dosyası, üst yönetim onayı, GF tespit edilemeyen, risk override, tamamlanan periyodik gözden geçirme, gecikmiş KYC, kısıtlama, adverse media |
+| Kalite güvence | Test edilen dosya, kritik/majör/minör hata, re-test, eğitim yükümlüsü ve tamamlayan |
+
+**16 türetilen oran** ayrı bir tabloda pay, payda ve sonuçla birlikte gösterilir: izleme kapsama oranı, nakit payı, sınır ötesi payı, alert→vaka ve vaka→ŞİB dönüşümü, toplu kapatma payı, tarama isabet oranı, RFI yanıtlama oranı, muhabirden iade oranı, trade tarama örtüsü, QA hata oranları, eğitim tamamlanma, uzaktan kabul payı, acente payı, gözetimsiz kanal payı.
+
+**12 KPI otomatik dolar** (yaptırım alert süresi, liste yansıma süresi, backlog, dahili bildirim, ŞİB süresi, kolluk yanıt süresi, gecikmiş KYC, alert-vaka, vaka-ŞİB, QA kritik/majör hata, eğitim tamamlanma) ve **4 doğuştan risk faktörüne** skor önerisi üretilir. Trade finance faaliyeti yoksa o grup künyeye göre kapsam dışına alınır.
 
 ## Anketi hızlı doldurma
 
@@ -176,6 +204,10 @@ Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için ge�
 ```
 index.html          kabuk, gezinme, dil değiştirici
 css/app.css         tasarım sistemi, açık/koyu tema, yazdırma stilleri
+js/countries.js     ISO 3166-1 ülke listesi ve varsayılan risk işaretleri
+js/settings.js      ülke risk ayarları ekranı ve ortak ülke çözümleyici
+js/operations.data.js işlem/operasyon ölçüt tanımları
+js/operations.js    işlem detayı ekranı ve türetilen oranlar
 js/portfolio.data.js portföy referansları (müşteri tipleri, segmentler, ülke listesi, birim tipleri)
 js/portfolio.js     portföy ekranı ve maruziyet hesapları
 js/data.js          xlsx'ten üretilmiş Türkçe veri (218 soru, 25 faktör, 24 popülasyon, 15 KPI)

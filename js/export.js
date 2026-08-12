@@ -117,6 +117,34 @@ const Exporter = (() => {
         a.action, a.owner, a.due, a.verification, I18n.ref('status', a.status),
         a.delay === 'GECİKMİŞ' ? t('overdue') : a.delay === 'Kapalı' ? t('closed') : a.delay,
         a.closedAt, I18n.ref('riskLevel', a.residualAfter)]));
+    } else if (kind === 'operations') {
+      name = t('fileOperations');
+      const O = calc.operations;
+      const LL = o => (o ? (I18n.isEn ? (o.en || o.tr) : o.tr) : '');
+      rows = [[t('opMetric'), LL(OPERATIONS.units.adet), LL(OPERATIONS.units.tutar),
+        LL(OPERATIONS.units.gun), LL(OPERATIONS.units.saat)]];
+      OPERATIONS.groups.forEach(g => {
+        rows.push([]);
+        rows.push([LL(g)]);
+        g.metrics.forEach(m => {
+          const rec = (state.operations || {})[m.key] || {};
+          rows.push([LL(m), rec.adet ?? '', rec.tutar ?? '', rec.gun ?? '', rec.saat ?? '']);
+        });
+      });
+      rows.push([]);
+      rows.push([t('opDerivedTitle')]);
+      rows.push([t('opRatio'), t('opNumerator'), t('opDenominator'), t('opValue')]);
+      O.derived.forEach(d => rows.push([LL(d.spec), d.num ?? '', d.den ?? '',
+        d.value === null ? '' : dec((d.value * 100).toFixed(2)) + '%']));
+    } else if (kind === 'countries') {
+      name = 'country-risk';
+      rows = [[t('pfCountry'), 'ISO', t('csFlagsCol'), t('status')]];
+      COUNTRIES.forEach(c => {
+        const fl = CountryRisk.flags(c.code, state);
+        rows.push([CountryRisk.label(c), c.code,
+          fl.map(k => { const f = PORTFOLIO.countryFlags.find(x => x.key === k); return f ? CountryRisk.label(f) : k; }).join(' | '),
+          CountryRisk.isOverridden(c.code, state) ? t('csModified') : t('csDefault')]);
+      });
     } else if (kind === 'portfolio') {
       name = t('filePortfolio');
       const P = calc.portfolio;

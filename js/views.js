@@ -229,7 +229,10 @@ const Views = (() => {
 
     const rows = DATA.kpis.map((k, i) => {
       const rec = state.kpis[k.name] || {};
-      const auto = Calc.autoKpi(k, state, { closureRate: calc.actionStats.closureRate });
+      const auto = Calc.autoKpi(k, state, {
+        closureRate: calc.actionStats.closureRate,
+        opsKpi: calc.operations ? calc.operations.kpi : null
+      });
       const target = num(rec.target);
       const manual = num(rec.value);
       const value = manual !== null ? manual : auto;
@@ -245,7 +248,9 @@ const Views = (() => {
         <td>
           <label for="kpi-v-${i}" style="font-weight:500;color:inherit;margin:0">${esc(k.name.replace(/\s*\((gün|saat|ay)\)/, ''))}</label>
           <div class="subtle">${esc(k.help)}</div>
-          <div class="subtle">${t('source')}: ${esc(k.auto ? t('kpiAutoSource') : k.source)} · ${dirHint}</div>
+          <div class="subtle">${t('source')}: ${esc(
+             (calc.operations && calc.operations.kpi[k.key] !== undefined) ? t('kpiFromOps')
+             : k.auto ? t('kpiAutoSource') : k.source)} · ${dirHint}</div>
         </td>
         <td style="width:120px">
           <div class="input-unit">
@@ -435,6 +440,8 @@ const Views = (() => {
 
   /** Skor önerisi: önce portföy tabloları, yoksa künyedeki sayılar. */
   function factorHint(f, state, calc) {
+    const fromOps = calc && calc.operations && calc.operations.hints[f.key];
+    if (fromOps) return fromOps;
     const fromPortfolio = calc && calc.portfolio && calc.portfolio.hints[f.key];
     if (fromPortfolio) return fromPortfolio;
     if (!f.hint) return null;
@@ -591,7 +598,8 @@ const Views = (() => {
         </div>
         <div class="subtle">${esc(f.why)}</div>
         ${hint && !st.na ? `<div class="factor-hint">
-          ${Icons.info()}<span>${hint.source === 'portfolio' ? t('pfSourcePortfolio') : t('profileHint')}: <b>${esc(hint.label)} ${fmtPct1(hint.pct / 100)}</b> → ${t('suggestedScore')} <b>${hint.suggested}</b>
+          ${Icons.info()}<span>${hint.source === 'operations' ? t('opSourceOps')
+             : hint.source === 'portfolio' ? t('pfSourcePortfolio') : t('profileHint')}: <b>${esc(hint.label)} ${fmtPct1(hint.pct / 100)}</b> → ${t('suggestedScore')} <b>${hint.suggested}</b>
           ${st.score === hint.suggested ? `(${t('applied')})` : `<button class="btn btn-sm" data-inh-apply="${esc(st.key)}" data-n="${hint.suggested}">${t('apply')}</button>`}</span>
         </div>` : ''}
       </div>

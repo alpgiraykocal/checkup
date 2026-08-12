@@ -7,11 +7,13 @@ const App = (() => {
     { id: 'portfoy', key: 'Portfolio', icon: 'users', group: 'groupInput', view: Portfolio.view },
     { id: 'dogustan', key: 'Inherent', icon: 'gauge', group: 'groupInput', view: Views.inherent },
     { id: 'anket', key: 'Survey', icon: 'list', group: 'groupInput', view: Views.questions },
+    { id: 'islem', key: 'Operations', icon: 'activity', group: 'groupInput', view: Operations.view },
     { id: 'qa', key: 'Qa', icon: 'flask', group: 'groupInput', view: Views.qa },
     { id: 'skorlar', key: 'Scores', icon: 'layers', group: 'groupResult', view: Views.domainScores },
     { id: 'artik', key: 'Residual', icon: 'target', group: 'groupResult', view: Views.residual },
     { id: 'aksiyon', key: 'Actions', icon: 'clipboard', group: 'groupResult', view: Actions.view },
-    { id: 'rapor', key: 'Report', icon: 'print', group: 'groupResult', view: Exporter.report }
+    { id: 'rapor', key: 'Report', icon: 'print', group: 'groupResult', view: Exporter.report },
+    { id: 'ayarlar', key: 'Settings', icon: 'sliders', group: 'groupSettings', view: Settings.view }
   ];
 
   const t = (k, p) => I18n.t(k, p);
@@ -46,6 +48,14 @@ const App = (() => {
       const i = calc.inherent;
       if (i.scored === 0) return '';
       return `<span class="nav-badge ${i.complete ? '' : 'warn'}">${i.scored}/${i.applicable}</span>`;
+    }
+    if (r.id === 'islem' && calc.operations) {
+      const n = calc.operations.filled;
+      return n ? `<span class="nav-badge">${n}/${calc.operations.total}</span>` : '';
+    }
+    if (r.id === 'ayarlar') {
+      const n = Object.keys(Store.state.countryRisk || {}).length;
+      return n ? `<span class="nav-badge">${n}</span>` : '';
     }
     if (r.id === 'portfoy' && calc.portfolio) {
       const n = Object.keys(calc.portfolio.hints).length;
@@ -190,6 +200,8 @@ const App = (() => {
           <button class="btn" data-x="questions">${Icons.list()} ${t('csvQuestions')}</button>
           <button class="btn" data-x="domains">${Icons.layers()} ${t('csvDomains')}</button>
           <button class="btn" data-x="portfolio">${Icons.users()} ${t('csvPortfolio')}</button>
+          <button class="btn" data-x="operations">${Icons.activity()} ${t('csvOperations')}</button>
+          <button class="btn" data-x="countries">${Icons.sliders()} ${t('ttlSettings')}</button>
           <button class="btn" data-x="inherent">${Icons.gauge()} ${t('csvInherent')}</button>
           <button class="btn" data-x="qa">${Icons.flask()} ${t('csvQa')}</button>
           <button class="btn" data-x="actions">${Icons.clipboard()} ${t('csvActions')}</button>

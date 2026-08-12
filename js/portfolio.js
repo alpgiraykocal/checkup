@@ -82,7 +82,8 @@ const Portfolio = (() => {
       const customers = num(c.customers);
       const txIn = num(c.txIn), txOut = num(c.txOut);
       const tx = txIn + txOut;
-      const flags = c.flags || [];
+      // Risk işaretleri Ayarlar > Ülke riskleri ekranından gelir
+      const flags = c.code ? CountryRisk.flags(c.code, state) : [];
       cCustomers += customers; cTx += tx; cTxIn += txIn; cTxOut += txOut;
       flags.forEach(f => {
         if (!flagTotals[f]) return;
@@ -377,29 +378,30 @@ const Portfolio = (() => {
   /* ---------- Ülke maruziyeti ---------- */
 
   function countryCard(state, p) {
+    const used = new Set(p.countries.rows.map(c => c.code).filter(Boolean));
+
     const rows = p.countries.rows.map((c, i) => `
       <tr>
-        <td style="min-width:190px">
-          <input type="text" id="cn-name-${i}" data-cn="${i}" data-field="name" value="${esc(c.name || '')}"
-            list="country-list" placeholder="${t('pfCountryPh')}" aria-label="${t('pfCountry')}">
-          ${c.code ? `<div class="subtle mono">${esc(c.code)}</div>` : ''}
+        <td style="min-width:230px">
+          <select id="cn-code-${i}" data-cn="${i}" data-field="code" aria-label="${t('pfCountry')}">
+            ${CountryRisk.options(c.code, state)}
+          </select>
         </td>
-        <td style="min-width:240px">
-          <div class="flag-list">
-            ${PORTFOLIO.countryFlags.map(f => `
-              <label class="flag-chip ${c.flags.includes(f.key) ? 'on ' + f.tone : ''}" title="${esc(L(f))}">
-                <input type="checkbox" data-cn="${i}" data-flag="${f.key}" ${c.flags.includes(f.key) ? 'checked' : ''}
-                  aria-label="${esc(c.name || '')} — ${esc(L(f))}">
-                <span>${esc(S(f))}</span>
-              </label>`).join('')}
-          </div>
+        <td style="min-width:170px">
+          ${c.flags.length
+            ? `<div class="inline-list">${c.flags.map(k => {
+                const f = PORTFOLIO.countryFlags.find(x => x.key === k);
+                return f ? `<span class="chip ${f.tone}" title="${esc(L(f))}">${esc(S(f))}</span>` : '';
+              }).join('')}</div>`
+            : `<span class="chip chip-ok">${t('pfNoFlag')}</span>`}
+          ${c.code ? `<div class="subtle"><a href="#/ayarlar">${t('pfEditInSettings')}</a></div>` : ''}
         </td>
         <td style="min-width:220px">
           <div class="flag-list">
             ${PORTFOLIO.countryRelations.map(r => `
               <label class="flag-chip ${(c.relations || []).includes(r.key) ? 'on chip-mid' : ''}" title="${esc(L(r))}">
                 <input type="checkbox" data-cn="${i}" data-rel="${r.key}" ${(c.relations || []).includes(r.key) ? 'checked' : ''}
-                  aria-label="${esc(c.name || '')} — ${esc(L(r))}">
+                  aria-label="${esc(CountryRisk.name(c.code))} — ${esc(L(r))}">
                 <span>${esc(S(r))}</span>
               </label>`).join('')}
           </div>
@@ -411,10 +413,8 @@ const Portfolio = (() => {
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="cn-out-${i}"
           data-cn="${i}" data-field="txOut" value="${c.txOut || ''}" placeholder="0" aria-label="${t('pfTxOut')}"></td>
         <td class="num">${c.tx ? fmtInt(c.tx) : '—'}${c.domestic && c.tx ? `<div class="subtle">${t('pfDomesticShort')}</div>` : ''}</td>
-        <td>${c.worst ? `<span class="chip ${c.worst.tone}" title="${esc(L(c.worst))}">${esc(S(c.worst))}</span>`
-          : `<span class="chip chip-ok">${t('pfNoFlag')}</span>`}</td>
         <td class="no-print"><button class="btn btn-sm btn-icon btn-danger" data-cn-del="${i}"
-          aria-label="${esc(c.name || '')} — ${t('delete')}">${Icons.trash()}</button></td>
+          aria-label="${esc(CountryRisk.name(c.code))} — ${t('delete')}">${Icons.trash()}</button></td>
       </tr>`).join('');
 
     const exposure = PORTFOLIO.countryFlags.map(f => {
@@ -433,7 +433,7 @@ const Portfolio = (() => {
       <div class="card-head">
         <div style="flex:1;min-width:200px">
           <h2>${t('pfCountryTitle')}</h2>
-          <div class="subtle">${t('pfCountryHelp')}</div>
+          <div class="subtle">${t('pfCountryHelp2')}</div>
         </div>
         <button class="btn btn-sm" data-cn-add>${Icons.plus()} ${t('pfAddCountry')}</button>
       </div>
@@ -442,7 +442,7 @@ const Portfolio = (() => {
           <thead><tr>
             <th>${t('pfCountry')}</th><th>${t('pfRiskFlags')}</th><th>${t('pfRelation')}</th>
             <th>${t('pfCustomers')}</th><th>${t('pfTxIn')}</th><th>${t('pfTxOut')}</th>
-            <th class="num">${t('pfTxTotal')}</th><th>${t('pfHighestFlag')}</th><th class="no-print"></th>
+            <th class="num">${t('pfTxTotal')}</th><th class="no-print"></th>
           </tr></thead>
           <tbody>${rows}</tbody>
           <tfoot><tr>
@@ -452,7 +452,7 @@ const Portfolio = (() => {
             <td class="num">${fmtInt(p.countries.txOut)}</td>
             <td class="num">${fmtInt(p.countries.tx)}
               ${p.countries.crossTx !== p.countries.tx ? `<div class="subtle">${t('pfCrossOnly')}: ${fmtInt(p.countries.crossTx)}</div>` : ''}</td>
-            <td></td><td class="no-print"></td>
+            <td class="no-print"></td>
           </tr></tfoot>
         </table></div>` : emptyState(t('pfNoCountry'), t('pfNoCountryBody'),
           `<button class="btn btn-primary" data-cn-add style="margin-top:12px">${Icons.plus()} ${t('pfAddCountry')}</button>`)}
@@ -460,11 +460,8 @@ const Portfolio = (() => {
       ${exposure ? `<div class="card-body" style="border-top:1px solid var(--border-soft)">
         <h3 style="margin-bottom:8px">${t('pfExposureSummary')}</h3>
         ${exposure}
-        <p class="subtle" style="margin-top:10px">${t('pfFlagsAsOf', { d: PORTFOLIO.countryRiskAsOf })}</p>
+        <p class="subtle" style="margin-top:10px">${t('pfFlagsFromSettings')}</p>
       </div>` : ''}
-      <datalist id="country-list">
-        ${PORTFOLIO.knownCountries.map(c => `<option value="${esc(L(c))}">${esc(c.code)}</option>`).join('')}
-      </datalist>
     </div>`;
   }
 
@@ -481,8 +478,11 @@ const Portfolio = (() => {
               PORTFOLIO.branchTypes.map(x => L(x)))}
           </select>
         </td>
-        <td style="min-width:140px"><input type="text" id="br-country-${i}" data-br="${i}" data-field="country"
-          value="${esc(b.country || '')}" list="country-list" placeholder="TR" aria-label="${t('pfCountry')}"></td>
+        <td style="min-width:200px">
+          <select id="br-country-${i}" data-br="${i}" data-field="country" aria-label="${t('pfCountry')}">
+            ${CountryRisk.options(b.country, state)}
+          </select>
+        </td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="br-cus-${i}"
           data-br="${i}" data-field="customers" value="${b.customers || ''}" placeholder="0" aria-label="${t('pfCustomers')}"></td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="br-hr-${i}"
@@ -562,18 +562,11 @@ const Portfolio = (() => {
         else g[sg.dataset.seg][sg.dataset.field] = Number(sg.value);
       });
 
-      const cn = e.target.closest('[data-cn][data-field]');
+      const cn = e.target.closest('input[data-cn][data-field]');
       if (cn) return set(s => {
         const row = pf(s).countries[Number(cn.dataset.cn)];
         if (!row) return;
-        const f = cn.dataset.field;
-        if (f === 'name') {
-          row.name = cn.value;
-          const known = PORTFOLIO.knownCountries.find(k => L(k) === cn.value || k.code === cn.value.toUpperCase());
-          if (known) { row.code = known.code; row.flags = known.flags.slice(); }
-        } else {
-          row[f] = cn.value === '' ? '' : Number(cn.value);
-        }
+        row[cn.dataset.field] = cn.value === '' ? '' : Number(cn.value);
       });
 
       const br = e.target.closest('[data-br][data-field]');
@@ -587,15 +580,11 @@ const Portfolio = (() => {
     });
 
     host.addEventListener('change', e => {
-      const flag = e.target.closest('[data-flag]');
-      if (flag) {
+      const code = e.target.closest('select[data-cn][data-field="code"]');
+      if (code) {
         Store.update(s => {
-          const row = pf(s).countries[Number(flag.dataset.cn)];
-          if (!row) return;
-          row.flags = row.flags || [];
-          const k = flag.dataset.flag;
-          if (flag.checked) { if (!row.flags.includes(k)) row.flags.push(k); }
-          else row.flags = row.flags.filter(x => x !== k);
+          const row = pf(s).countries[Number(code.dataset.cn)];
+          if (row) { row.code = code.value; row.name = CountryRisk.name(code.value); }
         });
         return;
       }
@@ -612,7 +601,7 @@ const Portfolio = (() => {
         return;
       }
       // select ve tarih alanları anında yeniden çizsin
-      if (e.target.closest('[data-br][data-field]') || e.target.closest('[data-cn][data-field]')) App.rerender();
+      if (e.target.closest('[data-br][data-field]')) App.rerender();
     });
 
     // Yazma bittiğinde türetilen değerler tazelenir
@@ -622,8 +611,8 @@ const Portfolio = (() => {
 
     host.addEventListener('click', async e => {
       if (e.target.closest('[data-cn-add]')) {
-        Store.update(s => { pf(s).countries.push({ name: '', code: '', flags: [], relations: [] }); });
-        const inp = UI.el('#cn-name-' + (Store.state.portfolio.countries.length - 1), host);
+        Store.update(s => { pf(s).countries.push({ code: '', name: '', relations: [] }); });
+        const inp = UI.el('#cn-code-' + (Store.state.portfolio.countries.length - 1), host);
         if (inp) inp.focus();
         return;
       }
@@ -637,9 +626,9 @@ const Portfolio = (() => {
       if (cd) {
         const i = Number(cd.dataset.cnDel);
         const row = Store.state.portfolio.countries[i];
-        if (row && (row.name || row.customers)) {
+        if (row && (row.code || row.customers)) {
           const ok = await UI.confirmDialog({ title: t('pfDelCountryTitle'),
-            message: t('pfDelRowMsg', { n: row.name || '—' }), confirmLabel: t('delete'), danger: true });
+            message: t('pfDelRowMsg', { n: CountryRisk.name(row.code) || '—' }), confirmLabel: t('delete'), danger: true });
           if (!ok) return;
         }
         Store.update(s => { pf(s).countries.splice(i, 1); });
