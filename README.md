@@ -34,7 +34,7 @@ sonuçları birebir aynı.
 |---|---|---|
 | 1 | **Künye** | Kurum profili, altı gruba ayrılmış 26 alan. Her alanda örnek değer ve ne yazılacağını anlatan açıklama var. Faaliyet sorularına "Hayır" yanıtı ilgili soru bölümlerini otomatik "Uygulanamaz" yapar. Girilen sayılardan oranlar ve tarih yaşlandırma uyarıları türetilir. |
 | 2 | **Portföy** | Müşteri dağılımı (7 tip × 4 risk seviyesi), 12 risk segmenti, ülke maruziyeti ve şube/birim ağı. Girilen sayılardan doğuştan risk için 12 faktöre skor önerisi üretilir. |
-| 3 | **Doğuştan Risk** | 5 boyut, 25 alt faktör. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
+| 3 | **Doğuştan Risk** | 5 ML/TF boyutu ve 25 alt faktör, ayrıca 5 faktörlü PF bloğu ve 12 iş kollu değerlendirme matrisi. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
 | 4 | **İşlem Detayı** | 8 grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması ve blokaj, trade finance, muhabir bankacılık, izleme, ŞİB/dondurma/kolluk, müşteri kabul, kalite güvence. 16 türetilen oran hesaplanır; 12 KPI otomatik dolar. |
 | 5 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
 | 6 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
@@ -159,6 +159,10 @@ Zincir: **kapsam → doğuştan risk → kontrol beyanı → bağımsız test �
 
 **Kurum geneli tek başına okunmaz.** Genel artık risk, kaynak çalışma kitabındaki formülle (genel doğuştan × genel etkinlik) hesaplanır. Bu formül yoğunlaşmış bir zafiyeti ortalamayla seyreltebilir. Bu nedenle panoda ayrıca **en yüksek domain artık riski** gösterilir ve genel skor bir domain aşımını gizlediğinde uyarı çıkar. Kurumsal risk değerlendirmesinde domain düzeyindeki aşım, genel ortalamayla kapatılamaz.
 
+**Yayılmanın finansmanı (PF) ayrı değerlendirilir.** FATF Tavsiye 1'in 2020 revizyonu ve Tavsiye 7, PF riskinin aklama ve terörün finansmanı riskinden ayrı değerlendirilmesini ister. Doğuştan Risk ekranında beş ML/TF boyutunun yanında altıncı bir blok olarak beş PF faktörü skorlanır: BM yayılma rejimi ülkeleriyle temas, çift kullanımlı mal ticareti, denizcilik ve lojistik müşteri maruziyeti, paravan ve tedarik ağı yapıları, yaptırım kaçınma tipolojileri. PF skoru **ML/TF genel ortalamasına karıştırılmaz**; Artık Risk ekranında kendi satırında raporlanır ve kontrol tarafında D6 yaptırım tarama etkinliğiyle eşleştirilir. Kendi iştah limiti vardır.
+
+**İş kolu bazlı değerlendirme.** EBA ML/TF risk faktörleri kılavuzu ve Basel yaklaşımı, riskin iş kolu ve ürün düzeyinde değerlendirilip iş hacmiyle ağırlıklandırılarak kurum geneline toplanmasını bekler. Doğuştan Risk ekranındaki matriste 12 iş kolu (bireysel, kurumsal, KOBİ, özel bankacılık, hazine, trade finance, muhabir, ödeme, dijital, sanal varlık, acente, kambiyo) etkinleştirilir; her biri için iş payı ve beş boyutta 1–5 skor girilir. Uygulama iş hacmiyle ağırlıklı kurum doğuştan riskini hesaplar, en riskli iş kolunu işaretler ve boyut bazlı ortalamayla farkı gösterir. Fark 0,50 puanı aşarsa uyarı çıkar: boyut ortalaması tek bir iş kolunda yoğunlaşan riski gizliyor olabilir. Künyede "yok" denen faaliyetlerin iş kolları otomatik kapsam dışıdır.
+
 **Risk iştahı kurumun kararıdır.** Varsayılan 1,50 sektör uygulamasına dayalı bir başlangıç değeridir. Artık Risk ekranında her domain için yönetim kurulunun onayladığı limit girilebilir; değiştirilen limit "kurum kararı" olarak işaretlenir.
 
 ## Hesaplama kuralları
@@ -217,6 +221,7 @@ Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için ge�
 index.html          kabuk, gezinme, dil değiştirici
 css/app.css         tasarım sistemi, açık/koyu tema, yazdırma stilleri
 js/countries.js     ISO 3166-1 ülke listesi ve varsayılan risk işaretleri
+js/riskmodel.data.js PF faktörleri ve iş kolu tanımları
 js/settings.js      ülke risk ayarları ekranı ve ortak ülke çözümleyici
 js/operations.data.js işlem/operasyon ölçüt tanımları
 js/operations.js    işlem detayı ekranı ve türetilen oranlar

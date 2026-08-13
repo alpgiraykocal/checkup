@@ -523,6 +523,8 @@ const Views = (() => {
 
       ${driversCard(inh)}
       <div class="grid grid-dims">${dimCards}</div>
+      ${pfCard(state, calc)}
+      ${linesCard(state, calc)}
       ${methodCard()}`;
 
     bindInherent(host);
@@ -660,6 +662,141 @@ const Views = (() => {
     </div>`;
   }
 
+  /* ---------- Yayılmanın finansmanı (PF) ---------- */
+
+  function pfCard(state, calc) {
+    const pf = calc.pf, spec = RISKMODEL.pf;
+    const note = I18n.isEn ? spec.enNote : spec.trNote;
+
+    const rows = pf.factors.map((f, i) => {
+      const s = f.spec;
+      const anchors = I18n.isEn ? (s.anchorsEn || s.anchors) : s.anchors;
+      const why = I18n.isEn ? (s.enWhy || s.trWhy) : s.trWhy;
+      const cur = f.score ? anchors[f.score - 1] : null;
+      return `<div class="factor ${f.na ? 'is-na' : ''} ${f.needsNote ? 'needs-note' : ''}">
+        <div class="factor-main">
+          <div class="factor-title">
+            <span>${esc(I18n.isEn ? s.en : s.tr)}</span>
+            ${f.na ? `<span class="chip chip-na">${Icons.lock()} ${f.autoNA ? t('opOutOfScope') : t('notApplicable')}</span>` : ''}
+            ${f.needsNote ? `<span class="chip chip-critical">${Icons.alert()} ${t('rationaleNeeded')}</span>` : ''}
+          </div>
+          <div class="subtle">${esc(why)}</div>
+        </div>
+        <div class="factor-score">
+          <div class="scorebar" role="group" aria-label="${esc(I18n.isEn ? s.en : s.tr)}">
+            ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="answer-btn score-btn"
+              data-pf-score="${esc(s.key)}" data-n="${n}" aria-pressed="${f.score === n}" ${f.na ? 'disabled' : ''}
+              title="${esc(n + ' — ' + scoreLabels()[n - 1] + ': ' + anchors[n - 1])}">
+              <span class="score-n">${n}</span></button>`).join('')}
+            <button type="button" class="answer-btn na-btn" data-pf-na="${esc(s.key)}"
+              aria-pressed="${!f.autoNA && f.na}" title="${t('naTitle')}">${Icons.minus()}<span>${t('naShort')}</span></button>
+          </div>
+          <div class="factor-calc"><span class="subtle">${t('weight')}</span><b class="num">${s.weight}</b></div>
+        </div>
+        ${f.na ? '' : `<div class="factor-anchors">
+          ${cur ? `<div class="anchor-current"><b>${f.score} — ${esc(scoreLabels()[f.score - 1])}:</b> ${esc(cur)}</div>` : ''}
+          <details class="anchor-details"><summary>${t('scoreGuide')}</summary>
+            <ol class="anchor-list">${anchors.map((a, j) => `<li class="${f.score === j + 1 ? 'is-current' : ''}">
+              <span class="anchor-n ${scoreClass(j + 1)}">${j + 1}</span>${esc(a)}</li>`).join('')}</ol>
+          </details>
+        </div>`}
+        ${f.na ? '' : `<div class="factor-note">
+          <label for="pfn-${i}">${f.score >= 4 ? t('rationaleReq') : t('rationaleLabel')}</label>
+          <input type="text" id="pfn-${i}" data-pf-note="${esc(s.key)}" value="${esc(f.note)}" placeholder="${t('rationalePh')}">
+        </div>`}
+      </div>`;
+    }).join('');
+
+    return `<div class="card" style="margin-top:16px">
+      <div class="card-head">
+        <div style="flex:1;min-width:220px">
+          <h2>${esc(I18n.isEn ? spec.en : spec.tr)}</h2>
+          <div class="subtle">${esc(note)}</div>
+        </div>
+        ${pf.measured ? `<span class="chip ${levelClass(pf.level)}">${esc(I18n.ref('riskLevel', pf.level))}</span>
+          <b class="num">${fmtNum2(pf.value)}</b><span class="subtle">/5</span>`
+          : `<span class="chip chip-na">${t('notMeasured')}</span>`}
+        <span class="chip ${pf.complete ? 'chip-ok' : ''}">${pf.scored}/${pf.applicable}</span>
+      </div>
+      <div class="card-body" style="padding:0">${rows}</div>
+    </div>`;
+  }
+
+  /* ---------- İş kolu bazlı değerlendirme ---------- */
+
+  function linesCard(state, calc) {
+    const bl = calc.lines, spec = RISKMODEL.businessLines;
+    const note = I18n.isEn ? spec.enNote : spec.trNote;
+
+    const rows = bl.lines.map(l => {
+      const s = l.spec;
+      const rec = (state.lines || {})[s.key] || {};
+      const dis = l.outOfScope;
+      return `<tr class="${l.active ? '' : 'is-muted'}">
+        <td style="min-width:200px">
+          <label class="flag-chip ${l.active ? 'on chip-mid' : ''}" title="${esc(I18n.isEn ? s.en : s.tr)}">
+            <input type="checkbox" data-line="${s.key}" data-field="active" ${l.active ? 'checked' : ''} ${dis ? 'disabled' : ''}
+              aria-label="${esc(I18n.isEn ? s.en : s.tr)}">
+            <span>${esc(I18n.isEn ? s.en : s.tr)}</span>
+          </label>
+          ${dis ? `<div class="subtle">${t('opOutOfScope')}</div>` : ''}
+        </td>
+        <td style="width:140px">
+          <div class="input-unit">
+            <input type="number" min="0" max="100" step="0.1" inputmode="decimal" id="ls-${s.key}"
+              data-line="${s.key}" data-field="share" value="${rec.share ?? ''}" placeholder="0"
+              ${l.active ? '' : 'disabled'} aria-label="${esc(I18n.isEn ? s.en : s.tr)} — ${t('blShare')}">
+            <span class="unit-tag">%</span>
+          </div>
+        </td>
+        ${spec.dims.map(d => `<td style="width:92px">
+          <select data-line="${s.key}" data-dim="${esc(d)}" ${l.active ? '' : 'disabled'}
+            aria-label="${esc(I18n.isEn ? s.en : s.tr)} — ${esc(I18n.dim(d))}">
+            ${selectOptions(['1','2','3','4','5'], l.scores[d] ? String(l.scores[d]) : '', '—')}
+          </select>
+        </td>`).join('')}
+        <td class="num">${l.inherent === null ? '—' : `<span class="heat-cell score-pill ${levelClass(Calc.riskLevel5(l.inherent))}">${fmtNum2(l.inherent)}</span>`}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="card" style="margin-top:16px">
+      <div class="card-head">
+        <div style="flex:1;min-width:220px">
+          <h2>${t('blTitle')}</h2>
+          <div class="subtle">${esc(note)}</div>
+        </div>
+        ${bl.weightedInherent !== null ? `<span class="chip ${levelClass(Calc.riskLevel5(bl.weightedInherent))}">${t('blWeighted')}</span>
+          <b class="num">${fmtNum2(bl.weightedInherent)}</b><span class="subtle">/5</span>` : ''}
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>${t('blLine')}</th><th>${t('blShare')}</th>
+            ${spec.dims.map(d => `<th>${esc(I18n.dim(d))}</th>`).join('')}
+            <th class="num">${t('blInherent')}</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+          <tfoot><tr>
+            <td>${t('total')}</td>
+            <td class="num ${bl.shareComplete ? '' : 'is-warn'}">${fmtNum1(bl.shareSum)}%</td>
+            <td colspan="${spec.dims.length}">${bl.shareComplete ? '' : `<span class="subtle">${t('blShareWarn')}</span>`}</td>
+            <td class="num">${fmtNum2(bl.weightedInherent)}</td>
+          </tr></tfoot>
+        </table></div>
+      </div>
+      ${bl.worst || calc.inherent.measured ? `<div class="card-body" style="border-top:1px solid var(--border-soft)">
+        <div class="inline-list">
+          ${bl.worst && bl.worst.inherent !== null ? `<span class="chip chip-high">${t('blWorst')}: ${esc(I18n.isEn ? bl.worst.spec.en : bl.worst.spec.tr)} ${fmtNum2(bl.worst.inherent)}</span>` : ''}
+          ${calc.inherent.measured ? `<span class="chip">${t('blDimBased')} ${fmtNum2(calc.inherent.general)}</span>` : ''}
+          ${bl.weightedInherent !== null && calc.inherent.measured
+            ? `<span class="chip ${Math.abs(bl.weightedInherent - calc.inherent.general) >= 0.5 ? 'chip-high' : 'chip-ok'}">${t('blDelta')} ${fmtNum2(Math.abs(bl.weightedInherent - calc.inherent.general))}</span>` : ''}
+        </div>
+        ${bl.weightedInherent !== null && calc.inherent.measured && Math.abs(bl.weightedInherent - calc.inherent.general) >= 0.5
+          ? `<p class="subtle" style="margin-top:8px">${t('blDeltaNote')}</p>` : ''}
+      </div>` : ''}
+    </div>`;
+  }
+
   function methodCard() {
     return `<div class="card">
       <div class="card-head"><h2>${t('method')}</h2></div>
@@ -679,6 +816,9 @@ const Views = (() => {
   }
 
   function bindInherent(host) {
+    host.addEventListener('blur', e => {
+      if (e.target.closest('input[data-line][data-field="share"]')) App.rerender();
+    }, true);
     host.addEventListener('click', e => {
       const sc = e.target.closest('[data-inh-score]');
       if (sc) {
@@ -705,6 +845,25 @@ const Views = (() => {
         });
         return;
       }
+      const pfs = e.target.closest('[data-pf-score]');
+      if (pfs) {
+        const k = pfs.dataset.pfScore, n = Number(pfs.dataset.n);
+        Store.update(s => {
+          s.pf[k] = s.pf[k] || {};
+          if (Number(s.pf[k].score) === n) delete s.pf[k].score; else s.pf[k].score = n;
+          delete s.pf[k].na;
+        });
+        return;
+      }
+      const pfna = e.target.closest('[data-pf-na]');
+      if (pfna) {
+        const k = pfna.dataset.pfNa;
+        Store.update(s => {
+          s.pf[k] = s.pf[k] || {};
+          if (s.pf[k].na) delete s.pf[k].na; else { s.pf[k].na = true; delete s.pf[k].score; }
+        });
+        return;
+      }
       if (e.target.closest('[data-inh-anchors]')) { inhUI.showAnchors = !inhUI.showAnchors; App.rerender(); return; }
       if (e.target.closest('[data-inh-weights]')) { inhUI.editWeights = !inhUI.editWeights; App.rerender(); return; }
       const rw = e.target.closest('[data-inh-resetw]');
@@ -718,6 +877,25 @@ const Views = (() => {
     });
 
     host.addEventListener('change', e => {
+      const lineDim = e.target.closest('select[data-line][data-dim]');
+      if (lineDim) {
+        Store.update(s => {
+          const k = lineDim.dataset.line;
+          s.lines[k] = s.lines[k] || {}; s.lines[k].dims = s.lines[k].dims || {};
+          if (lineDim.value) s.lines[k].dims[lineDim.dataset.dim] = Number(lineDim.value);
+          else delete s.lines[k].dims[lineDim.dataset.dim];
+        });
+        return;
+      }
+      const lineChk = e.target.closest('input[data-line][data-field="active"]');
+      if (lineChk) {
+        Store.update(s => {
+          const k = lineChk.dataset.line;
+          s.lines[k] = s.lines[k] || {};
+          if (lineChk.checked) s.lines[k].active = true; else delete s.lines[k].active;
+        });
+        return;
+      }
       const only = e.target.closest('[data-inh-only]');
       if (only) { inhUI.only = only.value; App.rerender(); return; }
       const w = e.target.closest('[data-inh-weight]');
@@ -732,6 +910,24 @@ const Views = (() => {
     });
 
     host.addEventListener('input', e => {
+      const pfn = e.target.closest('[data-pf-note]');
+      if (pfn) {
+        Store.update(s => {
+          const k = pfn.dataset.pfNote;
+          s.pf[k] = s.pf[k] || {};
+          if (pfn.value.trim()) s.pf[k].note = pfn.value; else delete s.pf[k].note;
+        }, { silent: true });
+        return;
+      }
+      const ls = e.target.closest('input[data-line][data-field="share"]');
+      if (ls) {
+        Store.update(s => {
+          const k = ls.dataset.line;
+          s.lines[k] = s.lines[k] || {};
+          if (ls.value === '') delete s.lines[k].share; else s.lines[k].share = Number(ls.value);
+        }, { silent: true });
+        return;
+      }
       const n = e.target.closest('[data-inh-note]');
       if (!n) return;
       const key = n.dataset.inhNote;
@@ -1316,6 +1512,38 @@ const Views = (() => {
           </table></div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div style="flex:1;min-width:220px">
+            <h2>${esc(calc.pfLine.name)}</h2>
+            <div class="subtle">${t('pfSeparateNote')}</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap"><table>
+            <thead><tr>
+              <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th>
+              <th class="num">${t('colEffectiveness')}</th><th class="num">${t('colResidual')}</th>
+              <th>${t('level')}</th><th>${t('colAppetiteLimit')}</th><th>${t('status')}</th>
+            </tr></thead>
+            <tbody><tr>
+              <td><b class="mono">PF</b></td>
+              <td>${esc(calc.pfLine.name)}<div class="subtle">${esc(calc.pfLine.source)}</div></td>
+              <td class="num">${fmtNum2(calc.pfLine.inherentRisk)}</td>
+              <td class="num">${fmtPct1(calc.pfLine.effectivenessTested)}</td>
+              <td class="num"><span class="heat-cell score-pill ${levelClass(calc.pfLine.level)}">${fmtNum2(calc.pfLine.residual)}</span></td>
+              <td>${calc.pfLine.level ? `<span class="chip ${levelClass(calc.pfLine.level)}">${esc(I18n.ref('riskLevel', calc.pfLine.level))}</span>` : '—'}</td>
+              <td style="width:120px"><input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-PF"
+                data-appetite="PF" value="${calc.pfLine.appetite}" aria-label="PF — ${t('colAppetiteLimit')}"></td>
+              <td>${calc.pfLine.breach === null ? '—' : calc.pfLine.breach
+                ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
+                : `<span class="chip chip-ok">${t('withinAppetiteFull')}</span>`}</td>
+            </tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-head"><h2>${t('residualBands')}</h2></div>
         <div class="card-body"><div class="inline-list">

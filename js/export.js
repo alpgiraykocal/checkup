@@ -203,6 +203,25 @@ const Exporter = (() => {
           st.note, ((DATA.dimDomains || {})[f.dimKey] || []).join(' ')]);
       });
       rows.push([]);
+      rows.push([I18n.isEn ? RISKMODEL.pf.en : RISKMODEL.pf.tr]);
+      rows.push([H('subFactor'), H('score'), H('weight'), H('state'), H('rationale')]);
+      calc.pf.factors.forEach(f => rows.push([
+        I18n.isEn ? f.spec.en : f.spec.tr, f.score || '', f.spec.weight,
+        f.na ? t('notApplicable') : (f.score ? H('scoredState') : H('notScoredState')), f.note]));
+      rows.push([t('blInherent'), calc.pf.measured ? dec(calc.pf.value.toFixed(2)) : '',
+        '', I18n.ref('riskLevel', calc.pf.level), '']);
+
+      rows.push([]);
+      rows.push([t('blTitle')]);
+      rows.push([t('blLine'), t('blShare'), ...RISKMODEL.businessLines.dims.map(d => I18n.dim(d)), t('blInherent')]);
+      calc.lines.lines.filter(l => l.active).forEach(l => rows.push([
+        I18n.isEn ? l.spec.en : l.spec.tr, l.share ?? '',
+        ...RISKMODEL.businessLines.dims.map(d => l.scores[d] ?? ''),
+        l.inherent === null ? '' : dec(l.inherent.toFixed(2))]));
+      rows.push([t('blWeighted'), dec(calc.lines.shareSum), '', '', '', '', '',
+        calc.lines.weightedInherent === null ? '' : dec(calc.lines.weightedInherent.toFixed(2))]);
+
+      rows.push([]);
       rows.push([H('dimension'), H('inherentScore'), H('residualLevel'), H('scored'), H('applicable'), H('notApplicable')]);
       Calc.DIMS.concat(['GENEL']).forEach(d => {
         const v = calc.inherent.dims[d];
@@ -309,6 +328,21 @@ const Exporter = (() => {
           </table></div>
           ${inh.drivers.length ? `<p style="margin-top:10px"><b>${t('dominantDrivers')}:</b>
             ${inh.drivers.slice(0, 5).map(d => `${esc(d.factor)} (${d.score}×${fmtNum1(d.weight)})`).join(' · ')}</p>` : ''}
+
+          ${calc.pf.measured || calc.lines.weightedInherent !== null ? `
+          <div class="divider"></div>
+          <h3>${t('rptRiskModel')}</h3>
+          <div class="table-wrap"><table><tbody>
+            ${calc.pf.measured ? kv(esc(I18n.isEn ? RISKMODEL.pf.en : RISKMODEL.pf.tr),
+              `${fmtNum2(calc.pf.value)} / 5 · ${esc(I18n.ref('riskLevel', calc.pf.level))}`) : ''}
+            ${calc.pfLine.residual !== null ? kv(t('colResidual') + ' (PF)',
+              `${fmtNum2(calc.pfLine.residual)} · ${esc(I18n.ref('riskLevel', calc.pfLine.level))}${calc.pfLine.breach ? ' — ' + t('breachAction') : ''}`) : ''}
+            ${calc.lines.weightedInherent !== null ? kv(t('blWeighted'), fmtNum2(calc.lines.weightedInherent)) : ''}
+            ${calc.inherent.measured ? kv(t('blDimBased'), fmtNum2(calc.inherent.general)) : ''}
+            ${calc.lines.worst && calc.lines.worst.inherent !== null
+              ? kv(t('blWorst'), `${esc(I18n.isEn ? calc.lines.worst.spec.en : calc.lines.worst.spec.tr)} · ${fmtNum2(calc.lines.worst.inherent)}`) : ''}
+          </tbody></table></div>
+          ${calc.pf.measured ? `<p class="subtle">${t('pfSeparateNote')}</p>` : ''}` : ''}
 
           <div class="divider"></div>
           <h3>${t('sectionDomainResults')}</h3>

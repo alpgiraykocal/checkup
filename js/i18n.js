@@ -768,6 +768,24 @@ const I18n = (() => {
     rrMethod3:      ['Artık risk = Doğuştan Risk × (1 − uygulanan kontrol etkinliği). Uygulanan etkinlik, bağımsız test ile düzeltilmiş etkinliğin tavanla sınırlanmış hâlidir.',
                      'Residual risk = Inherent Risk × (1 − applied control effectiveness). The applied effectiveness is the test-adjusted effectiveness, limited by the cap.'],
 
+
+    /* --- PF ve iş kolu / PF and business lines --- */
+    pfControlSource:['Kontrol tarafı: {d} yaptırım tarama etkinliği', 'Control side: {d} sanctions screening effectiveness'],
+    pfSeparateNote: ['FATF Tavsiye 1 (2020 revizyonu) ve Tavsiye 7, yayılmanın finansmanı riskinin ayrı değerlendirilmesini ister. Bu satır ML/TF genel ortalamasına dahil edilmez; kontrol tarafında yaptırım tarama etkinliğiyle eşleştirilir.',
+                     'FATF Recommendation 1 (2020 revision) and Recommendation 7 require proliferation financing risk to be assessed separately. This line is not folded into the ML/TF overall average; on the control side it is paired with sanctions screening effectiveness.'],
+    rptRiskModel:   ['Risk modeli — PF ve iş kolu görünümü', 'Risk model — PF and business line view'],
+    blTitle:        ['İş kolu bazlı değerlendirme', 'Business line assessment'],
+    blLine:         ['İş kolu', 'Business line'],
+    blShare:        ['İş payı', 'Share of business'],
+    blInherent:     ['Doğuştan risk', 'Inherent risk'],
+    blWeighted:     ['İş hacmiyle ağırlıklı', 'Weighted by business volume'],
+    blShareWarn:    ['Etkin iş kollarının payları toplamı %100 olmalıdır.', 'The shares of active business lines should total 100%.'],
+    blWorst:        ['En riskli iş kolu', 'Highest-risk business line'],
+    blDimBased:     ['Boyut bazlı genel:', 'Dimension-based overall:'],
+    blDelta:        ['Fark:', 'Difference:'],
+    blDeltaNote:    ['İki yöntem arasındaki fark 0,50 puanı aşıyor. Boyut ortalaması, tek bir iş kolunda yoğunlaşan riski görünmez kılıyor olabilir; kurumsal risk değerlendirmesinde iş kolu görünümünü de raporlayın.',
+                     'The two methods differ by more than 0.50. The dimension average may be masking risk concentrated in a single business line; report the business line view in the enterprise risk assessment as well.'],
+
     /* --- CSV başlıkları / CSV headers --- */
     csvH: {
       questionId: ['Soru ID', 'Question ID'], code: ['Kod', 'Code'],

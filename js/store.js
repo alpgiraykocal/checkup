@@ -23,6 +23,8 @@ const Store = (() => {
       operations: {},        // ölçüt anahtarı -> {adet, tutar, gun, saat}
       countryRisk: {},       // ülke kodu -> kurum kararı bayrak listesi (yalnız fark)
       appetite: {},          // domain kodu -> kurumun onayladığı iştah limiti
+      pf: {},                // PF faktör anahtarı -> {score, note, na}
+      lines: {},             // iş kolu anahtarı -> {active, share, dims:{...}, note}
       answers: {},           // soruId -> {a, evidence, note, qaResult, qaNote}
       qaVolumes: {},         // popülasyon adı -> yıllık hacim
       actions: [],           // bulgu/aksiyon kayıtları

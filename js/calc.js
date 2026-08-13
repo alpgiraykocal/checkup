@@ -305,6 +305,82 @@ const Calc = (() => {
     return 'Kritik Zayıf';
   }
 
+  /* ---------- Yayılmanın finansmanı (PF) ----------
+     FATF R.1 (2020) ve R.7 gereği ML/TF genel ortalamasından ayrı tutulur. */
+
+  function pfRisk(state) {
+    const rec = state.pf || {};
+    let num = 0, den = 0, scored = 0, na = 0;
+    const factors = RISKMODEL.pf.factors.map(f => {
+      const r = rec[f.key] || {};
+      const autoNA = Boolean(f.scope && (state.kunye[f.scope] || '') === 'Hayır');
+      const score = Number(r.score);
+      const has = Number.isFinite(score) && score >= 1;
+      const excluded = r.na === true || (autoNA && !has);
+      if (excluded) na += 1;
+      else if (has) { num += score * f.weight; den += f.weight; scored += 1; }
+      return {
+        spec: f, score: has ? score : null, na: excluded, autoNA,
+        note: r.note || '',
+        needsNote: has && !excluded && score >= 4 && !(r.note || '').trim()
+      };
+    });
+    const applicable = factors.length - na;
+    const value = den ? num / den : null;
+    return {
+      factors, scored, na, applicable, total: factors.length,
+      value: value === null ? 0 : value, measured: value !== null,
+      level: value === null ? '' : riskLevel5(value),
+      complete: applicable > 0 && scored === applicable,
+      missingNotes: factors.filter(f => f.needsNote).length
+    };
+  }
+
+  /* ---------- İş kolu bazlı değerlendirme ----------
+     EBA ML/TF risk faktörleri kılavuzu: risk iş kolu düzeyinde değerlendirilir ve
+     iş hacmiyle ağırlıklandırılarak kurum geneline toplanır. */
+
+  function businessLines(state) {
+    const rec = state.lines || {};
+    const dims = RISKMODEL.businessLines.dims;
+    let shareSum = 0;
+
+    const lines = RISKMODEL.businessLines.lines.map(l => {
+      const r = rec[l.key] || {};
+      const outOfScope = Boolean(l.scope && (state.kunye[l.scope] || '') === 'Hayır');
+      const active = r.active === true && !outOfScope;
+      const share = Number(r.share);
+      const hasShare = Number.isFinite(share) && share > 0;
+      const scores = {};
+      let sum = 0, n = 0;
+      dims.forEach(d => {
+        const v = Number((r.dims || {})[d]);
+        if (Number.isFinite(v) && v >= 1) { scores[d] = v; sum += v; n += 1; }
+        else scores[d] = null;
+      });
+      const inherent = n ? sum / n : null;
+      if (active && hasShare) shareSum += share;
+      return {
+        spec: l, active, outOfScope, share: hasShare ? share : null,
+        scores, scoredDims: n, inherent, note: r.note || ''
+      };
+    });
+
+    const active = lines.filter(l => l.active);
+    const scored = active.filter(l => l.inherent !== null && l.share !== null);
+    const weighted = scored.length && shareSum > 0
+      ? scored.reduce((a, l) => a + l.inherent * l.share, 0) / shareSum : null;
+    const worst = active.filter(l => l.inherent !== null)
+      .slice().sort((a, b) => b.inherent - a.inherent)[0] || null;
+
+    return {
+      lines, active: active.length, scored: scored.length,
+      shareSum, shareComplete: Math.abs(shareSum - 100) < 0.5,
+      weightedInherent: weighted, worst,
+      dims
+    };
+  }
+
   /* ---------- Tam hesap ---------- */
 
   function compute(state) {
@@ -370,6 +446,8 @@ const Calc = (() => {
 
     // Doğuştan + artık risk (05_Artik_Risk)
     const inh = inherent(state);
+    const pf = pfRisk(state);
+    const lines = businessLines(state);
     const byCode = Object.fromEntries(domains.map(d => [d.code, d]));
     const residual = DATA.domains.map(d => {
       const dims = RESIDUAL_DIMS[d.code] || ['GENEL'];
@@ -402,6 +480,26 @@ const Calc = (() => {
       ? null : Math.min(totals.effectivenessTested, MAX_CONTROL_EFFECT);
     const generalResidual = (appliedTotal === null || !inh.measured)
       ? null : inh.general * (1 - appliedTotal);
+
+    // PF ayrı bir risk satırı: doğuştan PF × yaptırım tarama kontrol etkinliği (D6)
+    const pfDom = byCode[RISKMODEL.pf.controlDomain];
+    const pfEff = pfDom ? pfDom.effectivenessTested : null;
+    const pfApplied = pfEff === null ? null : Math.min(pfEff, MAX_CONTROL_EFFECT);
+    const pfAppetiteOvr = Number((state.appetite || {}).PF);
+    const pfAppetite = Number.isFinite(pfAppetiteOvr) && pfAppetiteOvr > 0 ? pfAppetiteOvr : 1.5;
+    const pfResidualValue = (pfApplied === null || !pf.measured) ? null : pf.value * (1 - pfApplied);
+    const pfLine = {
+      code: 'PF', name: I18n.isEn ? RISKMODEL.pf.en : RISKMODEL.pf.tr,
+      source: I18n.t('pfControlSource', { d: RISKMODEL.pf.controlDomain }),
+      inherentRisk: pf.measured ? pf.value : null,
+      effectiveness: pfDom ? pfDom.effectiveness : null,
+      effectivenessTested: pfEff, effectiveApplied: pfApplied,
+      residual: pfResidualValue,
+      level: pfResidualValue === null ? '' : residualLevel(pfResidualValue),
+      appetite: pfAppetite, appetiteOverridden: Number.isFinite(pfAppetiteOvr) && pfAppetiteOvr > 0,
+      breach: pfResidualValue === null ? null : pfResidualValue > pfAppetite,
+      separate: true
+    };
 
     const measuredRes = residual.filter(r => r.residual !== null);
     const domainAvgResidual = measuredRes.length
@@ -460,10 +558,10 @@ const Calc = (() => {
       },
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
       operations: (typeof Operations !== 'undefined') ? Operations.compute(state) : null,
-      inherent: inh, residual, generalResidual,
+      inherent: inh, pf, lines, residual, pfLine, generalResidual,
       domainAvgResidual, worstDomain, masksBreach,
       maxControlEffect: MAX_CONTROL_EFFECT,
-      breaches: residual.filter(r => r.breach).length,
+      breaches: residual.filter(r => r.breach).length + (pfLine.breach ? 1 : 0),
       qa, qaTotals, actions, actionStats
     };
   }
@@ -482,7 +580,7 @@ const Calc = (() => {
     return d.toISOString().slice(0, 10);
   }
 
-  return { compute, inherent, factorState, kunye, autoKpi, monthsSince,
+  return { compute, inherent, pfRisk, businessLines, factorState, kunye, autoKpi, monthsSince,
            maturity, riskLevel5, residualLevel, slaDueDate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();
