@@ -34,6 +34,16 @@ const Calc = (() => {
 
   const DIMS = ['Müşteri', 'Coğrafya ve Yaptırım', 'Ürün', 'Kanal', 'İşlem'];
 
+  /* PF çalışma kitabında ayrı bir satır olmadığı için iştah limiti DATA.appetite
+     içinde yok; domainlerle aynı varsayılana bağlanır. */
+  const PF_APPETITE = 1.5;
+
+  /** Kurumun kendi limiti yoksa geçerli olan varsayılan iştah. */
+  function defaultAppetite(code) {
+    const v = DATA.appetite[code];
+    return Number.isFinite(v) ? v : (code === 'PF' ? PF_APPETITE : null);
+  }
+
   /* ---------- Kapsam (künye tabanlı uygulanamazlık) ---------- */
 
   /** Künyede "Hayır" işaretlenen faaliyetlere bağlı soru bölümlerini kapsam dışına alır. */
@@ -460,7 +470,7 @@ const Calc = (() => {
       const applied = eff === null ? null : Math.min(eff, MAX_CONTROL_EFFECT);
       const res = (applied === null || !irMeasured) ? null : ir * (1 - applied);
       const ovr = Number((state.appetite || {})[d.code]);
-      const limit = Number.isFinite(ovr) && ovr > 0 ? ovr : DATA.appetite[d.code];
+      const limit = Number.isFinite(ovr) && ovr > 0 ? ovr : defaultAppetite(d.code);
       return {
         code: d.code, name: d.name,
         source: DATA.residualSource[d.code] || '',
@@ -486,7 +496,7 @@ const Calc = (() => {
     const pfEff = pfDom ? pfDom.effectivenessTested : null;
     const pfApplied = pfEff === null ? null : Math.min(pfEff, MAX_CONTROL_EFFECT);
     const pfAppetiteOvr = Number((state.appetite || {}).PF);
-    const pfAppetite = Number.isFinite(pfAppetiteOvr) && pfAppetiteOvr > 0 ? pfAppetiteOvr : 1.5;
+    const pfAppetite = Number.isFinite(pfAppetiteOvr) && pfAppetiteOvr > 0 ? pfAppetiteOvr : defaultAppetite('PF');
     const pfResidualValue = (pfApplied === null || !pf.measured) ? null : pf.value * (1 - pfApplied);
     const pfLine = {
       code: 'PF', name: I18n.isEn ? RISKMODEL.pf.en : RISKMODEL.pf.tr,
@@ -581,6 +591,6 @@ const Calc = (() => {
   }
 
   return { compute, inherent, pfRisk, businessLines, factorState, kunye, autoKpi, monthsSince,
-           maturity, riskLevel5, residualLevel, slaDueDate,
+           maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

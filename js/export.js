@@ -245,7 +245,8 @@ const Exporter = (() => {
       .filter(x => x.s.openCritical)
       .slice(0, 15);
 
-    const breaches = calc.residual.filter(r => r.breach);
+    // PF ayrı bir satır ama aşım sayımına girer — pano rozeti de onu sayıyor.
+    const breaches = calc.residual.filter(r => r.breach).concat(calc.pfLine.breach ? [calc.pfLine] : []);
     const overdue = calc.actions.filter(a => a.delay === 'GECİKMİŞ');
 
     host.innerHTML = `

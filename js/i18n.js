@@ -534,7 +534,7 @@ const I18n = (() => {
     sectionProfile:['Kurum künyesi', 'Institution profile'],
     sectionInherentProfile: ['Doğuştan risk profili', 'Inherent risk profile'],
     sectionDomainResults:   ['Domain sonuçları', 'Domain results'],
-    sectionBreaches:['Risk iştahını aşan domainler', 'Domains exceeding risk appetite'],
+    sectionBreaches:['Risk iştahını aşan alanlar', 'Areas exceeding risk appetite'],
     sectionOpenCrit:['Açık kritik kontroller', 'Open critical controls'],
     sectionActions: ['Aksiyon planı özeti', 'Action plan summary'],
     noBreaches:    ['Ölçülebilir aşım yok.', 'No measurable breach.'],
@@ -702,6 +702,10 @@ const I18n = (() => {
     csTitle:      ['Ülke risk sınıflandırması tek yerden yönetilir', 'Country risk classification is managed in one place'],
     csBody:       ['Portföy ve şube ekranlarındaki her ülke alanı bu listeden beslenir. Ön dolu işaretler {d} tarihli başlangıç değerleridir; FATF ve AB listeleri değiştikçe burada güncelleyin.',
                    'Every country field on the portfolio and branch screens draws from this list. Pre-filled flags are starting values as at {d}; update them here as the FATF and EU lists change.'],
+    csStaleTtl:   ['Ön dolu ülke işaretleri {n} aylık — doğrulayın',
+                   'Pre-filled country flags are {n} months old — verify them'],
+    csStaleBody:  ['FATF gri/kara liste kararları Şubat, Haziran ve Ekim genel kurullarında güncellenir; AB yüksek riskli üçüncü ülke listesi de yıl içinde değişir. Bu ekrandaki işaretleri güncel resmî listelerle karşılaştırıp kurum kararınızı işleyin.',
+                   'FATF grey/black list decisions are updated at the February, June and October plenaries, and the EU high-risk third country list also changes during the year. Compare the flags on this screen with the current official lists and record your institution decision.'],
     csTotal:      ['Tanımlı ülke', 'Countries defined'],
     csTotalFoot:  ['ISO 3166-1 listesi', 'ISO 3166-1 list'],
     csFlagged:    ['İşaretli ülke', 'Flagged countries'],
@@ -839,10 +843,18 @@ const I18n = (() => {
   const idx = () => (lang === 'en' ? 1 : 0);
 
   /** Arayüz metni. {x} yer tutucuları params ile doldurulur. */
+  /* Eksik anahtar ekranda kendi adıyla görünür; sessizce geçmesin diye
+     oturumda bir kez uyarılır. */
+  const warned = new Set();
+
   function t(key, params) {
     const parts = key.split('.');
     let node = UI;
     for (const p of parts) { node = node && node[p]; }
+    if (node === undefined && !warned.has(key)) {
+      warned.add(key);
+      console.warn('i18n: tanımsız anahtar →', key);
+    }
     let s = Array.isArray(node) ? node[idx()] : (node === undefined ? key : node);
     if (params) Object.keys(params).forEach(k => { s = s.split('{' + k + '}').join(params[k]); });
     return s;

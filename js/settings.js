@@ -86,8 +86,13 @@ const Settings = (() => {
       return true;
     });
 
+    // Ön dolu bayraklar FATF/AB kararlarına dayanır ve eskir; altı ayı geçince uyarılır.
+    const asOfMonths = Calc.monthsSince(PORTFOLIO.countryRiskAsOf);
+    const stale = asOfMonths !== null && asOfMonths >= 6;
+
     host.innerHTML = `
       ${Views.banner('info', t('csTitle'), t('csBody', { d: PORTFOLIO.countryRiskAsOf }))}
+      ${stale ? Views.banner('warn', t('csStaleTtl', { n: asOfMonths }), t('csStaleBody')) : ''}
 
       <div class="grid grid-kpi" style="margin-bottom:16px">
         ${statTile({ label: t('csTotal'), value: fmtInt(sum.total), foot: t('csTotalFoot') })}

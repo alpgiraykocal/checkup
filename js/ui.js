@@ -105,7 +105,7 @@ const UI = (() => {
       <div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}" ${width ? `style="width:min(${width}px,100%)"` : ''}>
         <div class="modal-head">
           <h2>${esc(title)}</h2>
-          <button class="btn btn-icon btn-sm" data-close aria-label="Kapat">${Icons.x()}</button>
+          <button class="btn btn-icon btn-sm" data-close aria-label="${esc(I18n.t('close'))}">${Icons.x()}</button>
         </div>
         <div class="modal-body">${body}</div>
         <div class="modal-foot">${footer || ''}</div>
@@ -145,13 +145,14 @@ const UI = (() => {
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
 
-  function confirmDialog({ title, message, confirmLabel = 'Onayla', danger = false }) {
+  function confirmDialog({ title, message, confirmLabel, danger = false }) {
+    const ok = confirmLabel || I18n.t('confirm');
     return new Promise(resolve => {
       modal({
         title,
         body: `<p>${esc(message)}</p>`,
-        footer: `<button class="btn" data-close>Vazgeç</button>
-                 <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-confirm>${esc(confirmLabel)}</button>`,
+        footer: `<button class="btn" data-close>${esc(I18n.t('cancel'))}</button>
+                 <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-confirm>${esc(ok)}</button>`,
         width: 460,
         onMount(scrim) {
           el('[data-confirm]', scrim).addEventListener('click', () => { closeModal(); resolve(true); });

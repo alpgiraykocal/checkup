@@ -216,7 +216,7 @@ const App = (() => {
             <thead><tr><th>${t('snapWhen')}</th><th class="num">${t('navSurvey')}</th><th class="num">${t('totalFindings')}</th><th></th></tr></thead>
             <tbody>${list.map(s => `<tr>
               <td>${UI.esc(new Date(s.at).toLocaleString(I18n.locale))}
-                <div class="subtle">${t('snapReason_' + s.reason) || s.reason}</div></td>
+                <div class="subtle">${UI.esc(t('snapReason_' + s.reason))}</div></td>
               <td class="num">${s.answers}</td><td class="num">${s.actions}</td>
               <td><button class="btn btn-sm" data-restore="${UI.esc(s.at)}">${Icons.reset()} ${t('snapRestore')}</button></td>
             </tr>`).join('')}</tbody></table></div>`;

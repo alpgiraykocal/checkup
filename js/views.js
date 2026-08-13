@@ -11,13 +11,18 @@ const Views = (() => {
   function dashboard(host, { state, calc }) {
     const tot = calc.totals;
     const inh = calc.inherent;
-    const effTone = tot.effectiveness === null ? '' : tot.effectiveness >= 0.75 ? 'ok' : tot.effectiveness >= 0.6 ? 'warn' : 'danger';
+    // Gösterilen etkinlik, olgunluk ve artık riskle aynı kaynağa dayanmalı:
+    // her yerde test ile düzeltilmiş değer esas alınır, beyan yanında verilir.
+    const eff = tot.effectivenessTested;
+    const effTone = eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger';
+    const effDiffers = eff !== null && tot.effectiveness !== null && Math.abs(tot.effectiveness - eff) > 0.0005;
 
     const tiles = [
       statTile({
-        label: t('kpiEffectiveness'), value: fmtPct1(tot.effectiveness), tone: effTone,
+        label: t('kpiEffectiveness'), value: fmtPct1(eff), tone: effTone,
         foot: (tot.maturity ? `${t('maturityLabel')}: <b>${esc(I18n.ref('maturity', tot.maturity))}</b>` : t('noAnswersYet'))
-          + meter(tot.effectiveness, effTone === 'ok' ? 'ok' : effTone === 'warn' ? 'warn' : 'danger')
+          + (effDiffers ? ` · ${t('colEffDeclared')} ${fmtPct1(tot.effectiveness)}` : '')
+          + meter(eff, effTone === 'ok' ? 'ok' : effTone === 'warn' ? 'warn' : 'danger')
       }),
       statTile({
         label: t('kpiInherent'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/ 5',
@@ -189,13 +194,16 @@ const Views = (() => {
     const byCode = Object.fromEntries(calc.domains.map(d => [d.code, d]));
     const rows = calc.residual.map(r => {
       const d = byCode[r.code];
-      const eff = d.effectiveness;
+      // Olgunluk ve artık risk test ile düzeltilmiş etkinlikten türüyor; sütun da onu gösterir.
+      const eff = d.effectivenessTested;
+      const declared = d.effectiveness;
+      const differs = eff !== null && declared !== null && Math.abs(declared - eff) > 0.0005;
       return `<div class="heat-row">
         <div class="heat-name"><b class="mono">${esc(r.code)}</b> ${esc(r.name)}
           <div class="subtle">${fmtInt(d.answered)}/${fmtInt(d.count)} ${t('colAnswers').toLocaleLowerCase(I18n.locale)}${d.na ? ` · ${fmtInt(d.na)} N/A` : ''}</div></div>
         <div class="heat-eff-bar">${meter(eff === null ? 0 : eff, eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger')}
-          <div class="subtle">${esc(d.maturity ? I18n.ref('maturity', d.maturity) : t('awaitingAnswers'))}</div></div>
-        <div class="heat-cell ${effClass(eff)}" title="${t('colEffectiveness')}">${fmtPct(eff)}</div>
+          <div class="subtle">${esc(d.maturity ? I18n.ref('maturity', d.maturity) : t('awaitingAnswers'))}${differs ? ` · ${t('colEffDeclared')} ${fmtPct(declared)}` : ''}</div></div>
+        <div class="heat-cell ${effClass(eff)}" title="${t('colEffTested')}">${fmtPct(eff)}</div>
         <div class="heat-cell ${levelClass(r.level)}" title="${t('colResidual')}">${fmtNum2(r.residual)}</div>
         <div class="heat-cell ${r.breach ? 'lvl-cok-yuksek' : r.breach === false ? 'lvl-dusuk' : 'lvl-none'}" title="${t('colAppetiteLimit')} ${fmtNum1(r.appetite)}">
           ${r.breach === null ? '—' : r.breach ? t('breach') : t('withinAppetite')}</div>
@@ -205,7 +213,7 @@ const Views = (() => {
     return `<div role="table" aria-label="${t('heatmapTitle')}">
       <div class="heat-row head" role="row">
         <div>${t('domain')}</div><div class="heat-eff-bar">${t('maturityLabel')}</div>
-        <div class="center">${t('colEffectiveness')}</div><div class="center">${t('colResidual')}</div><div class="center">${t('colAppetite')}</div>
+        <div class="center">${t('colEffTested')}</div><div class="center">${t('colResidual')}</div><div class="center">${t('colAppetite')}</div>
       </div>
       ${rows}
     </div>`;
@@ -242,8 +250,9 @@ const Views = (() => {
       return String(v).trim() !== '' && Number.isFinite(n) ? n : null;
     };
 
+    // Kayıt anahtarı her zaman k.key (Türkçe sabit); k.name dile göre değişir.
     const rows = DATA.kpis.map((k, i) => {
-      const rec = state.kpis[k.name] || {};
+      const rec = state.kpis[k.key] || {};
       const auto = Calc.autoKpi(k, state, {
         closureRate: calc.actionStats.closureRate,
         opsKpi: calc.operations ? calc.operations.kpi : null
@@ -271,7 +280,7 @@ const Views = (() => {
         </td>
         <td style="width:120px">
           <div class="input-unit">
-            <input type="text" inputmode="decimal" id="kpi-t-${i}" data-kpi="${esc(k.name)}" data-field="target"
+            <input type="text" inputmode="decimal" id="kpi-t-${i}" data-kpi="${esc(k.key)}" data-field="target"
               value="${esc(rec.target || '')}" placeholder="${esc(k.placeholder || 'hedef')}"
               aria-label="${esc(k.name)} — ${t('kpiTarget')}" title="${t('kpiExampleTarget')}: ${esc(k.placeholder || '')} ${esc(k.unit)}">
             <span class="unit-tag">${esc(k.unit)}</span>
@@ -284,7 +293,7 @@ const Views = (() => {
                  <div class="subtle">${fromOps ? t('kpiFromOpsShort') : t('kpiAuto')}</div>
                </div>`
             : `<div class="input-unit">
-                 <input type="text" inputmode="decimal" id="kpi-v-${i}" data-kpi="${esc(k.name)}" data-field="value"
+                 <input type="text" inputmode="decimal" id="kpi-v-${i}" data-kpi="${esc(k.key)}" data-field="value"
                    value="${esc(rec.value || '')}" placeholder="${t('kpiMeasurement')}" aria-label="${esc(k.name)} — ${t('kpiValue')}">
                  <span class="unit-tag">${esc(k.unit)}</span>
                </div>`}
@@ -1505,7 +1514,7 @@ const Views = (() => {
         <div class="card-body" style="padding:0">
           <div class="table-wrap"><table>
             <thead><tr>
-              <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th><th class="num">${t('colEffectiveness')}</th>
+              <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th><th class="num">${t('colEffTested')}</th>
               <th class="num">${t('colResidual')}</th><th>${t('level')}</th><th>${t('colAppetiteLimit')}</th><th>${t('status')}</th>
             </tr></thead>
             <tbody>${rows}</tbody>
@@ -1524,7 +1533,7 @@ const Views = (() => {
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th>
-              <th class="num">${t('colEffectiveness')}</th><th class="num">${t('colResidual')}</th>
+              <th class="num">${t('colEffTested')}</th><th class="num">${t('colResidual')}</th>
               <th>${t('level')}</th><th>${t('colAppetiteLimit')}</th><th>${t('status')}</th>
             </tr></thead>
             <tbody><tr>
@@ -1569,7 +1578,8 @@ const Views = (() => {
       Store.update(s => {
         const v = Number(a.value);
         s.appetite = s.appetite || {};
-        if (!Number.isFinite(v) || v <= 0 || v === DATA.appetite[a.dataset.appetite]) delete s.appetite[a.dataset.appetite];
+        // Varsayılana eşitse geçersiz kılma saklanmaz (PF dahil).
+        if (!Number.isFinite(v) || v <= 0 || v === Calc.defaultAppetite(a.dataset.appetite)) delete s.appetite[a.dataset.appetite];
         else s.appetite[a.dataset.appetite] = v;
       });
     });

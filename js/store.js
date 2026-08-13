@@ -36,6 +36,31 @@ const Store = (() => {
   let state = blank();
   const listeners = new Set();
 
+  /* KPI kayıtları bir dönem görünen ada göre saklandı; İngilizce arayüzde girilen
+     değerler ayrı bir kayda düşüyordu. Anahtar artık her zaman DATA.kpis[].key
+     (Türkçe sabit); eski İngilizce adlı kayıtlar okunurken taşınır. */
+  function migrateKpiKeys(s) {
+    if (!s.kpis || typeof DATA === 'undefined') return s;
+    const valid = new Set(DATA.kpis.map(k => k.key));
+    const byEnName = {};
+    if (typeof DATA_EN !== 'undefined' && DATA_EN.kpis) {
+      Object.keys(DATA_EN.kpis).forEach(key => {
+        const n = DATA_EN.kpis[key] && DATA_EN.kpis[key].name;
+        if (n) byEnName[n] = key;
+      });
+    }
+    Object.keys(s.kpis).forEach(k => {
+      if (valid.has(k)) return;
+      const target = byEnName[k];
+      if (!target) return;                       // tanınmayan anahtar olduğu gibi bırakılır
+      const cur = s.kpis[target] || {};
+      // Türkçe anahtardaki mevcut alanlar korunur; yalnızca boş olanlar doldurulur.
+      s.kpis[target] = Object.assign({}, s.kpis[k], cur);
+      delete s.kpis[k];
+    });
+    return s;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -43,6 +68,7 @@ const Store = (() => {
         const parsed = JSON.parse(raw);
         state = Object.assign(blank(), parsed);
         state.ui = Object.assign({ theme: 'light' }, parsed.ui || {});
+        migrateKpiKeys(state);
       }
     } catch (e) {
       console.warn('Kayıtlı veri okunamadı, boş çalışma alanı açıldı.', e);
@@ -113,6 +139,7 @@ const Store = (() => {
       snap('before-load', true);
       state = Object.assign(blank(), next);
       state.ui = Object.assign({ theme: 'light' }, next.ui || {});
+      migrateKpiKeys(state);
       persist();
       emit();
     },
@@ -138,6 +165,7 @@ const Store = (() => {
       snap('before-restore', true);
       state = Object.assign(blank(), rec.data);
       state.ui = Object.assign({ theme: 'light' }, rec.data.ui || {});
+      migrateKpiKeys(state);
       persist();
       emit();
       return true;
