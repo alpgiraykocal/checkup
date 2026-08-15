@@ -19,7 +19,7 @@ const Extra = (() => {
     host.innerHTML = `
       ${Views.banner('info', t('exIntroTtl'), t('exIntroBody'))}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('exActiveSets'), value: fmtInt(ex.activeSets),
           foot: t('exSetsFoot', { n: ex.totalSets, m: ex.activeSets }) })}
         ${statTile({ label: t('exCoverage'), value: `${fmtInt(tot.answered)}`, unit: `/ ${fmtInt(tot.count)}`,
@@ -54,7 +54,7 @@ const Extra = (() => {
       </div>
       ${s.outOfScope
         ? `<div class="card-body"><p class="subtle">${esc(s.questions[0].st.scopeReason || '')}</p></div>`
-        : `<div class="card-body" style="padding:0">${s.questions.map(x => row(x.q, x.st)).join('')}</div>`}
+        : `<div class="card-body flush">${s.questions.map(x => row(x.q, x.st)).join('')}</div>`}
     </div>`;
   }
 

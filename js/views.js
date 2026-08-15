@@ -17,31 +17,41 @@ const Views = (() => {
     const effTone = eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger';
     const effDiffers = eff !== null && tot.effectiveness !== null && Math.abs(tot.effectiveness - eff) > 0.0005;
 
-    const tiles = [
+    /* Hiyerarşi: dört sonuç ölçümü öne çıkar (hero), ilerleme ve iş yükü
+       ölçümleri onların altında daha sessiz bir satırda durur. Önceki tasarımda
+       on kutu aynı ağırlıktaydı ve hiçbiri okunmuyordu. */
+    const heroTiles = [
       statTile({
+        hero: true,
         label: t('kpiEffectiveness'), value: fmtPct1(eff), tone: effTone,
         foot: (tot.maturity ? `${t('maturityLabel')}: <b>${esc(I18n.ref('maturity', tot.maturity))}</b>` : t('noAnswersYet'))
           + (effDiffers ? ` · ${t('colEffDeclared')} ${fmtPct1(tot.effectiveness)}` : '')
           + meter(eff, effTone === 'ok' ? 'ok' : effTone === 'warn' ? 'warn' : 'danger')
       }),
       statTile({
+        hero: true,
         label: t('kpiInherent'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/ 5',
         tone: !inh.measured ? '' : inh.general >= 3 ? 'danger' : inh.general >= 2 ? 'warn' : 'ok',
         foot: `${inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) : t('notMeasured')} · ${inh.scored}/${inh.applicable} ${t('factor')}${inh.na ? ` · ${inh.na} N/A` : ''}`
       }),
       statTile({
+        hero: true,
+        label: t('kpiResidual'), value: fmtNum2(calc.generalResidual), unit: '/ 5',
+        tone: calc.generalResidual === null ? '' : calc.generalResidual >= 2.5 ? 'danger' : calc.generalResidual >= 1.5 ? 'warn' : 'ok',
+        foot: calc.generalResidual === null ? t('effNotComputable') : esc(I18n.ref('riskLevel', Calc.residualLevel(calc.generalResidual)))
+      }),
+      statTile({
+        hero: true,
         label: t('kpiWorstDomain'),
         value: calc.worstDomain ? fmtNum2(calc.worstDomain.residual) : '—', unit: '/ 5',
         tone: !calc.worstDomain ? '' : calc.worstDomain.breach ? 'danger' : calc.worstDomain.residual >= 1.5 ? 'warn' : 'ok',
         foot: calc.worstDomain
           ? `${esc(calc.worstDomain.code)} · ${esc(I18n.ref('riskLevel', calc.worstDomain.level))}`
           : t('effNotComputable')
-      }),
-      statTile({
-        label: t('kpiResidual'), value: fmtNum2(calc.generalResidual), unit: '/ 5',
-        tone: calc.generalResidual === null ? '' : calc.generalResidual >= 2.5 ? 'danger' : calc.generalResidual >= 1.5 ? 'warn' : 'ok',
-        foot: calc.generalResidual === null ? t('effNotComputable') : esc(I18n.ref('riskLevel', Calc.residualLevel(calc.generalResidual)))
-      }),
+      })
+    ].join('');
+
+    const tiles = [
       statTile({
         label: t('kpiProgress'), value: fmtInt(tot.answered), unit: `/ ${fmtInt(tot.count)}`,
         foot: `${fmtPct(tot.progress)} ${t('pctComplete')}` + meter(tot.progress)
@@ -112,9 +122,10 @@ const Views = (() => {
     host.innerHTML = `
       ${banners.join('')}
       ${startCard(state, calc)}
-      ${hasWork ? `<div class="grid grid-kpi">${tiles}</div>
+      ${hasWork ? `<div class="grid grid-hero">${heroTiles}</div>
+      <div class="grid grid-kpi" style="margin-top:var(--s3)">${tiles}</div>
 
-      <div class="card" style="margin-top:16px">
+      <div class="card">
         <div class="card-head"><h2>${t('heatmapTitle')}</h2>
           <span class="subtle">${t('heatmapFormula')}</span></div>
         <div class="card-body">
@@ -122,18 +133,18 @@ const Views = (() => {
         </div>
       </div>
 
-      <div class="card" style="margin-top:16px">
+      <div class="card">
         <div class="card-head"><h2>${t('inherentDims')}</h2>
           <span class="subtle">${t('inherentDimsSub')}</span></div>
         <div class="card-body"><div class="grid grid-2">${inherentBars(calc)}</div></div>
       </div>
 
-      <div class="card" style="margin-top:16px">
+      <div class="card">
         <div class="card-head"><h2>${t('kpiSectionTitle')}</h2>
           <span class="subtle">${t('kpiSectionSub')}</span></div>
-        <div class="card-body" style="padding:0">${kpiTable(state, calc)}</div>
+        <div class="card-body flush">${kpiTable(state, calc)}</div>
       </div>`
-      : `<div class="card" style="margin-top:16px">
+      : `<div class="card">
         <div class="card-head">
           <div style="flex:1;min-width:220px">
             <h2>${t('gdIntroTtl')}</h2>
@@ -199,14 +210,40 @@ const Views = (() => {
     const next = steps.find(s => !s.done) || steps[steps.length - 1];
     const fresh = tot.answered === 0 && !inh.scored && k.filled === 0;
 
+    /* Boş çalışmada beş adım tek tek anlatılır. İş başladıktan sonra bu liste
+       ekranın en büyük bloğu olup en az bilgiyi taşıyordu; yerini tek satırlık
+       adım şeridi alır. */
+    if (!fresh) {
+      return `<div class="card start-card">
+        <div class="card-body resume">
+          <div class="resume-main">
+            <div class="subtle">${t('continueTitle')}</div>
+            <h2>${esc(next.label)}</h2>
+            <div class="subtle">${esc(next.desc)}</div>
+          </div>
+          <ol class="step-strip" aria-label="${t('continueTitle')}">
+            ${steps.map((s, i) => `<li>
+              <button class="step-dot ${s.done ? 'is-done' : ''} ${s === next ? 'is-next' : ''}"
+                data-route="${s.route}" title="${esc(s.label)}" aria-label="${esc(s.label)}">
+                ${s.done ? Icons.check() : i + 1}
+              </button>
+            </li>`).join('')}
+          </ol>
+          <div class="resume-actions">
+            ${state.ui.lastQuestion && tot.answered > 0
+              ? `<button class="btn" data-goto-last>${Icons.list()} ${t('continueLast', { id: esc(state.ui.lastQuestion) })}</button>` : ''}
+            <button class="btn btn-primary" data-route="${next.route}">${t('continueGo', { s: next.label })}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
     return `<div class="card start-card">
       <div class="card-head">
         <div style="flex:1;min-width:200px">
-          <h2>${fresh ? t('startTitle') : t('continueTitle')}</h2>
-          <div class="subtle">${fresh ? t('startBody') : t('continueBody', { s: next.label })}</div>
+          <h2>${t('startTitle')}</h2>
+          <div class="subtle">${t('startBody')}</div>
         </div>
-        ${state.ui.lastQuestion && tot.answered > 0
-          ? `<button class="btn" data-goto-last>${Icons.list()} ${t('continueLast', { id: esc(state.ui.lastQuestion) })}</button>` : ''}
         <button class="btn btn-primary" data-route="${next.route}">${t('continueGo', { s: next.label })}</button>
       </div>
       <div class="card-body">
@@ -225,8 +262,10 @@ const Views = (() => {
     </div>`;
   }
 
+  /* Her uyarı türü ayrı ikon taşır: yalnızca renkle ayırmak renk körlüğünde
+     ve gri tonlu çıktıda bilgiyi yok ediyordu. */
   function banner(kind, title, msg) {
-    const icon = kind === 'danger' ? Icons.alert() : kind === 'warn' ? Icons.alert() : Icons.info();
+    const icon = kind === 'danger' ? Icons.alert() : kind === 'warn' ? Icons.flag() : Icons.info();
     return `<div class="banner ${kind === 'info' ? '' : kind}">${icon}<div><b>${esc(title)}</b><span>${esc(msg)}</span></div></div>`;
   }
 
@@ -426,7 +465,7 @@ const Views = (() => {
             k.missingRequired.map(f => f.label).join(' · '))
         : banner('info', t('bnScopeTitle'), t('bnScopeBody'))}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('profileCompleteness'), value: fmtPct(k.progress),
           tone: k.progress === 1 ? 'ok' : k.missingRequired.length ? 'warn' : '',
           foot: `${k.filled}/${k.total} ${t('fieldsFilled')}` + meter(k.progress, k.progress === 1 ? 'ok' : '') })}
@@ -461,7 +500,7 @@ const Views = (() => {
 
           <div class="card">
             <div class="card-head"><h3>${t('dateAgeing')}</h3></div>
-            <div class="card-body" style="padding:0">
+            <div class="card-body flush">
               <div class="table-wrap"><table>
                 <thead><tr><th>${t('colItem')}</th><th class="num">${t('colElapsed')}</th><th>${t('colExpected')}</th></tr></thead>
                 <tbody>${k.stale.map(s => `<tr>
@@ -532,7 +571,7 @@ const Views = (() => {
     host.innerHTML = `
       ${inherentBanners(inh)}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${Calc.DIMS.map(dimKey => {
           const d = inh.dims[dimKey];
           return statTile({
@@ -596,7 +635,7 @@ const Views = (() => {
     const top = inh.drivers.slice(0, 8);
     if (!top.length) return '';
     const max = top[0].weighted || 1;
-    return `<div class="card" style="margin-bottom:16px">
+    return `<div class="card">
       <div class="card-head"><h2>${t('driversTitle')}</h2>
         <span class="subtle">${t('driversSub')}</span></div>
       <div class="card-body">
@@ -633,7 +672,7 @@ const Views = (() => {
           <b class="num">${fmtNum2(d.value)}</b><span class="subtle">/5</span>`
           : `<span class="chip chip-na">${t('notMeasured')}</span>`}
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         ${items.map(({ f, st }) => factorRow(f, st, state, calc)).join('')}
       </div>
       <div class="card-head" style="border-top:1px solid var(--border-soft);border-bottom:0">
@@ -756,7 +795,7 @@ const Views = (() => {
       </div>`;
     }).join('');
 
-    return `<div class="card" style="margin-top:16px">
+    return `<div class="card">
       <div class="card-head">
         <div style="flex:1;min-width:220px">
           <h2>${esc(I18n.isEn ? spec.en : spec.tr)}</h2>
@@ -767,7 +806,7 @@ const Views = (() => {
           : `<span class="chip chip-na">${t('notMeasured')}</span>`}
         <span class="chip ${pf.complete ? 'chip-ok' : ''}">${pf.scored}/${pf.applicable}</span>
       </div>
-      <div class="card-body" style="padding:0">${rows}</div>
+      <div class="card-body flush">${rows}</div>
     </div>`;
   }
 
@@ -808,7 +847,7 @@ const Views = (() => {
       </tr>`;
     }).join('');
 
-    return `<div class="card" style="margin-top:16px">
+    return `<div class="card">
       <div class="card-head">
         <div style="flex:1;min-width:220px">
           <h2>${t('blTitle')}</h2>
@@ -817,7 +856,7 @@ const Views = (() => {
         ${bl.weightedInherent !== null ? `<span class="chip ${levelClass(Calc.riskLevel5(bl.weightedInherent))}">${t('blWeighted')}</span>
           <b class="num">${fmtNum2(bl.weightedInherent)}</b><span class="subtle">/5</span>` : ''}
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         <div class="table-wrap"><table>
           <thead><tr>
             <th>${t('blLine')}</th><th>${t('blShare')}</th>
@@ -1085,7 +1124,7 @@ const Views = (() => {
         <b>${t('qKbdHintTtl')}</b><span>${esc(t('qKbdHintBody'))}</span>
         <button class="btn btn-sm" data-kbd-dismiss style="margin-top:8px">${t('qKbdHintClose')}</button></div></div>`}
 
-      <div id="q-summary" class="grid grid-kpi" style="margin-bottom:16px"></div>
+      <div id="q-summary" class="grid grid-kpi"></div>
       <div id="q-list"></div>
       <div class="q-fab no-print" id="q-fab" hidden>
         <button class="btn btn-sm" data-fab-top aria-label="${t('qFabTop')}" title="${t('qFabTop')}">${Icons.arrowDown()}</button>
@@ -1312,7 +1351,7 @@ const Views = (() => {
         ${row(['Esc'], t('kbdEscape'))}
         ${row(['?'], t('kbdHelp'))}
       </tbody></table></div>
-      <p class="subtle" style="margin-top:12px">${t('kbdNote')}</p>`,
+      <p class="subtle">${t('kbdNote')}</p>`,
       footer: `<button class="btn btn-primary" data-close>${t('close')}</button>`
     });
   }
@@ -1438,13 +1477,15 @@ const Views = (() => {
           <div class="q-text">${esc(q.text)}</div>
           <div class="q-meta">
             ${critChip(q.critKey)}
-            <span class="chip">${t('weight')} ${q.weight}</span>
-            <span class="chip">${esc(q.domain)} · ${esc(q.section)}</span>
-            ${q.qa ? `<span class="chip chip-mid">${Icons.flask()} ${t('qaTest')}</span>` : ''}
             ${s.actionNeeded === 'EVET - ÖNCELİKLİ' ? `<span class="chip chip-critical">${Icons.alert()} ${t('priorityAction')}</span>`
               : s.actionNeeded === 'Evet' ? `<span class="chip chip-high">${t('actionNeeded')}</span>` : ''}
             ${locked ? `<span class="chip chip-na">${Icons.lock()} ${esc(s.scopeReason)}</span>` : ''}
-            <span class="chip ${missingEvidence ? 'chip-high' : 'hidden'}" data-evidence-badge>${t('noEvidenceRef')}</span>
+            <span class="chip chip-high ${missingEvidence ? '' : 'hidden'}" data-evidence-badge>${t('noEvidenceRef')}</span>
+            <span class="meta-line">
+              <span>${esc(q.domain)} · ${esc(q.section)}</span>
+              <span>${t('weight')} <b>${q.weight}</b></span>
+              ${q.qa ? `<span>${Icons.flask()} ${t('qaTest')}</span>` : ''}
+            </span>
           </div>
           <div class="answers" role="group" aria-label="${t('answerFor', { id: esc(q.id) })}">${answerBtns}</div>
         </div>
@@ -1541,7 +1582,7 @@ const Views = (() => {
       <div class="card">
         <div class="card-head"><h2>${t('ttlScores')}</h2>
           <span class="subtle">${t('scoreLegend')}</span></div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colQuestions')}</th><th class="num">${t('colAnswers')}</th><th class="num">N/A</th>
@@ -1616,7 +1657,7 @@ const Views = (() => {
 
       <div class="card">
         <div class="card-head"><h2>${t('gdTermsTtl')}</h2></div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead><tr><th>${t('gdTerm')}</th><th>${t('gdMeans')}</th><th>${t('gdWhere')}</th></tr></thead>
             <tbody>
@@ -1654,7 +1695,7 @@ const Views = (() => {
             <div class="subtle">${t('gdGlossSub')}</div>
           </div>
         </div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead><tr><th style="width:26%">${t('gdTerm')}</th><th>${t('gdMeans')}</th></tr></thead>
             <tbody>${(typeof GLOSSARY === 'undefined' ? [] : GLOSSARY).map(g =>
@@ -1709,8 +1750,9 @@ const Views = (() => {
     const rows = calc.residual.map(r => `
       <tr>
         <td><b class="mono">${esc(r.code)}</b></td>
-        <td><a href="#/anket?d=${esc(r.code)}">${esc(r.name)}</a>
-          <div class="subtle">${t('inherentSource')}: ${esc(r.source)}</div>
+        <td style="min-width:210px">
+          <a href="#/anket?d=${esc(r.code)}">${esc(r.name)}</a>
+          <div class="subtle" title="${t('inherentSource')}: ${esc(r.source)}">${esc(r.source)}</div>
           ${r.breach ? `<div class="subtle"><a href="#/anket?d=${esc(r.code)}&st=gap">${t('rrSeeGaps')}</a></div>` : ''}</td>
         <td class="num">${fmtNum2(r.inherentRisk)}</td>
         <td class="num">${fmtPct1(r.effectivenessTested)}
@@ -1718,7 +1760,7 @@ const Views = (() => {
             ? `<div class="subtle">${t('rrCapped', { p: fmtPct(r.effectiveApplied) })}</div>` : ''}</td>
         <td class="num"><span class="heat-cell score-pill ${levelClass(r.level)}">${fmtNum2(r.residual)}</span></td>
         <td>${r.level ? `<span class="chip ${levelClass(r.level)}">${esc(I18n.ref('riskLevel', r.level))}</span>` : '—'}</td>
-        <td style="width:120px">
+        <td style="width:92px">
           <input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-${r.code}"
             data-appetite="${r.code}" value="${r.appetite}" aria-label="${esc(r.name)} — ${t('colAppetiteLimit')}">
           ${r.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}
@@ -1736,7 +1778,7 @@ const Views = (() => {
         t('bnMasksBody', { g: fmtNum2(calc.generalResidual), d: calc.worstDomain.code, r: fmtNum2(calc.worstDomain.residual) })) : ''}
       <div class="card">
         <div class="card-head"><h2>${t('ttlResidual')}</h2></div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th><th class="num">${t('colEffTested')}</th>
@@ -1754,7 +1796,7 @@ const Views = (() => {
             <div class="subtle">${t('pfSeparateNote')}</div>
           </div>
         </div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colCode')}</th><th>${t('domain')}</th><th class="num">${t('colInherent')}</th>
@@ -1768,7 +1810,7 @@ const Views = (() => {
               <td class="num">${fmtPct1(calc.pfLine.effectivenessTested)}</td>
               <td class="num"><span class="heat-cell score-pill ${levelClass(calc.pfLine.level)}">${fmtNum2(calc.pfLine.residual)}</span></td>
               <td>${calc.pfLine.level ? `<span class="chip ${levelClass(calc.pfLine.level)}">${esc(I18n.ref('riskLevel', calc.pfLine.level))}</span>` : '—'}</td>
-              <td style="width:120px"><input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-PF"
+              <td style="width:92px"><input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-PF"
                 data-appetite="PF" value="${calc.pfLine.appetite}" aria-label="PF — ${t('colAppetiteLimit')}"></td>
               <td>${calc.pfLine.breach === null ? '—' : calc.pfLine.breach
                 ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
@@ -1840,7 +1882,7 @@ const Views = (() => {
 
     host.innerHTML = `
       ${banner('info', t('bnQaTtl'), t('bnQaBody'))}
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('qaPopulations'), value: fmtInt(calc.qa.length), foot: `${fmtInt(covered)} ${t('qaVolumeEntered')}` })}
         ${statTile({ label: t('qaTotalVolume'), value: fmtInt(calc.qaTotals.volume) })}
         ${statTile({ label: t('qaAnnualSample'), value: fmtInt(calc.qaTotals.yearlySample), foot: t('qaFilesToTest') })}
@@ -1848,7 +1890,7 @@ const Views = (() => {
       </div>
       <div class="card">
         <div class="card-head"><h2>${t('qaTableTitle')}</h2></div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead><tr>
               <th>${t('colPopFocus')}</th><th>${t('domain')}</th><th>${t('colRisk')}</th><th>${t('colPeriodVol')}</th>
@@ -1876,7 +1918,7 @@ const Views = (() => {
               <tr><td>${critChip('Düşük')}</td><td>${t('errLow')}</td><td>${t('slaLow')}</td></tr>
             </tbody>
           </table></div>
-          <p class="subtle" style="margin-top:12px">${t('stratNote')}</p>
+          <p class="subtle">${t('stratNote')}</p>
         </div>
       </div>`;
 

@@ -94,7 +94,7 @@ const Settings = (() => {
       ${Views.banner('info', t('csTitle'), t('csBody', { d: PORTFOLIO.countryRiskAsOf }))}
       ${stale ? Views.banner('warn', t('csStaleTtl', { n: asOfMonths }), t('csStaleBody')) : ''}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('csTotal'), value: fmtInt(sum.total), foot: t('csTotalFoot') })}
         ${statTile({ label: t('csFlagged'), value: fmtInt(sum.flagged),
           foot: `${fmtInt(sum.total - sum.flagged)} ${t('csClean')}` })}
@@ -130,7 +130,7 @@ const Settings = (() => {
           <h2>${t('csTableTitle')}</h2>
           <span class="subtle">${t('csShown', { n: fmtInt(list.length) })}</span>
         </div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           ${list.length ? `<div class="table-wrap"><table>
             <thead><tr>
               <th>${t('pfCountry')}</th><th>${t('csFlagsCol')}</th><th>${t('status')}</th><th class="no-print"></th>

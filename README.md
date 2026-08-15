@@ -239,7 +239,7 @@ Bir soruya veya faktöre elle değer girilirse otomatik kural o kayıt için ge�
 
 ```
 index.html          kabuk, gezinme, dil değiştirici
-css/app.css         tasarım sistemi, açık/koyu tema, yazdırma stilleri
+css/app.css         tasarım sistemi (token, ölçek, yüzey hiyerarşisi), açık/koyu tema, yazdırma stilleri
 js/countries.js     ISO 3166-1 ülke listesi ve varsayılan risk işaretleri
 js/riskmodel.data.js PF faktörleri ve iş kolu tanımları
 js/extra.data.js    ek kontrol setleri (8 set, 44 soru) ve terim sözlüğü (26 terim)

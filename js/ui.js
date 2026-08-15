@@ -33,7 +33,8 @@ const Icons = {
   arrowDown: () => Icons._svg('<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>'),
   keyboard: () => Icons._svg('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>'),
   users: () => Icons._svg('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/>'),
-  link: () => Icons._svg('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>')
+  link: () => Icons._svg('<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>'),
+  flag: () => Icons._svg('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1Z"/><path d="M4 22v-7"/>')
 };
 
 const UI = (() => {
@@ -169,8 +170,9 @@ const UI = (() => {
     return `<div class="meter ${cls || ''}"><span style="width:${pct.toFixed(1)}%"></span></div>`;
   }
 
-  function statTile({ label, value, unit, foot, tone }) {
-    return `<div class="stat ${tone ? 'is-' + tone : ''}">
+  /** hero: ekranın birincil ölçümü — daha büyük tipografi ve daha çok nefes. */
+  function statTile({ label, value, unit, foot, tone, hero }) {
+    return `<div class="stat ${hero ? 'stat-hero' : ''} ${tone ? 'is-' + tone : ''}">
       <div class="stat-label">${esc(label)}</div>
       <div class="stat-value">${value}${unit ? `<span class="unit"> ${esc(unit)}</span>` : ''}</div>
       ${foot ? `<div class="stat-foot">${foot}</div>` : ''}

@@ -28,7 +28,7 @@ const Actions = (() => {
     const st = calc.actionStats;
 
     host.innerHTML = `
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('totalFindings'), value: fmtInt(st.total) })}
         ${statTile({ label: t('open'), value: fmtInt(st.open), tone: st.open ? 'warn' : 'ok' })}
         ${statTile({ label: t('overdue'), value: fmtInt(st.overdue), tone: st.overdue ? 'danger' : 'ok', foot: t('overdueDesc') })}
@@ -73,9 +73,9 @@ const Actions = (() => {
       <div class="card">
         <div class="card-head"><h2>${t('ttlActions')}</h2>
           <span class="subtle">${t('findingsShown', { n: fmtInt(list.length) })}</span></div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           ${list.length ? table(list) : emptyState(t('noRecords'), t('noRecordsBody'),
-            `<button class="btn btn-primary" data-new style="margin-top:12px">${Icons.plus()} ${t('newFinding')}</button>`)}
+            `<button class="btn btn-primary" data-new>${Icons.plus()} ${t('newFinding')}</button>`)}
         </div>
       </div>`;
 

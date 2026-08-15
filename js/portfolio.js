@@ -245,7 +245,7 @@ const Portfolio = (() => {
         ? Views.banner('info', t('pfIntroTitle'), t('pfIntroBody'))
         : Views.banner('info', t('pfFeedsTitle'), t('pfFeedsBody', { n: Object.keys(p.hints).length }))}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('pfTotalCustomers'), value: p.matrixFilled ? fmtInt(p.total) : '—',
           foot: p.matrixFilled ? t('pfFromMatrix') : t('pfMatrixEmpty') })}
         ${statTile({ label: t('pfHighRiskShare'), value: fmtPct1(p.highRiskShare),
@@ -304,7 +304,7 @@ const Portfolio = (() => {
           <div class="subtle">${t('pfMatrixHelp')}</div>
         </div>
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         <div class="table-wrap"><table>
           <thead><tr>
             <th>${t('pfCustomerType')}</th>
@@ -363,7 +363,7 @@ const Portfolio = (() => {
           <div class="subtle">${t('pfSegmentHelp')}</div>
         </div>
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         <div class="table-wrap"><table>
           <thead><tr>
             <th>${t('pfSegment')}</th><th>${t('pfCustomers')}</th><th>${t('pfHighRisk')}</th>
@@ -437,7 +437,7 @@ const Portfolio = (() => {
         </div>
         <button class="btn btn-sm" data-cn-add>${Icons.plus()} ${t('pfAddCountry')}</button>
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         ${p.countries.count ? `<div class="table-wrap"><table>
           <thead><tr>
             <th>${t('pfCountry')}</th><th>${t('pfRiskFlags')}</th><th>${t('pfRelation')}</th>
@@ -455,7 +455,7 @@ const Portfolio = (() => {
             <td class="no-print"></td>
           </tr></tfoot>
         </table></div>` : emptyState(t('pfNoCountry'), t('pfNoCountryBody'),
-          `<button class="btn btn-primary" data-cn-add style="margin-top:12px">${Icons.plus()} ${t('pfAddCountry')}</button>`)}
+          `<button class="btn btn-primary" data-cn-add>${Icons.plus()} ${t('pfAddCountry')}</button>`)}
       </div>
       ${exposure ? `<div class="card-body" style="border-top:1px solid var(--border-soft)">
         <h3 style="margin-bottom:8px">${t('pfExposureSummary')}</h3>
@@ -513,7 +513,7 @@ const Portfolio = (() => {
         </div>
         <button class="btn btn-sm" data-br-add>${Icons.plus()} ${t('pfAddBranch')}</button>
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         ${p.branches.count ? `<div class="table-wrap"><table>
           <thead><tr>
             <th>${t('pfBranchName')}</th><th>${t('pfBranchType')}</th><th>${t('pfCountry')}</th>
@@ -529,7 +529,7 @@ const Portfolio = (() => {
             <td></td><td></td><td></td><td></td><td></td><td class="no-print"></td>
           </tr></tfoot>
         </table></div>` : emptyState(t('pfNoBranch'), t('pfNoBranchBody'),
-          `<button class="btn btn-primary" data-br-add style="margin-top:12px">${Icons.plus()} ${t('pfAddBranch')}</button>`)}
+          `<button class="btn btn-primary" data-br-add>${Icons.plus()} ${t('pfAddBranch')}</button>`)}
       </div>
       ${p.branches.count ? `<div class="card-head" style="border-top:1px solid var(--border-soft);border-bottom:0">
         <div class="inline-list" style="flex:1">

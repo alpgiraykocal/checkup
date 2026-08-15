@@ -73,7 +73,7 @@ const Compare = (() => {
       host.innerHTML = `
         ${Views.banner('info', t('cmpIntroTtl'), t('cmpIntroBody'))}
         ${emptyState(t('cmpNoBase'), t('cmpNoBaseBody'),
-          `<button class="btn btn-primary" data-cmp-load style="margin-top:12px">${Icons.upload()} ${t('cmpLoadBtn')}</button>`)}
+          `<button class="btn btn-primary" data-cmp-load>${Icons.upload()} ${t('cmpLoadBtn')}</button>`)}
         <input type="file" accept="application/json,.json" class="sr-only" id="cmp-file" tabindex="-1" aria-hidden="true">`;
       bind(host);
       return;
@@ -115,7 +115,7 @@ const Compare = (() => {
         d: base.savedAt ? new Date(base.savedAt).toLocaleDateString(I18n.locale) : fmtDate(base.at)
       }), t('cmpBaseBody', { k: base.institution || t('noInstitution') }))}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${cmpTile(t('colEffTested'), base.totals.effectivenessTested, now.totals.effectivenessTested, 'up', v => fmtPct1(v))}
         ${cmpTile(t('csvH.inherentRisk'), base.inherent.general, now.inherent.general, 'down', v => fmtNum2(v))}
         ${cmpTile(t('colResidual'), base.generalResidual, now.generalResidual, 'down', v => fmtNum2(v))}
@@ -127,7 +127,7 @@ const Compare = (() => {
       <div class="card">
         <div class="card-head"><h2>${t('cmpDomainTtl')}</h2>
           <span class="subtle">${t('cmpDomainSub')}</span></div>
-        <div class="card-body" style="padding:0">
+        <div class="card-body flush">
           <div class="table-wrap"><table>
             <thead>
             <tr>

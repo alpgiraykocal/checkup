@@ -120,7 +120,7 @@ const Operations = (() => {
       ${Views.banner('info', t('opIntroTitle'),
         t('opIntroBody', { n: Object.keys(o.kpi).length, f: Object.keys(o.hints).length }))}
 
-      <div class="grid grid-kpi" style="margin-bottom:16px">
+      <div class="grid grid-kpi">
         ${statTile({ label: t('opFilled'), value: `${fmtInt(o.filled)}`, unit: `/ ${fmtInt(o.total)}`,
           foot: t('opFilledFoot') + meter(o.total ? o.filled / o.total : 0) })}
         ${highlight(o, 'monitoring_coverage')}
@@ -189,7 +189,7 @@ const Operations = (() => {
           <div class="subtle">${t('opDerivedHelp')}</div>
         </div>
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         <div class="table-wrap"><table>
           <thead><tr><th>${t('opRatio')}</th><th class="num">${t('opNumerator')}</th>
             <th class="num">${t('opDenominator')}</th><th class="num">${t('opValue')}</th><th>${t('opFeeds')}</th></tr></thead>
@@ -234,7 +234,7 @@ const Operations = (() => {
         </div>
         <span class="chip ${g.filled === g.count ? 'chip-ok' : ''}">${g.filled}/${g.count}</span>
       </div>
-      <div class="card-body" style="padding:0">
+      <div class="card-body flush">
         <div class="table-wrap"><table>
           <thead><tr>
             <th>${t('opMetric')}</th>
