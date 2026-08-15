@@ -48,7 +48,10 @@ const Exporter = (() => {
         });
         if (!ok) return;
       }
+      const oncekiOzet = `${Object.keys(Store.state.answers).length} yanıt / ${(Store.state.actions || []).length} bulgu`;
       Store.replace(parsed);
+      const sonrakiOzet = `${Object.keys(Store.state.answers).length} yanıt / ${(Store.state.actions || []).length} bulgu`;
+      Store.log('import', file.name || '', oncekiOzet, sonrakiOzet);
       UI.toast(t('loadedJson'), 'ok');
     };
     reader.readAsText(file);
@@ -152,6 +155,13 @@ const Exporter = (() => {
       rows.push([t('opRatio'), t('opNumerator'), t('opDenominator'), t('opValue')]);
       O.derived.forEach(d => rows.push([LL(d.spec), d.num ?? '', d.den ?? '',
         d.value === null ? '' : dec((d.value * 100).toFixed(2)) + '%']));
+    } else if (kind === 'log') {
+      name = t('lgCsv');
+      rows = [[t('lgWhen'), t('lgWho'), t('lgWhat'), t('lgRef'), t('lgFrom'), t('lgTo')]];
+      (state.log || []).forEach(e => rows.push([
+        new Date(e.at).toLocaleString(I18n.locale), e.who || '',
+        ChangeLog.turAdi(e.what), e.ref || '', e.from || '', e.to || ''
+      ]));
     } else if (kind === 'countries') {
       name = 'country-risk';
       rows = [[t('pfCountry'), 'ISO', t('csFlagsCol'), t('status')]];
@@ -443,6 +453,10 @@ const Exporter = (() => {
 
           <div class="divider"></div>
           <p class="subtle">${t('reportMethod')}</p>
+          <p class="subtle">${esc(t('mtInReport', {
+            m: calc.method && calc.method.applied ? t('mtExposure') : t('mtDefault') }))}</p>
+          ${calc.refpack ? `<p class="subtle">${esc(t('rpReportLine', { v: calc.refpack.version, d: calc.refpack.compiled }))}${
+            calc.refpack.anyStale ? ` — ${esc(t('rpStale'))}: ${calc.refpack.stale.map(b => esc(b.label)).join(', ')}` : ''}</p>` : ''}
         </div>
       </div>`;
 

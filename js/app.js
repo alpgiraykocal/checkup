@@ -15,6 +15,8 @@ const App = (() => {
     { id: 'artik', key: 'Residual', icon: 'target', group: 'groupResult', view: Views.residual },
     { id: 'aksiyon', key: 'Actions', icon: 'clipboard', group: 'groupResult', view: Actions.view },
     { id: 'karsilastir', key: 'Compare', icon: 'reset', group: 'groupResult', view: Compare.view },
+    { id: 'ekip', key: 'Merge', icon: 'users', group: 'groupResult', view: Merge.view },
+    { id: 'gunluk', key: 'Log', icon: 'file', group: 'groupResult', view: ChangeLog.view },
     { id: 'rapor', key: 'Report', icon: 'print', group: 'groupResult', view: Exporter.report },
     { id: 'ayarlar', key: 'Settings', icon: 'sliders', group: 'groupSettings', view: Settings.view }
   ];
@@ -85,7 +87,7 @@ const App = (() => {
     const nav = UI.el('#nav');
     let html = '', lastGroup = null;
     ROUTES.forEach(r => {
-      if (r.group !== lastGroup) { html += `<div class="nav-group-label">${t(r.group)}</div>`; lastGroup = r.group; }
+      if (r.group !== lastGroup) { html += `<div class="nav-group-label">${t(r.group)}</div>`; lastGroup = r.group; }   // dil-güvenli: rota grubu i18n anahtarı
       html += `<button class="nav-item" data-route="${r.id}" ${current === r.id ? 'aria-current="page"' : ''}>
         ${Icons[r.icon]()}<span class="label">${UI.esc(routeLabel(r))}</span>${badges(r)}</button>`;
     });
@@ -242,6 +244,7 @@ const App = (() => {
           <button class="btn" data-x="inherent">${Icons.gauge()} ${t('csvInherent')}</button>
           <button class="btn" data-x="qa">${Icons.flask()} ${t('csvQa')}</button>
           <button class="btn" data-x="actions">${Icons.clipboard()} ${t('csvActions')}</button>
+          <button class="btn" data-x="log">${Icons.file()} ${t('lgCsv')}</button>
         </div>
         <div class="divider"></div>
         <h3>${t('snapTitle')}</h3>

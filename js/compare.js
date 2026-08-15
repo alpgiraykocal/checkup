@@ -17,6 +17,7 @@ const Compare = (() => {
       institution: state.kunye.kurum_unvani || '',
       period: c.kunye.periodLabel || state.kunye.degerlendirme_donemi || '',
       assessor: state.kunye.degerlendirmeyi_yapan || '',
+      method: c.method && c.method.applied ? 'exposure' : 'default',
       totals: {
         count: c.totals.count, answered: c.totals.answered,
         effectiveness: c.totals.effectiveness,
@@ -114,6 +115,10 @@ const Compare = (() => {
         p: base.period || t('cmpNoPeriod'),
         d: base.savedAt ? new Date(base.savedAt).toLocaleDateString(I18n.locale) : fmtDate(base.at)
       }), t('cmpBaseBody', { k: base.institution || t('noInstitution') }))}
+
+      ${base.method && base.method !== now.method
+        ? Views.banner('warn', t('mtCmpMismatch', { b: base.method === 'exposure' ? t('mtExposure') : t('mtDefault') }), t('mtWarn'))
+        : ''}
 
       <div class="grid grid-kpi">
         ${cmpTile(t('colEffTested'), base.totals.effectivenessTested, now.totals.effectivenessTested, 'up', v => fmtPct1(v))}

@@ -1,0 +1,584 @@
+{
+  "totals": {
+    "count": 218,
+    "answered": 218,
+    "na": 0,
+    "applicableWeight": 926,
+    "earned": 583.5,
+    "earnedTested": 583.5,
+    "effectiveness": 0.63013,
+    "effectivenessTested": 0.63013,
+    "assurance": 0.713043,
+    "maturity": "Gelişime Açık",
+    "openCritical": 17,
+    "actionsNeeded": 109
+  },
+  "domains": [
+    {
+      "code": "D1",
+      "answered": 20,
+      "na": 0,
+      "applicableWeight": 81,
+      "effectiveness": 0.635802,
+      "effectivenessTested": 0.635802,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.75,
+      "openCritical": 0
+    },
+    {
+      "code": "D2",
+      "answered": 20,
+      "na": 0,
+      "applicableWeight": 85,
+      "effectiveness": 0.623529,
+      "effectivenessTested": 0.623529,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.833333,
+      "openCritical": 1
+    },
+    {
+      "code": "D3",
+      "answered": 18,
+      "na": 0,
+      "applicableWeight": 74,
+      "effectiveness": 0.635135,
+      "effectivenessTested": 0.635135,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.666667,
+      "openCritical": 0
+    },
+    {
+      "code": "D4",
+      "answered": 18,
+      "na": 0,
+      "applicableWeight": 75,
+      "effectiveness": 0.613333,
+      "effectivenessTested": 0.613333,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.666667,
+      "openCritical": 3
+    },
+    {
+      "code": "D5",
+      "answered": 26,
+      "na": 0,
+      "applicableWeight": 114,
+      "effectiveness": 0.640351,
+      "effectivenessTested": 0.640351,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.789474,
+      "openCritical": 2
+    },
+    {
+      "code": "D6",
+      "answered": 26,
+      "na": 0,
+      "applicableWeight": 119,
+      "effectiveness": 0.609244,
+      "effectivenessTested": 0.609244,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.666667,
+      "openCritical": 5
+    },
+    {
+      "code": "D7",
+      "answered": 24,
+      "na": 0,
+      "applicableWeight": 105,
+      "effectiveness": 0.628571,
+      "effectivenessTested": 0.628571,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.583333,
+      "openCritical": 1
+    },
+    {
+      "code": "D8",
+      "answered": 22,
+      "na": 0,
+      "applicableWeight": 93,
+      "effectiveness": 0.650538,
+      "effectivenessTested": 0.650538,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.764706,
+      "openCritical": 2
+    },
+    {
+      "code": "D9",
+      "answered": 14,
+      "na": 0,
+      "applicableWeight": 57,
+      "effectiveness": 0.605263,
+      "effectivenessTested": 0.605263,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.625,
+      "openCritical": 1
+    },
+    {
+      "code": "D10",
+      "answered": 14,
+      "na": 0,
+      "applicableWeight": 52,
+      "effectiveness": 0.663462,
+      "effectivenessTested": 0.663462,
+      "maturity": "Gelişime Açık",
+      "assurance": 0.75,
+      "openCritical": 0
+    },
+    {
+      "code": "D11",
+      "answered": 16,
+      "na": 0,
+      "applicableWeight": 71,
+      "effectiveness": 0.633803,
+      "effectivenessTested": 0.633803,
+      "maturity": "Gelişime Açık",
+      "assurance": null,
+      "openCritical": 2
+    }
+  ],
+  "inherent": {
+    "general": 3.059021,
+    "scored": 22,
+    "na": 3,
+    "applicable": 22,
+    "complete": true,
+    "missingNotes": 0,
+    "dims": {
+      "Müşteri": {
+        "value": 3,
+        "level": "Yüksek",
+        "scored": 5,
+        "na": 0
+      },
+      "Coğrafya ve Yaptırım": {
+        "value": 3.1,
+        "level": "Yüksek",
+        "scored": 4,
+        "na": 1
+      },
+      "Ürün": {
+        "value": 3.076923,
+        "level": "Yüksek",
+        "scored": 4,
+        "na": 1
+      },
+      "Kanal": {
+        "value": 2.818182,
+        "level": "Orta",
+        "scored": 5,
+        "na": 0
+      },
+      "İşlem": {
+        "value": 3.3,
+        "level": "Yüksek",
+        "scored": 4,
+        "na": 1
+      },
+      "GENEL": {
+        "value": 3.059021,
+        "level": "Yüksek",
+        "scored": 22,
+        "na": 3
+      }
+    }
+  },
+  "residual": [
+    {
+      "code": "D1",
+      "inherentRisk": 3.059021,
+      "effectivenessTested": 0.635802,
+      "residual": 1.114088,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D2",
+      "inherentRisk": 3.05,
+      "effectivenessTested": 0.623529,
+      "residual": 1.148235,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D3",
+      "inherentRisk": 2.947552,
+      "effectivenessTested": 0.635135,
+      "residual": 1.075458,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D4",
+      "inherentRisk": 3.3,
+      "effectivenessTested": 0.613333,
+      "residual": 1.276,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D5",
+      "inherentRisk": 3,
+      "effectivenessTested": 0.640351,
+      "residual": 1.078947,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D6",
+      "inherentRisk": 3.1,
+      "effectivenessTested": 0.609244,
+      "residual": 1.211345,
+      "level": "Düşük",
+      "appetite": 1.2,
+      "breach": true
+    },
+    {
+      "code": "D7",
+      "inherentRisk": 3.188462,
+      "effectivenessTested": 0.628571,
+      "residual": 1.184286,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D8",
+      "inherentRisk": 3.15,
+      "effectivenessTested": 0.650538,
+      "residual": 1.100806,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D9",
+      "inherentRisk": 3.059021,
+      "effectivenessTested": 0.605263,
+      "residual": 1.207508,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D10",
+      "inherentRisk": 3.059021,
+      "effectivenessTested": 0.663462,
+      "residual": 1.029478,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    },
+    {
+      "code": "D11",
+      "inherentRisk": 3.059021,
+      "effectivenessTested": 0.633803,
+      "residual": 1.120205,
+      "level": "Düşük",
+      "appetite": 1.5,
+      "breach": false
+    }
+  ],
+  "pf": {
+    "value": 3.136364,
+    "level": "Yüksek",
+    "residual": 1.225554,
+    "appetite": 2,
+    "breach": false
+  },
+  "lines": {
+    "shareSum": 100,
+    "weightedInherent": 3,
+    "active": 5,
+    "scored": 5
+  },
+  "genel": {
+    "generalResidual": 1.131441,
+    "domainAvgResidual": 1.140578,
+    "worstDomain": "D4",
+    "breaches": 1,
+    "masksBreach": false
+  },
+  "qa2": {
+    "required": 115,
+    "tested": 82,
+    "coverage": 0.713043,
+    "conflicts": 0
+  },
+  "qaTotals": {
+    "volume": 375000,
+    "yearlySample": 103600,
+    "perTest": 52963
+  },
+  "qa": [
+    {
+      "key": "Verilen ŞİB dosyaları",
+      "volume": 1250,
+      "yearlySample": 1250,
+      "perTest": 313
+    },
+    {
+      "key": "ŞİB verilmeyen ancak eşiği geçen kapatılmış vakalar",
+      "volume": 2500,
+      "yearlySample": 375,
+      "perTest": 94
+    },
+    {
+      "key": "Dondurma ve varlık kısıtlama kararları",
+      "volume": 3750,
+      "yearlySample": 3750,
+      "perTest": 938
+    },
+    {
+      "key": "Yaptırım gerçek eşleşme (true match) vakaları",
+      "volume": 5000,
+      "yearlySample": 5000,
+      "perTest": 1250
+    },
+    {
+      "key": "Kapatılan yaptırım alertleri",
+      "volume": 6250,
+      "yearlySample": 625,
+      "perTest": 157
+    },
+    {
+      "key": "PEP müşteri dosyaları",
+      "volume": 7500,
+      "yearlySample": 7500,
+      "perTest": 3750
+    },
+    {
+      "key": "Müşteri çıkış (exit) kararları",
+      "volume": 8750,
+      "yearlySample": 8750,
+      "perTest": 4375
+    },
+    {
+      "key": "Kolluk ve yargı bilgi talepleri",
+      "volume": 10000,
+      "yearlySample": 10000,
+      "perTest": 2500
+    },
+    {
+      "key": "EDD dosyaları",
+      "volume": 11250,
+      "yearlySample": 1125,
+      "perTest": 282
+    },
+    {
+      "key": "Kapatılan izleme (monitoring) alertleri",
+      "volume": 12500,
+      "yearlySample": 625,
+      "perTest": 157
+    },
+    {
+      "key": "Yüksek riskli yeni müşteri hesap açılışları",
+      "volume": 13750,
+      "yearlySample": 1375,
+      "perTest": 344
+    },
+    {
+      "key": "Muhabir banka ilişkileri",
+      "volume": 15000,
+      "yearlySample": 15000,
+      "perTest": 15000
+    },
+    {
+      "key": "Trade finance dosyaları",
+      "volume": 16250,
+      "yearlySample": 1625,
+      "perTest": 813
+    },
+    {
+      "key": "Risk skoru override edilen müşteriler",
+      "volume": 17500,
+      "yearlySample": 2625,
+      "perTest": 1313
+    },
+    {
+      "key": "Gecikmiş periyodik KYC dosyaları",
+      "volume": 18750,
+      "yearlySample": 1875,
+      "perTest": 469
+    },
+    {
+      "key": "Uzaktan açılan hesaplar",
+      "volume": 20000,
+      "yearlySample": 1000,
+      "perTest": 500
+    },
+    {
+      "key": "Eksik bilgili elektronik transferler",
+      "volume": 21250,
+      "yearlySample": 2125,
+      "perTest": 532
+    },
+    {
+      "key": "Sanal varlık transferleri",
+      "volume": 22500,
+      "yearlySample": 2250,
+      "perTest": 563
+    },
+    {
+      "key": "Standart yeni müşteri hesap açılışları",
+      "volume": 23750,
+      "yearlySample": 475,
+      "perTest": 238
+    },
+    {
+      "key": "Eşik üstü nakit işlemler",
+      "volume": 25000,
+      "yearlySample": 500,
+      "perTest": 250
+    },
+    {
+      "key": "Reddedilen müşteri başvuruları",
+      "volume": 26250,
+      "yearlySample": 2625,
+      "perTest": 2625
+    },
+    {
+      "key": "Eğitim tamamlama kayıtları",
+      "volume": 27500,
+      "yearlySample": 1375,
+      "perTest": 1375
+    },
+    {
+      "key": "Kapatılan denetim ve validasyon bulguları",
+      "volume": 28750,
+      "yearlySample": 28750,
+      "perTest": 14375
+    },
+    {
+      "key": "Veri mutabakatı ve besleme hatası kayıtları",
+      "volume": 30000,
+      "yearlySample": 3000,
+      "perTest": 750
+    }
+  ],
+  "actionStats": {
+    "total": 3,
+    "open": 2,
+    "overdue": 1,
+    "closed": 1,
+    "critical": 1,
+    "closureRate": 0.333333
+  },
+  "extra": {
+    "activeSets": 3,
+    "count": 26,
+    "answered": 26,
+    "effectivenessTested": 0.623894,
+    "openCritical": 3
+  },
+  "kunye": {
+    "filled": 17,
+    "total": 26,
+    "missingRequired": 0,
+    "warnings": 0,
+    "ratios": [
+      {
+        "id": "highRisk",
+        "value": 0.053333
+      },
+      {
+        "id": "pep",
+        "value": 0.003167
+      },
+      {
+        "id": "crossBorder",
+        "value": 0.086905
+      },
+      {
+        "id": "load",
+        "value": 5000
+      }
+    ]
+  },
+  "portfolio": {
+    "total": 70000,
+    "highRisk": 49000,
+    "highRiskShare": 0.7,
+    "countries": 3,
+    "crossTx": 82100,
+    "hints": 12,
+    "warnings": 2
+  },
+  "operations": {
+    "filled": 11,
+    "total": 101,
+    "hints": 1,
+    "kpi": 4,
+    "warnings": 0,
+    "derived": [
+      {
+        "key": "monitoring_coverage",
+        "value": 0.975
+      },
+      {
+        "key": "cash_share",
+        "value": null
+      },
+      {
+        "key": "cross_share",
+        "value": null
+      },
+      {
+        "key": "alert_case",
+        "value": 0.129167
+      },
+      {
+        "key": "case_str",
+        "value": 0.132258
+      },
+      {
+        "key": "bulk_close",
+        "value": null
+      },
+      {
+        "key": "sanction_hit",
+        "value": null
+      },
+      {
+        "key": "rfi_answer",
+        "value": null
+      },
+      {
+        "key": "return_rate",
+        "value": null
+      },
+      {
+        "key": "trade_screen_cov",
+        "value": null
+      },
+      {
+        "key": "qa_critical_rate",
+        "value": 0.034375
+      },
+      {
+        "key": "qa_major_rate",
+        "value": null
+      },
+      {
+        "key": "training_rate",
+        "value": 0.95
+      },
+      {
+        "key": "remote_share",
+        "value": 0.447619
+      },
+      {
+        "key": "agent_share",
+        "value": null
+      },
+      {
+        "key": "unattended_share",
+        "value": null
+      }
+    ]
+  }
+}

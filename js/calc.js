@@ -412,6 +412,73 @@ const Calc = (() => {
     };
   }
 
+  /* ---------- Yöntem seçimi: maruziyet ağırlıklandırması ----------
+
+     Varsayılan yöntem boyut skorlarını faktör ağırlıklarıyla hesaplar ve GENEL
+     skoru beş boyutun DÜZ ortalaması olarak alır. Bu, kaynak çalışma kitabının
+     yöntemidir ve altı faktörlü bir boyutla dört faktörlü bir boyutu eşit sayar.
+
+     Seçenek açıkken boyut skorları iş kolu düzeyinden, iş hacmiyle
+     ağırlıklandırılarak toplanır — EBA ML/TF risk faktörleri kılavuzunun ve
+     Basel yaklaşımının beklentisi budur. Veri zaten Doğuştan Risk ekranındaki
+     iş kolu matrisinde var.
+
+     Varsayılan KAPALI: açıkken sonuç çalışma kitabıyla eşleşmez ve önceki
+     dönem dosyalarıyla karşılaştırma ancak iki dönem aynı yöntemi kullanıyorsa
+     anlamlıdır. Hangi yöntemin kullanıldığı çıktıya ve rapora yazılır. */
+
+  function methodInfo(state, lines) {
+    const istenen = Boolean(state.method && state.method.weightByExposure);
+    if (!istenen) return { weightByExposure: false, applied: false, reason: 'off' };
+    // Ağırlıklandırma yalnızca skorlanmış ve paylı iş kolu varsa yapılabilir
+    const kullanilabilir = lines.scored > 0 && lines.shareSum > 0;
+    return {
+      weightByExposure: true,
+      applied: kullanilabilir,
+      reason: kullanilabilir ? 'applied' : 'noLineData'
+    };
+  }
+
+  /** İş hacmiyle ağırlıklandırılmış boyut skorları. */
+  function exposureDims(lines) {
+    const out = {};
+    DIMS.forEach(d => {
+      let num = 0, den = 0;
+      lines.lines.forEach(l => {
+        if (!l.active || l.share === null) return;
+        const v = l.scores[d];
+        if (!Number.isFinite(v) || v < 1) return;
+        num += v * l.share; den += l.share;
+      });
+      out[d] = den ? { value: num / den, den } : null;
+    });
+    return out;
+  }
+
+  /* ---------- Referans veri paketi ----------
+     Kodun değil, dayandığı dış gerçeklerin tazeliği. Her bölüm kendi
+     yayın döngüsüne göre ayrı eskir. */
+
+  function refpack() {
+    if (typeof REFPACK === 'undefined') return null;
+    const bolumler = Object.keys(REFPACK.sections).map(k => {
+      const s = REFPACK.sections[k];
+      const ay = monthsSince(s.as);
+      return {
+        key: k, spec: s, months: ay,
+        stale: ay !== null && ay >= s.staleMonths,
+        label: I18n.isEn ? s.enLabel : s.trLabel,
+        sources: I18n.isEn ? s.enSources : s.trSources
+      };
+    });
+    return {
+      version: REFPACK.version, compiled: REFPACK.compiled,
+      sections: bolumler,
+      stale: bolumler.filter(b => b.stale),
+      anyStale: bolumler.some(b => b.stale)
+    };
+  }
+
   /* ---------- Ek kontroller ----------
      Kaynak çalışma kitabının dışındaki tamamlayıcı set. Ana skorun paydasına
      GİRMEZ: girseydi domain etkinlikleri kayar, hem kitapla eşleşme hem de
@@ -548,12 +615,29 @@ const Calc = (() => {
     const inh = inherent(state);
     const pf = pfRisk(state);
     const lines = businessLines(state);
+
+    /* Yöntem seçimi: açıksa boyut değerleri iş hacmiyle ağırlıklandırılır.
+       Kapalıyken ya da iş kolu verisi yetersizken varsayılan yöntem geçerlidir
+       ve sonuç bit düzeyinde aynı kalır. */
+    const method = methodInfo(state, lines);
+    const expo = method.applied ? exposureDims(lines) : null;
+    const dimValue = d => {
+      if (expo && expo[d]) return expo[d].value;
+      return inh.dims[d] ? inh.dims[d].value : 0;
+    };
+    const dimMeasured = d => {
+      if (expo) return Boolean(expo[d]);
+      return Boolean(inh.dims[d] && inh.dims[d].measured);
+    };
+    const genelDeger = method.applied && lines.weightedInherent !== null
+      ? lines.weightedInherent : inh.general;
+    const genelOlculdu = method.applied ? lines.weightedInherent !== null : inh.measured;
     const byCode = Object.fromEntries(domains.map(d => [d.code, d]));
     const residual = DATA.domains.map(d => {
       const dims = RESIDUAL_DIMS[d.code] || ['GENEL'];
-      const parts = dims.map(k => inh.dims[k]).filter(Boolean);
-      const irMeasured = parts.length > 0 && parts.every(p => p.measured);
-      const ir = parts.reduce((s, p) => s + p.value, 0) / (parts.length || 1);
+      const olculdu = dims.map(k => k === 'GENEL' ? genelOlculdu : dimMeasured(k));
+      const irMeasured = dims.length > 0 && olculdu.every(Boolean);
+      const ir = dims.reduce((s, k) => s + (k === 'GENEL' ? genelDeger : dimValue(k)), 0) / (dims.length || 1);
       const dom = byCode[d.code];
       const eff = dom.effectivenessTested;
       // Kontrol etkisi tavanla sınırlanır: hiçbir kontrol seti riski sıfırlamaz.
@@ -578,8 +662,8 @@ const Calc = (() => {
     // (a) yoğunlaşmış bir zafiyeti seyreltebildiği için (b) de raporlanır.
     const appliedTotal = totals.effectivenessTested === null
       ? null : Math.min(totals.effectivenessTested, MAX_CONTROL_EFFECT);
-    const generalResidual = (appliedTotal === null || !inh.measured)
-      ? null : inh.general * (1 - appliedTotal);
+    const generalResidual = (appliedTotal === null || !genelOlculdu)
+      ? null : genelDeger * (1 - appliedTotal);
 
     // PF ayrı bir risk satırı: doğuştan PF × yaptırım tarama kontrol etkinliği (D6)
     const pfDom = byCode[RISKMODEL.pf.controlDomain];
@@ -616,7 +700,10 @@ const Calc = (() => {
       const has = Number.isFinite(vol) && vol > 0;
       const yearly = !has ? null
         : (p.full ? vol : Math.min(vol, Math.max(Math.round(vol * p.rate), p.min)));
-      const divisor = p.freq === 'Çeyreklik' ? 4 : p.freq === 'Altı Aylık' ? 2 : 1;
+      /* Bölücü, görünen metne değil sabit anahtara bakar: p.freq dile göre
+         değişir ve İngilizce arayüzde hiçbir dala uymayıp bölücüyü 1'de
+         bırakıyordu — test başına örneklem dört katı görünüyordu. */
+      const divisor = p.freqKey === 'Çeyreklik' ? 4 : p.freqKey === 'Altı Aylık' ? 2 : 1;
       return Object.assign({}, p, {
         volume: has ? vol : null,
         yearlySample: yearly,
@@ -644,7 +731,7 @@ const Calc = (() => {
       open: actions.filter(a => a.status && a.status !== 'Kapalı').length,
       overdue: actions.filter(a => a.delay === 'GECİKMİŞ').length,
       closed: actions.filter(a => a.status === 'Kapalı').length,
-      critical: actions.filter(a => a.crit === 'Kritik' && a.status !== 'Kapalı').length
+      critical: actions.filter(a => a.crit === 'Kritik' && a.status !== 'Kapalı').length   // dil-güvenli: aksiyon kaydı sabit anahtar saklar
     };
     actionStats.closureRate = actionStats.total ? actionStats.closed / actionStats.total : null;
 
@@ -659,6 +746,9 @@ const Calc = (() => {
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
       operations: (typeof Operations !== 'undefined') ? Operations.compute(state) : null,
       extra: extra(state),
+      refpack: refpack(),
+      method, exposureDims: expo,
+      generalInherent: genelDeger, generalInherentMeasured: genelOlculdu,
       inherent: inh, pf, lines, residual, pfLine, generalResidual,
       domainAvgResidual, worstDomain, masksBreach,
       maxControlEffect: MAX_CONTROL_EFFECT,
@@ -682,7 +772,7 @@ const Calc = (() => {
     return toISODate(d);
   }
 
-  return { compute, inherent, pfRisk, businessLines, extra, factorState, kunye, autoKpi, monthsSince,
+  return { compute, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince,
            maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite, parseDate, toISODate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

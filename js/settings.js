@@ -86,13 +86,15 @@ const Settings = (() => {
       return true;
     });
 
-    // Ön dolu bayraklar FATF/AB kararlarına dayanır ve eskir; altı ayı geçince uyarılır.
-    const asOfMonths = Calc.monthsSince(PORTFOLIO.countryRiskAsOf);
-    const stale = asOfMonths !== null && asOfMonths >= 6;
+    /* Bayatlama artık tek tek ekranlarda değil, referans veri paketinde
+       izlenir: ülke bayrakları, mevzuat atıfları ve soru bankası ayrı
+       döngülerle eskir. */
+    const rp = Calc.refpack();
 
     host.innerHTML = `
       ${Views.banner('info', t('csTitle'), t('csBody', { d: PORTFOLIO.countryRiskAsOf }))}
-      ${stale ? Views.banner('warn', t('csStaleTtl', { n: asOfMonths }), t('csStaleBody')) : ''}
+      ${rp && rp.anyStale ? Views.banner('warn', t('rpStaleTtl', { n: rp.stale.length }), t('rpStaleBody')) : ''}
+      ${rp ? refpackCard(rp) : ''}
 
       <div class="grid grid-kpi">
         ${statTile({ label: t('csTotal'), value: fmtInt(sum.total), foot: t('csTotalFoot') })}
@@ -141,6 +143,35 @@ const Settings = (() => {
       </div>`;
 
     bind(host);
+  }
+
+  /** Referans veri paketi künyesi — hangi bölüm ne zamana ait, ne kadar eski. */
+  function refpackCard(rp) {
+    return `<div class="card">
+      <div class="card-head">
+        <div style="flex:1;min-width:220px">
+          <h2>${t('rpTitle')}</h2>
+          <div class="subtle">${t('rpVersion')} <b>${esc(rp.version)}</b> · ${esc(rp.compiled)}</div>
+        </div>
+      </div>
+      <div class="card-body flush">
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>${t('rpSection')}</th><th>${t('rpAsOf')}</th><th class="num">${t('rpAge')}</th>
+            <th>${t('rpCadence')}</th><th>${t('status')}</th>
+          </tr></thead>
+          <tbody>${rp.sections.map(b => `<tr>
+            <td><b>${esc(b.label)}</b><div class="subtle">${esc(b.sources)}</div></td>
+            <td class="nowrap">${esc(b.spec.as)}</td>
+            <td class="num nowrap">${b.months === null ? '—' : t('rpMonths', { n: b.months })}</td>
+            <td class="subtle">${esc(b.spec.cadence)}</td>
+            <td>${b.stale
+              ? `<span class="chip chip-high">${Icons.alert()} ${t('rpStale')}</span>`
+              : `<span class="chip chip-ok">${t('rpFresh')}</span>`}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>
+      </div>
+    </div>`;
   }
 
   function row(c, state) {

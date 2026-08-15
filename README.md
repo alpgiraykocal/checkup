@@ -21,6 +21,21 @@ aksiyon kayıtları her zaman aynı iç anahtarlarla tutulur, bu yüzden dil de�
 hesabı ya da kaydı bozmaz — doğrulandı: iki dilde kontrol etkinliği, doğuştan risk ve örneklem
 sonuçları birebir aynı.
 
+## Test
+
+Bağımlılık yok. Node 18+ yeterli:
+
+```bash
+node test/run.js
+```
+
+On paket, yaklaşık 6.100 kontrol: skorlama zinciri, kapsam ve QA matematiği,
+operasyon ve portföy hesapları, altın örnek regresyon çıpası, veri sözleşmesi,
+iki dilde metin örtüsü, **dil sızıntısı denetimi**, birleştirme, bozuk veriye
+dayanıklılık ve dokuz saat dilimli tarih matrisi. Ayrıntı: [test/README.md](test/README.md).
+
+Çalışma kitabı paritesini gerçekten sınamak için: [test/PARITE.md](test/PARITE.md).
+
 ## Veri ve gizlilik
 
 - Tüm veriler yalnızca tarayıcının `localStorage` alanında tutulur; hiçbir ağ isteği yapılmaz (harici font, CDN veya analitik yoktur).
@@ -28,6 +43,35 @@ sonuçları birebir aynı.
 - Tarayıcı verisi temizlenirse çalışma kaybolur — otomatik yedekler de aynı depoda durduğu için onlar da birlikte gider. Her oturum sonunda JSON yedeği alın.
 - Uygulama bunu kendi de takip eder: son JSON yedeğinden bu yana 25 yeni kayıt girildiğinde ya da 7 gün geçtiğinde panoda hatırlatma çıkar, kenar çubuğunda son yedek tarihi görünür ve yedeklenmemiş iş varken sekme kapatılırken tarayıcı onay sorar.
 - Tarayıcı profili paylaşılan bir makinede kullanılıyorsa, veriler o profili açan herkesçe görülebilir.
+- Depolama dolarsa kayıt sessizce başarısız olmaz: uyarı bildirimi ve kenar çubuğunda kalıcı şerit çıkar.
+- Kayıt 250 ms geciktirilerek yazılır; sekme gizlenirken, kapanırken ve sayfa terk edilirken bekleyen yazma tamamlanır.
+
+## Ekip çalışması
+
+Uygulamanın sunucusu yoktur; paralel çalışma dosya üzerinden yürür. **Ekip ve
+Birleştirme** ekranında her domaine sorumlu atanır, herkes kendi payını
+doldurup JSON dışa aktarır, birleştiren kişi dosyaları alan bazında birleştirir.
+Çakışan her parça (iki tarafta da dolu ve farklı) tek tek gösterilir; "gelen"
+seçilen parçada yalnızca gelen dosyada dolu olan alanlar aktarılır. Birleştirme
+öncesi otomatik yedek alınır ve işlem değişiklik günlüğüne yazılır.
+
+## Skorlama yöntemi
+
+Varsayılan yöntem boyut skorlarını faktör ağırlıklarıyla hesaplar ve genel
+skoru beş boyutun düz ortalaması olarak alır — kaynak çalışma kitabının
+yöntemi. **Doğuştan Risk** ekranındaki seçenekle boyutlar iş kolu düzeyinden,
+iş hacmiyle ağırlıklandırılarak toplanabilir (EBA ve Basel yaklaşımı).
+Varsayılan kapalıdır: açıkken sonuç çalışma kitabıyla eşleşmez. Kullanılan
+yöntem yönetici raporuna yazılır ve dönem karşılaştırmasında iki dönemin
+yöntemi farklıysa uyarı çıkar.
+
+## Referans verisinin tazeliği
+
+Kodun değil, dayandığı dış gerçeklerin son kullanma tarihi vardır. Ülke
+bayrakları, mevzuat atıfları ve soru bankası tarihli bir **referans veri
+paketine** bağlıdır (`js/refpack.data.js`); sürüm Ayarlar ekranında ve raporda
+görünür, bir bölüm kendi eşiğini aştığında uyarı çıkar. Güncelleme yordamı:
+[REFERANS.md](REFERANS.md).
 
 ## Akış
 
@@ -43,8 +87,10 @@ sonuçları birebir aynı.
 | 8 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
 | 9 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
 | 10 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
-| 11 | **Dönem Karşılaştırma** | Önceki dönemin çalışma dosyası yüklenir; etkinlik, artık risk, iştah aşımları ve bulgu kapanışı iki dönem yan yana okunur. |
-| 12 | **Yönetici Raporu** | Yazdırma / PDF çıktısı; altında hazırlayan / gözden geçiren / onaylayan imza bloğu. |
+| 11 | **Ekip ve Birleştirme** | Domain bazında sorumlu ataması; paralel çalışılan iki çalışma dosyasının alan bazında birleştirilmesi. Çakışan her parça tek tek gösterilir, sessiz üzerine yazma yoktur. |
+| 12 | **Değişiklik Günlüğü** | Yanıt, doğuştan risk skoru ve bulgu değişikliklerinin kim–ne zaman kaydı. Yalnızca eklenir, düzenlenmez. |
+| 13 | **Dönem Karşılaştırma** | Önceki dönemin çalışma dosyası yüklenir; etkinlik, artık risk, iştah aşımları ve bulgu kapanışı iki dönem yan yana okunur. |
+| 14 | **Yönetici Raporu** | Yazdırma / PDF çıktısı; altında hazırlayan / gözden geçiren / onaylayan imza bloğu. |
 
 Menüde ayrıca **Nasıl Okunur** ekranı vardır: doğuştan risk, beyan ile test edilmiş etkinlik farkı, güvence örtüsü, artık risk, iştah, %95 tavanı ve ölçek eşikleri tek sayfada tanımlanır; her tanım ilgili ekrana bağlanır. Aynı ekranda soru metinlerinde açıklamasız geçen 26 sektör terimi (CBDDQ, nested, payable-through, SoF/SoW, BTL/ATL, %50 kuralı, Travel Rule, unhosted, dual-use, ayna işlem, FOP, KAGK...) tanımlanır ve skor okunurken dikkat edilecek kalibrasyon notları verilir.
 
@@ -259,6 +305,10 @@ js/views.js         Pano, Künye, Doğuştan Risk, Anket, Kontrol Skorları, Art
 js/actions.js       Aksiyon planı (CRUD, SLA, toplu üretim)
 js/extra.js         Ek kontroller ekranı
 js/compare.js       Dönem karşılaştırma (önceki dönem özeti ve fark okuma)
+js/merge.js         Ekip ataması ve alan bazında dosya birleştirme
+js/log.js           Değişiklik günlüğü ekranı
+js/refpack.data.js  Referans veri paketi künyesi (sürüm ve bölüm tarihleri)
+test/               Regresyon paketi — node test/run.js
 js/export.js        JSON/CSV dışa aktarım, yönetici raporu, imza bloğu
 js/app.js           yönlendirme, tema, veri menüsü
 ```

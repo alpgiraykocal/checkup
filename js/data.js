@@ -764,13 +764,14 @@ const DATA = {
    "section": "Uyum Görevlisi",
    "text": "Uyum görevlisi yönetim kuruluna doğrudan raporlama hattına sahip mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Organizasyon şeması, görev tanımı",
    "source": "FATF R.18; Uyum Programı Yön. m.17",
    "qa": false,
    "pop": "",
    "sectionKey": "Uyum Görevlisi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D1-03",
@@ -794,13 +795,14 @@ const DATA = {
    "section": "Uyum Görevlisi",
    "text": "Uyum görevlisi, çıkar çatışması yaratabilecek iş birimi görevlerinden bağımsız mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Görev tanımı, ikincil görev listesi",
    "source": "FATF R.18; Basel AML/CFT Guidelines",
    "qa": false,
    "pop": "",
    "sectionKey": "Uyum Görevlisi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D1-05",
@@ -869,13 +871,14 @@ const DATA = {
    "section": "Uyum Programı",
    "text": "Uyum programı; politika, risk yönetimi, izleme-kontrol, eğitim ve iç denetim bileşenlerinin tamamını kapsıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Uyum programı dokümanı",
    "source": "Uyum Programı Yön. m.4",
    "qa": false,
    "pop": "",
    "sectionKey": "Uyum Programı",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D1-10",
@@ -884,13 +887,14 @@ const DATA = {
    "section": "Politika ve Prosedür",
    "text": "AML/CFT politikası yönetim kurulunca onaylandı ve son 12 ayda gözden geçirildi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Onaylı politika, revizyon tarihi",
    "source": "Uyum Programı Yön. m.5-6",
    "qa": false,
    "pop": "",
    "sectionKey": "Politika ve Prosedür",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D1-11",
@@ -944,13 +948,14 @@ const DATA = {
    "section": "Bağımsız Denetim",
    "text": "AML/CFT iç denetimi yıllık denetim planına dahil mi ve birinci/ikinci hattan bağımsız mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Denetim planı, denetim raporu",
    "source": "FATF R.18; IIA Üç Savunma Hattı",
    "qa": false,
    "pop": "",
    "sectionKey": "Bağımsız Denetim",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D1-15",
@@ -1139,13 +1144,14 @@ const DATA = {
    "section": "PEP",
    "text": "PEP ilişkisinin kurulması ve sürdürülmesi üst düzey yönetici onayına tabi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Onay kayıtları",
    "source": "FATF R.12",
    "qa": true,
    "pop": "Son 12 ayda açılan PEP hesapları",
    "sectionKey": "PEP",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D2-08",
@@ -1154,13 +1160,14 @@ const DATA = {
    "section": "Coğrafi Risk",
    "text": "Yüksek riskli ülke listesi FATF kara/gri liste, AB yüksek riskli üçüncü ülkeler ve kurum içi kriterlerle oluşturuluyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Ülke risk metodolojisi",
    "source": "FATF R.19; AB Delege Tüzükleri",
    "qa": false,
    "pop": "",
    "sectionKey": "Coğrafi Risk",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D2-09",
@@ -1229,13 +1236,14 @@ const DATA = {
    "section": "Muhabir Bankacılık",
    "text": "Muhabir banka ilişkilerinde due diligence anketi (ör. Wolfsberg CBDDQ) alınıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Tamamlanmış CBDDQ dosyaları",
    "source": "FATF R.13; Wolfsberg CBDDQ",
    "qa": true,
    "pop": "Aktif muhabir ilişkileri",
    "sectionKey": "Muhabir Bankacılık",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D2-14",
@@ -1244,13 +1252,14 @@ const DATA = {
    "section": "Muhabir Bankacılık",
    "text": "Muhabir ilişkilerin kurulması üst yönetim onayına tabi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Onay kayıtları",
    "source": "FATF R.13",
    "qa": true,
    "pop": "Son 24 ayda kurulan muhabir ilişkileri",
    "sectionKey": "Muhabir Bankacılık",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D2-15",
@@ -1364,13 +1373,14 @@ const DATA = {
    "section": "Ürün Envanteri",
    "text": "Her ürün için ML/TF doğuştan risk skoru belirlendi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Ürün risk skor tablosu",
    "source": "FATF R.1; EWRA metodolojisi",
    "qa": false,
    "pop": "",
    "sectionKey": "Ürün Envanteri",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D3-03",
@@ -1499,13 +1509,14 @@ const DATA = {
    "section": "Sanal Varlık",
    "text": "Sanal varlık hizmet sağlayıcı (VASP) ilişkileri ayrı bir risk kategorisinde yönetiliyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "VASP müşteri listesi, risk kuralı",
    "source": "FATF R.15 IN",
    "qa": true,
    "pop": "VASP müşterileri",
    "sectionKey": "Sanal Varlık",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D3-12",
@@ -1544,13 +1555,14 @@ const DATA = {
    "section": "Trade Finance",
    "text": "Trade finance ürünleri için ayrı bir AML/yaptırım risk değerlendirmesi yapıldı mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Trade finance risk değerlendirmesi",
    "source": "FATF/Wolfsberg Trade Finance Principles",
    "qa": false,
    "pop": "",
    "sectionKey": "Trade Finance",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D3-15",
@@ -1634,13 +1646,14 @@ const DATA = {
    "section": "İşlem Evreni",
    "text": "İzleme kapsamı dışında bırakılan işlem tipleri gerekçelendirildi ve onaylandı mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Kapsam dışı listesi ve gerekçe",
    "source": "Model risk yönetimi standardı",
    "qa": false,
    "pop": "",
    "sectionKey": "İşlem Evreni",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D4-03",
@@ -1709,13 +1722,14 @@ const DATA = {
    "section": "Veri Kalitesi",
    "text": "Kritik alanların (tutar, para birimi, karşı taraf, ülke, IBAN, unvan) doluluk oranı ölçülüyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Veri kalitesi raporu",
    "source": "BCBS 239 prensipleri",
    "qa": false,
    "pop": "",
    "sectionKey": "Veri Kalitesi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D4-08",
@@ -1784,13 +1798,14 @@ const DATA = {
    "section": "Bağlantı ve Bütünlük",
    "text": "Müşteri statik verisi ile işlem verisi arasındaki eşleştirme doğrulandı mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Eşleştirme test raporu",
    "source": "Model doğrulama standardı",
    "qa": true,
    "pop": "Müşteri-işlem eşleşme örneklemi",
    "sectionKey": "Bağlantı ve Bütünlük",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D4-13",
@@ -1964,13 +1979,14 @@ const DATA = {
    "section": "Müşteri Kabul",
    "text": "Yüksek riskli müşteri kabulü üst düzey yönetici onayına tabi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Onay kayıtları",
    "source": "FATF R.10, R.12",
    "qa": true,
    "pop": "Yüksek riskli yeni müşteriler",
    "sectionKey": "Müşteri Kabul",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D5-07",
@@ -2009,13 +2025,14 @@ const DATA = {
    "section": "Gerçek Faydalanıcı",
    "text": "Trust, vakıf, hamiline yazılı hisse ve nominee yapıları için ek kontroller uygulanıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Ek kontrol prosedürü, örnek dosya",
    "source": "FATF R.24-25",
    "qa": true,
    "pop": "Karmaşık yapılı müşteriler",
    "sectionKey": "Gerçek Faydalanıcı",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D5-10",
@@ -2039,13 +2056,14 @@ const DATA = {
    "section": "Risk Derecelendirme",
    "text": "Müşteri risk derecelendirme modeli yazılı, ağırlıklandırılmış ve onaylı mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Model dokümanı, onay kaydı",
    "source": "FATF R.1",
    "qa": false,
    "pop": "",
    "sectionKey": "Risk Derecelendirme",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D5-12",
@@ -2114,13 +2132,14 @@ const DATA = {
    "section": "EDD",
    "text": "EDD tetikleyicileri yazılı olarak tanımlı mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "EDD prosedürü",
    "source": "FATF R.10, R.12, R.19",
    "qa": false,
    "pop": "",
    "sectionKey": "EDD",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D5-17",
@@ -2144,13 +2163,14 @@ const DATA = {
    "section": "EDD",
    "text": "Servet kaynağı (SoW) beyan dışı bağımsız kanıtla destekleniyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "SoW dosyası",
    "source": "FATF R.12",
    "qa": true,
    "pop": "EDD dosyaları",
    "sectionKey": "EDD",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D5-19",
@@ -2189,13 +2209,14 @@ const DATA = {
    "section": "Periyodik Gözden Geçirme",
    "text": "Periyodik gözden geçirme frekansı risk seviyesine göre farklılaştırılmış mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Frekans tablosu",
    "source": "FATF R.10 IN",
    "qa": false,
    "pop": "",
    "sectionKey": "Periyodik Gözden Geçirme",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D5-22",
@@ -2414,13 +2435,14 @@ const DATA = {
    "section": "Tarama Motoru",
    "text": "Bulanık (fuzzy) eşleşme eşiği kalibre edildi ve gerekçesi dokümante edildi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Kalibrasyon raporu",
    "source": "Model doğrulama standardı",
    "qa": false,
    "pop": "",
    "sectionKey": "Tarama Motoru",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D6-11",
@@ -2564,13 +2586,14 @@ const DATA = {
    "section": "Alert Yönetimi",
    "text": "Alert kapatma kararında dört göz ilkesi uygulanıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Karar kayıtları",
    "source": "İç kontrol standardı",
    "qa": true,
    "pop": "Kapatılan yaptırım alertleri",
    "sectionKey": "Alert Yönetimi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D6-21",
@@ -2579,13 +2602,14 @@ const DATA = {
    "section": "Alert Yönetimi",
    "text": "Aynı kullanıcının hem inceleyip hem onaylaması sistemsel olarak engelleniyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Sistem kuralı, ihlal raporu",
    "source": "Görevler ayrılığı ilkesi",
    "qa": true,
    "pop": "Kapatılan yaptırım alertleri",
    "sectionKey": "Alert Yönetimi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D6-22",
@@ -2594,13 +2618,14 @@ const DATA = {
    "section": "Alert Yönetimi",
    "text": "Alert karar gerekçeleri kim/ne zaman/ne yaptı izini verecek şekilde denetlenebilir mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Audit trail örneği",
    "source": "Denetlenebilirlik standardı",
    "qa": true,
    "pop": "Kapatılan yaptırım alertleri",
    "sectionKey": "Alert Yönetimi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D6-23",
@@ -2639,13 +2664,14 @@ const DATA = {
    "section": "Test ve Süreklilik",
    "text": "Tarama sistemi yılda en az bir kez bağımsız etkinlik testine tabi tutuluyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Test raporu (bilinen isim seti)",
    "source": "Model doğrulama standardı",
    "qa": false,
    "pop": "",
    "sectionKey": "Test ve Süreklilik",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D6-26",
@@ -2669,13 +2695,14 @@ const DATA = {
    "section": "Senaryo Yönetimi",
    "text": "Senaryo envanteri, her senaryonun hedeflediği tipoloji ile eşleştirilmiş mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Senaryo-tipoloji matrisi",
    "source": "Model risk yönetimi",
    "qa": false,
    "pop": "",
    "sectionKey": "Senaryo Yönetimi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-02",
@@ -2744,13 +2771,14 @@ const DATA = {
    "section": "Eşik ve Kalibrasyon",
    "text": "Senaryo eşikleri veri analizine dayalı olarak belirlendi mi?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Eşik belirleme çalışması",
    "source": "Model risk yönetimi",
    "qa": false,
    "pop": "",
    "sectionKey": "Eşik ve Kalibrasyon",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-07",
@@ -2759,13 +2787,14 @@ const DATA = {
    "section": "Eşik ve Kalibrasyon",
    "text": "Eşik ve parametreler son 12-18 ay içinde tuning'e tabi tutuldu mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Tuning raporu",
    "source": "Model risk yönetimi",
    "qa": false,
    "pop": "",
    "sectionKey": "Eşik ve Kalibrasyon",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-08",
@@ -2819,13 +2848,14 @@ const DATA = {
    "section": "Model Validasyon",
    "text": "Model validasyonu birinci ve ikinci hattan bağımsız bir ekip veya taraf tarafından yapılıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Validasyon raporu",
    "source": "Model risk yönetimi",
    "qa": false,
    "pop": "",
    "sectionKey": "Model Validasyon",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-12",
@@ -2864,13 +2894,14 @@ const DATA = {
    "section": "Alert Operasyonu",
    "text": "Bekleyen alert (backlog) sayısı ve yaşlandırması raporlanıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Backlog raporu",
    "source": "İç raporlama",
    "qa": false,
    "pop": "",
    "sectionKey": "Alert Operasyonu",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-15",
@@ -2954,13 +2985,14 @@ const DATA = {
    "section": "Etkinlik Ölçümü",
    "text": "Alert-vaka-ŞİB dönüşüm oranları senaryo, ürün ve analist bazında izleniyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Dönüşüm oranı raporu",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
    "pop": "",
    "sectionKey": "Etkinlik Ölçümü",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-21",
@@ -2984,13 +3016,14 @@ const DATA = {
    "section": "Kalite Kontrol",
    "text": "Analist kararlarının kalitesi düzenli QA örneklemesiyle ölçülüyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "QA test raporu",
    "source": "QA programı",
    "qa": true,
    "pop": "Kapatılan alert ve vakalar",
    "sectionKey": "Kalite Kontrol",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D7-23",
@@ -3029,13 +3062,14 @@ const DATA = {
    "section": "ŞİB Süreci",
    "text": "Şüpheli işlem bildirimi karar süreci (alert - vaka - karar) yazılı olarak tanımlı mı?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Prosedür dokümanı",
    "source": "5549 s.K. m.4; Tedbirler Yön.",
    "qa": false,
    "pop": "",
    "sectionKey": "ŞİB Süreci",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D8-02",
@@ -3074,13 +3108,14 @@ const DATA = {
    "section": "ŞİB Süreci",
    "text": "ŞİB verilmeme kararları da gerekçeli olarak kayıt altına alınıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Karar kayıtları",
    "source": "FATF R.20; denetlenebilirlik",
    "qa": true,
    "pop": "ŞİB verilmeyen kapatılmış vakalar",
    "sectionKey": "ŞİB Süreci",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D8-05",
@@ -3089,13 +3124,14 @@ const DATA = {
    "section": "ŞİB Kalitesi",
    "text": "ŞİB narratifi kim, ne, ne zaman, nerede, ne kadar ve neden şüpheli unsurlarını içeriyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Narratif örnekleri",
    "source": "FATF R.20; FIU rehberleri",
    "qa": true,
    "pop": "Verilen ŞİB dosyaları",
    "sectionKey": "ŞİB Kalitesi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D8-06",
@@ -3119,13 +3155,14 @@ const DATA = {
    "section": "ŞİB Kalitesi",
    "text": "ŞİB'e konu müşteriler için sonraki dönemde artırılmış izleme uygulanıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "İzleme kaydı",
    "source": "FATF R.10 IN",
    "qa": true,
    "pop": "ŞİB verilen müşteriler",
    "sectionKey": "ŞİB Kalitesi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D8-08",
@@ -3284,13 +3321,14 @@ const DATA = {
    "section": "Müşteri Çıkışı",
    "text": "Exit kararlarında ŞİB yükümlülüğünün ayrıca değerlendirildiği belgeleniyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Değerlendirme kaydı",
    "source": "FATF R.20",
    "qa": true,
    "pop": "Exit kararları",
    "sectionKey": "Müşteri Çıkışı",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D8-19",
@@ -3374,13 +3412,14 @@ const DATA = {
    "section": "Denetim Bulguları",
    "text": "Bulgu kapanışları bağımsız olarak yeniden test ediliyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Re-test raporları",
    "source": "İç denetim standardı",
    "qa": true,
    "pop": "Kapatılan bulgular",
    "sectionKey": "Denetim Bulguları",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D9-03",
@@ -3464,13 +3503,14 @@ const DATA = {
    "section": "Kolluk Talepleri",
    "text": "Kolluk talebine konu müşteriler için risk derecelendirmesi ve izleme gözden geçiriliyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Gözden geçirme kaydı",
    "source": "FATF R.10 IN",
    "qa": true,
    "pop": "Kolluk talebine konu müşteriler",
    "sectionKey": "Kolluk Talepleri",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D9-09",
@@ -3734,13 +3774,14 @@ const DATA = {
    "section": "Yönetim Geri Bildirimi",
    "text": "Uyum görevlisi en az yılda bir yönetim kuruluna kapsamlı sunum yapıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "YK toplantı tutanakları",
    "source": "Uyum Programı Yön. m.17",
    "qa": false,
    "pop": "",
    "sectionKey": "Yönetim Geri Bildirimi",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D10-13",
@@ -3779,13 +3820,14 @@ const DATA = {
    "section": "Metodoloji",
    "text": "Kurumsal risk değerlendirmesi yazılı ve onaylı bir metodolojiye dayanıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "EWRA metodoloji dokümanı",
    "source": "FATF R.1; Uyum Programı Yön. m.5",
    "qa": false,
    "pop": "",
    "sectionKey": "Metodoloji",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D11-02",
@@ -3809,13 +3851,14 @@ const DATA = {
    "section": "Kapsam",
    "text": "EWRA müşteri, ürün/hizmet, coğrafya, kanal ve işlem boyutlarının tamamını kapsıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "EWRA raporu",
    "source": "FATF R.1 IN",
    "qa": false,
    "pop": "",
    "sectionKey": "Kapsam",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D11-04",
@@ -3854,13 +3897,14 @@ const DATA = {
    "section": "Skorlama",
    "text": "Doğuştan risk ve kontrol etkinliği ayrı ayrı skorlanıp artık risk hesaplanıyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Skorlama tablosu",
    "source": "FATF R.1; EBA GL",
    "qa": false,
    "pop": "",
    "sectionKey": "Skorlama",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D11-07",
@@ -3869,13 +3913,14 @@ const DATA = {
    "section": "Skorlama",
    "text": "Kontrol etkinliği skoru beyan yerine bağımsız test bulgularıyla destekleniyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Test bulguları referansı",
    "source": "Wolfsberg Effectiveness Statement",
    "qa": false,
    "pop": "",
    "sectionKey": "Skorlama",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D11-08",
@@ -3959,13 +4004,14 @@ const DATA = {
    "section": "Etki",
    "text": "EWRA sonuçları senaryolar, eşikler ve KYC frekanslarını fiilen etkiliyor mu?",
    "weight": 5,
-   "crit": "Kritik",
+   "crit": "Yüksek",
    "evidence": "Değişiklik kayıtları (EWRA referanslı)",
    "source": "FATF R.1 IN",
    "qa": false,
    "pop": "",
    "sectionKey": "Etki",
-   "critKey": "Kritik"
+   "critKey": "Yüksek",
+   "critOriginal": "Kritik"
   },
   {
    "id": "D11-14",
@@ -4712,4 +4758,4 @@ const DATA = {
    "key": "Denetim ve model geçmişi"
   }
  ]
-};
+}

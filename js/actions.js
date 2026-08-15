@@ -18,7 +18,7 @@ const Actions = (() => {
   function view(host, { state, calc }) {
     const list = calc.actions.filter(a => {
       if (filter.status && a.status !== filter.status) return false;
-      if (filter.crit && a.crit !== filter.crit) return false;
+      if (filter.crit && a.crit !== filter.crit) return false;   // dil-güvenli: aksiyon kaydı sabit anahtar saklar
       if (filter.domain && a.domain !== filter.domain) return false;
       if (filter.delay === 'overdue' && a.delay !== 'GECİKMİŞ') return false;
       if (filter.delay === 'open' && a.status === 'Kapalı') return false;
@@ -278,11 +278,19 @@ const Actions = (() => {
             return;
           }
           rec.questionId = rec.questionId.toUpperCase();
+          const oncekiKayit = existing ? JSON.stringify({
+            finding: existing.finding, status: existing.status, crit: existing.crit,
+            owner: existing.owner, due: existing.due
+          }) : '';
+          const sonrakiKayit = JSON.stringify({
+            finding: rec.finding, status: rec.status, crit: rec.crit, owner: rec.owner, due: rec.due
+          });
           Store.update(s => {
             s.actions = s.actions || [];
             const i = s.actions.findIndex(x => x.id === (existing ? existing.id : rec.id));
             if (i >= 0) s.actions[i] = rec; else s.actions.push(rec);
-          });
+          }, { log: { what: existing ? 'action-edit' : 'action-add', ref: rec.id,
+                      before: oncekiKayit, after: sonrakiKayit } });
           UI.closeModal();
           UI.toast(existing ? t('savedUpdated') : t('savedAdded', { id: rec.id }), 'ok');
         });
@@ -297,7 +305,9 @@ const Actions = (() => {
       confirmLabel: t('delete'), danger: true
     });
     if (!ok) return;
-    Store.update(s => { s.actions = (s.actions || []).filter(a => a.id !== id); });
+    const silinen = (Store.state.actions || []).find(a => a.id === id);
+    Store.update(s => { s.actions = (s.actions || []).filter(a => a.id !== id); },
+      { log: { what: 'action-delete', ref: id, before: silinen ? silinen.finding : id, after: '' } });
     UI.toast(t('delDone', { id }));
   }
 

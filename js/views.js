@@ -438,7 +438,8 @@ const Views = (() => {
     const k = calc.kunye;
 
     const groups = DATA.kunyeGroups.map(g => {
-      const fields = DATA.kunyeFields.filter(f => f.group === g.name);
+      // Görünen ad yerine sabit anahtarla eşleştir
+      const fields = DATA.kunyeFields.filter(f => f.groupKey === g.key);
       const done = fields.filter(f => String(state.kunye[f.id] || '').trim()).length;
       return `<div class="card">
         <div class="card-head">
@@ -488,7 +489,9 @@ const Views = (() => {
                   <thead><tr><th>${t('section')}</th><th>${t('rationale')}</th><th class="num">${t('colQuestions')}</th></tr></thead>
                   <tbody>${scoped.map(([key, reason]) => {
                     const [dom, sec] = key.split('|');
-                    const n = DATA.questions.filter(q => q.domain === dom && q.section === sec).length;
+                    // sec bir bölüm anahtarıdır; q.section görünen ad olduğu için
+                    // İngilizcede eşleşmiyor ve sayı 0 çıkıyordu.
+                    const n = DATA.questions.filter(q => q.domain === dom && q.sectionKey === sec).length;
                     const label = (DATA_EN.sections && I18n.isEn) ? (DATA_EN.sections[sec] || sec) : sec;
                     return `<tr><td><b class="mono">${esc(dom)}</b> · ${esc(label)}</td><td>${esc(reason)}</td><td class="num">${n}</td></tr>`;
                   }).join('')}</tbody></table></div>`
@@ -613,6 +616,7 @@ const Views = (() => {
       <div class="grid grid-dims">${dimCards}</div>
       ${pfCard(state, calc)}
       ${linesCard(state, calc)}
+      ${methodOption(state, calc)}
       ${methodCard()}`;
 
     bindInherent(host);
@@ -885,6 +889,42 @@ const Views = (() => {
     </div>`;
   }
 
+  /** Skorlama yöntemi seçeneği — varsayılan kapalı, kararı kurum verir. */
+  function methodOption(state, calc) {
+    const m = calc.method || { weightByExposure: false, applied: false };
+    return `<div class="card">
+      <div class="card-head">
+        <div style="flex:1;min-width:220px">
+          <h2>${t('mtTitle')}</h2>
+          <div class="subtle">${m.applied ? t('mtApplied') : t('mtDefault')}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="flag-list" style="margin-bottom:12px">
+          <label class="flag-chip ${m.weightByExposure ? '' : 'on chip-mid'}">
+            <input type="radio" name="scoremethod" data-method="default" ${m.weightByExposure ? '' : 'checked'}>
+            <span>${t('mtDefault')}</span>
+          </label>
+          <label class="flag-chip ${m.weightByExposure ? 'on chip-mid' : ''}">
+            <input type="radio" name="scoremethod" data-method="exposure" ${m.weightByExposure ? 'checked' : ''}>
+            <span>${t('mtExposure')}</span>
+          </label>
+        </div>
+        <p class="subtle">${esc(m.weightByExposure ? t('mtExposureD') : t('mtDefaultD'))}</p>
+        <p class="subtle">${esc(t('mtWarn'))}</p>
+        ${m.weightByExposure && !m.applied ? Views.banner('warn', t('mtNoData'), t('mtExposureD')) : ''}
+        ${m.applied && calc.exposureDims ? `<div class="table-wrap"><table>
+          <thead><tr><th>${t('dimension')}</th><th class="num">${t('mtDefault')}</th><th class="num">${t('mtExposure')}</th></tr></thead>
+          <tbody>${Calc.DIMS.map(d => `<tr>
+            <td>${esc(I18n.dim(d))}</td>
+            <td class="num">${fmtNum2(calc.inherent.dims[d].value)}</td>
+            <td class="num"><b>${calc.exposureDims[d] ? fmtNum2(calc.exposureDims[d].value) : '—'}</b></td>
+          </tr>`).join('')}</tbody>
+        </table></div>` : ''}
+      </div>
+    </div>`;
+  }
+
   function methodCard() {
     return `<div class="card">
       <div class="card-head"><h2>${t('method')}</h2></div>
@@ -911,11 +951,13 @@ const Views = (() => {
       const sc = e.target.closest('[data-inh-score]');
       if (sc) {
         const key = sc.dataset.inhScore, n = Number(sc.dataset.n);
+        const onceki = Store.state.inherent[key] ?? '';
+        const sonraki = Number(onceki) === n ? '' : n;
         Store.update(s => {
           if (Number(s.inherent[key]) === n) delete s.inherent[key];
           else s.inherent[key] = n;
           delete s.inherentNA[key];
-        });
+        }, { log: { what: 'inherent', ref: key, before: onceki, after: sonraki } });
         return;
       }
       const ap = e.target.closest('[data-inh-apply]');
@@ -927,10 +969,21 @@ const Views = (() => {
       const na = e.target.closest('[data-inh-na]');
       if (na) {
         const key = na.dataset.inhNa;
+        const naOnce = Store.state.inherentNA[key] ? 'Uygulanamaz' : (Store.state.inherent[key] ?? '');
+        const naSonra = Store.state.inherentNA[key] ? '' : 'Uygulanamaz';
         Store.update(s => {
           if (s.inherentNA[key]) delete s.inherentNA[key];
           else { s.inherentNA[key] = true; delete s.inherent[key]; }
-        });
+        }, { log: { what: 'inherent', ref: key, before: naOnce, after: naSonra } });
+        return;
+      }
+      const mt = e.target.closest('[data-method]');
+      if (mt) {
+        const expo = mt.dataset.method === 'exposure';
+        Store.update(s => { s.method = s.method || {}; s.method.weightByExposure = expo; },
+          { log: { what: 'method', ref: 'weightByExposure',
+                   before: String(Boolean(Store.state.method && Store.state.method.weightByExposure)),
+                   after: String(expo) } });
         return;
       }
       const pfs = e.target.closest('[data-pf-score]');
@@ -1082,14 +1135,14 @@ const Views = (() => {
           <label for="f-section">${t('section')}</label>
           <select id="f-section" data-f="section" ${sections.length ? '' : 'disabled'}>
             <option value="">${t('all')}</option>
-            ${sections.map(sec => `<option value="${esc(sec.key)}"${qFilter.section === sec.key ? ' selected' : ''}>${esc(sec.label)}</option>`).join('')}
+            ${/* dil-güvenli: filtre değeri bölüm anahtarıdır */ sections.map(sec => `<option value="${esc(sec.key)}"${qFilter.section === sec.key ? ' selected' : ''}>${esc(sec.label)}</option>`).join('')}
           </select>
         </div>
         <div class="field">
           <label for="f-crit">${t('criticality')}</label>
           <select id="f-crit" data-f="crit">
             <option value="">${t('all')}</option>
-            ${['Kritik', 'Yüksek', 'Orta'].map(c => `<option value="${c}"${qFilter.crit === c ? ' selected' : ''}>${esc(I18n.ref('crit', c))}</option>`).join('')}
+            ${/* dil-güvenli: filtre değeri kritiklik anahtarıdır */ ['Kritik', 'Yüksek', 'Orta'].map(c => `<option value="${c}"${qFilter.crit === c ? ' selected' : ''}>${esc(I18n.ref('crit', c))}</option>`).join('')}
           </select>
         </div>
         <div class="field">
@@ -1218,10 +1271,12 @@ const Views = (() => {
       if (ab) {
         const id = ab.dataset.answer, val = ab.dataset.a;
         // Kaydırma konumu korunsun diye tüm liste değil, yalnızca ilgili kart yenilenir.
+        const oncekiYanit = (Store.state.answers[id] || {}).a || '';
+        const sonrakiYanit = oncekiYanit === val ? '' : val;
         Store.update(s => {
           s.answers[id] = s.answers[id] || {};
-          s.answers[id].a = s.answers[id].a === val ? '' : val;
-        }, { silent: true });
+          s.answers[id].a = sonrakiYanit;
+        }, { silent: true, log: { what: 'answer', ref: id, before: oncekiYanit, after: sonrakiYanit } });
         const fresh = App.recompute();
         ctx.calc = fresh;
         const card = UI.el('#q-' + CSS.escape(id), host);

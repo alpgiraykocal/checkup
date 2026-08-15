@@ -6,6 +6,10 @@ const SNAPSHOT_KEY = 'aml-checkup-snapshots-v1';
 const SNAPSHOT_LIMIT = 5;
 const SNAPSHOT_MIN_GAP_MS = 10 * 60 * 1000;   // aynı oturumda her 10 dakikada bir
 const SCHEMA = 1;
+/* Değişiklik günlüğü sınırı. Denetim izi için yeterince uzun, tarayıcı
+   depolamasını doldurmayacak kadar kısa: 218 soruluk bir çalışmada birkaç
+   tam turu taşır. Sınıra gelince en eski kayıtlar düşer. */
+const LOG_LIMIT = 4000;
 
 const Store = (() => {
   function blank() {
@@ -31,6 +35,9 @@ const Store = (() => {
       kpis: {},              // kpi anahtarı -> {target, value, note}
       signoff: {},           // hazırlayan/gözden geçiren/onaylayan -> {name, date}
       baseline: null,        // önceki dönemin kompakt özeti (Compare.summarize)
+      assign: {},            // domain kodu -> sorumlu adı
+      method: {},            // yöntem seçimleri (weightByExposure)
+      log: [],               // append-only değişiklik kaydı (bkz. logEvent)
       ui: { theme: 'light' }
     };
   }
@@ -50,10 +57,11 @@ const Store = (() => {
 
   function normalize(s) {
     ['kunye', 'inherent', 'inherentNA', 'inherentNotes', 'inherentWeights', 'operations',
-     'countryRisk', 'appetite', 'pf', 'lines', 'answers', 'qaVolumes', 'kpis', 'signoff']
+     'countryRisk', 'appetite', 'pf', 'lines', 'answers', 'qaVolumes', 'kpis', 'signoff', 'assign', 'method']
       .forEach(k => { s[k] = asObj(s[k]); });
 
     s.actions = asRecords(s.actions);
+    s.log = asRecords(s.log).filter(e => e.at && e.what).slice(-LOG_LIMIT);
 
     const p = asObj(s.portfolio);
     s.portfolio = {
@@ -68,6 +76,26 @@ const Store = (() => {
     s.baseline = isObj(s.baseline) ? s.baseline : null;
     s.ui = Object.assign({ theme: 'light' }, asObj(s.ui));
     return s;
+  }
+
+  /* ---------- Değişiklik günlüğü ----------
+     Denetim çıktısı olacak bir dosyada "kim ne zaman ne değiştirdi" bulunmalı.
+     Kayıtlar yalnızca eklenir, hiç düzenlenmez; sınıra gelince en eski düşer.
+     Kim bilgisi künyedeki uyum görevlisi ya da atanan sorumludur — uygulama
+     kimlik doğrulaması yapmaz, bu yüzden alan beyan niteliğindedir. */
+
+  function logEvent(s, what, ref, before, after) {
+    if (!Array.isArray(s.log)) s.log = [];
+    const kim = (s.kunye && (s.kunye.uyum_gorevlisi || s.kunye.degerlendirmeyi_yapan)) || '';
+    const kis = v => {
+      if (v === undefined || v === null || v === '') return '';
+      const t = String(v);
+      return t.length > 120 ? t.slice(0, 117) + '…' : t;
+    };
+    const b = kis(before), a = kis(after);
+    if (b === a) return;                       // gerçek bir değişiklik yoksa kayıt yok
+    s.log.push({ at: new Date().toISOString(), who: kis(kim), what, ref: kis(ref), from: b, to: a });
+    if (s.log.length > LOG_LIMIT) s.log.splice(0, s.log.length - LOG_LIMIT);
   }
 
   /** Kaybı anlamlı olan kayıt sayısı: yanıt + skor + bulgu. */
@@ -192,11 +220,19 @@ const Store = (() => {
     get saveFailed() { return saveFailed; },
     flush,
 
-    /** Değişikliği uygula, kaydet, dinleyicileri uyar. */
+    /** Değişikliği uygula, kaydet, dinleyicileri uyar.
+        opts.log = { what, ref, before, after } verilirse olay günlüğe düşer. */
     update(mutator, opts = {}) {
       mutator(state);
+      if (opts.log) logEvent(state, opts.log.what, opts.log.ref, opts.log.before, opts.log.after);
       persist();
       if (!opts.silent) emit();
+    },
+
+    /** Doğrudan olay yazımı (birleştirme, dosya yükleme gibi toplu işlemler). */
+    log(what, ref, before, after) {
+      logEvent(state, what, ref, before, after);
+      persist();
     },
 
     replace(next) {
@@ -240,6 +276,9 @@ const Store = (() => {
         due: size > 0 && (at ? (since >= 25 || days >= 7) : size >= 15)
       };
     },
+
+    /** Yıkıcı işlemden hemen önce zorunlu yedek (birleştirme gibi). */
+    snapshotNow(reason) { snap(reason || 'auto', true); },
 
     /** Dışarıdan gelen durumu güvenli şekle sokar (Compare de kullanır). */
     normalize(next) { return normalize(Object.assign(blank(), next || {})); },
