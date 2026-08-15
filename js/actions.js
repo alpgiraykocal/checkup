@@ -258,6 +258,12 @@ const Actions = (() => {
             residualAfter: get('residualAfter')
           };
           const problems = [];
+          /* Yeni kayıtta kimlik alanı düzenlenebilir. Var olan bir kimlik
+             yazılırsa eski bulgu sessizce üzerine yazılıyordu — denetim kaydı
+             kaybı. Çakışma açıkça reddedilir. */
+          if (!existing && (Store.state.actions || []).some(a => a.id === rec.id)) {
+            problems.push(['af-id', t('vIdTaken', { id: rec.id })]);
+          }
           if (!rec.finding) problems.push(['af-finding', t('vFinding')]);
           if (!rec.rootCause) problems.push(['af-rootCause', t('vRootCause')]);
           if (!rec.owner) problems.push(['af-owner', t('vOwner')]);

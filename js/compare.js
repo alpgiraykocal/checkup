@@ -221,22 +221,13 @@ const Compare = (() => {
           UI.toast(t('errNotOurs'), 'err'); return;
         }
         // Yüklenen dosya yalnızca özetlenir; çalışan durum değişmez.
-        const prev = Object.assign(blankState(), parsed);
+        // Şekil düzeltmesi Store ile aynı yerden gelir: bozuk dosya çökmemeli.
+        const prev = Store.normalize(parsed);
         Store.update(s => { s.baseline = summarize(prev); });
         UI.toast(t('cmpLoaded'), 'ok');
       };
       reader.readAsText(f);
     });
-  }
-
-  /** Karşılaştırma için okunan dosya, eksik alanlarda varsayılana düşmeli. */
-  function blankState() {
-    return {
-      kunye: {}, inherent: {}, inherentNA: {}, inherentNotes: {}, inherentWeights: {},
-      portfolio: { matrix: {}, segments: {}, countries: [], branches: [] },
-      operations: {}, countryRisk: {}, appetite: {}, pf: {}, lines: {},
-      answers: {}, qaVolumes: {}, actions: [], kpis: {}, ui: {}
-    };
   }
 
   return { view, summarize };

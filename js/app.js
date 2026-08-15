@@ -329,8 +329,24 @@ const App = (() => {
       }
     });
 
+    // Depolama dolduğunda kayıt sessizce başarısız oluyordu; kullanıcı uyarılır.
+    Store.onSaveError(() => {
+      UI.toast(t('saveFailedToast'), 'err');
+      const bar = UI.el('#save-error');
+      if (bar) { bar.textContent = t('saveFailedShort'); bar.hidden = false; }
+    });
+
+    /* Kayıt 250 ms geciktirilerek yazılır; sekme o aralıkta kapanırsa son
+       değişiklik kaybolurdu. Sayfa gizlenirken ve kapanırken bekleyen yazma
+       tamamlanır. visibilitychange mobilde beforeunload'dan güvenilirdir. */
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') Store.flush();
+    });
+    window.addEventListener('pagehide', () => Store.flush());
+
     // Son yedekten sonra iş girilmişse sekme kapanırken tarayıcı onay sorar.
     window.addEventListener('beforeunload', e => {
+      Store.flush();
       const bk = Store.backupStatus();
       if (!bk.size) return;
       if (bk.at && bk.since === 0) return;

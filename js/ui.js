@@ -57,10 +57,12 @@ const UI = (() => {
   const fmtPct1 = v => empty(v) ? '—' : nf(1, 1).format(v * 100) + '%';
   const fmtNum1 = v => empty(v) ? '—' : nf(1, 1).format(v);
   const fmtNum2 = v => empty(v) ? '—' : nf(2, 2).format(v);
+  /* 'YYYY-MM-DD' yerel tarih olarak çözülür; UTC üzerinden geçirilirse
+     UTC'nin gerisindeki saat dilimlerinde bir gün geri gösterilir. */
   const fmtDate = s => {
     if (!s) return '—';
-    const d = new Date(s);
-    return Number.isNaN(d.getTime()) ? s : d.toLocaleDateString(I18n.locale);
+    const d = Calc.parseDate(s);
+    return d === null ? s : d.toLocaleDateString(I18n.locale);
   };
 
   function levelClass(level) {

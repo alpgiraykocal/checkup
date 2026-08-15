@@ -249,6 +249,13 @@ const Exporter = (() => {
   }
 
   /* ---------- Yönetici raporu ---------- */
+
+  /** Alan veri katmanından kalkarsa rapor çökmesin; kimlik yedek etiket olur. */
+  const fieldLabel = id => {
+    const f = DATA.kunyeFields.find(x => x.id === id);
+    return f ? f.label : id;
+  };
+
   function report(host, { state, calc }) {
     const tot = calc.totals, inh = calc.inherent;
     const k = state.kunye;
@@ -298,9 +305,9 @@ const Exporter = (() => {
               if (fd && fd.optionKeys && v) { const i = fd.optionKeys.indexOf(v); if (i >= 0) v = fd.options[i]; }
               return kv(fd ? fd.label : id, v);
             }).join('')}
-            ${kv(DATA.kunyeFields.find(x => x.id === 'toplam_musteri_sayisi').label,
+            ${kv(fieldLabel('toplam_musteri_sayisi'),
                  k.toplam_musteri_sayisi ? UI.fmtInt(Number(k.toplam_musteri_sayisi)) : '')}
-            ${kv(DATA.kunyeFields.find(x => x.id === 'uyum_birimi_kadrosu_fte').label, k.uyum_birimi_kadrosu_fte)}
+            ${kv(fieldLabel('uyum_birimi_kadrosu_fte'), k.uyum_birimi_kadrosu_fte)}
             ${calc.kunye.ratios.filter(r => r.value !== null).map(r =>
               kv(r.label, r.format === 'int' ? UI.fmtInt(Math.round(r.value)) : UI.fmtPct1(r.value))).join('')}
             ${calc.kunye.stale.map(s => kv(s.field.label,

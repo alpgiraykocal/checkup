@@ -38,6 +38,38 @@ const Store = (() => {
   let state = blank();
   const listeners = new Set();
 
+  /* ---------- Şekil düzeltme ----------
+     Dışarıdan yüklenen çalışma dosyası elle düzenlenmiş, yarım yazılmış ya da
+     başka bir sürümden olabilir. Object.assign yalnızca eksik anahtarı doldurur;
+     yanlış tipteki bir anahtar (ör. "actions": {}) olduğu gibi geçer ve hesap
+     katmanında çökmeye yol açar. Şekil burada bir kez düzeltilir. */
+
+  const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const asObj = v => (isObj(v) ? v : {});
+  const asRecords = v => (Array.isArray(v) ? v.filter(isObj) : []);
+
+  function normalize(s) {
+    ['kunye', 'inherent', 'inherentNA', 'inherentNotes', 'inherentWeights', 'operations',
+     'countryRisk', 'appetite', 'pf', 'lines', 'answers', 'qaVolumes', 'kpis', 'signoff']
+      .forEach(k => { s[k] = asObj(s[k]); });
+
+    s.actions = asRecords(s.actions);
+
+    const p = asObj(s.portfolio);
+    s.portfolio = {
+      matrix: asObj(p.matrix), segments: asObj(p.segments),
+      countries: asRecords(p.countries), branches: asRecords(p.branches)
+    };
+
+    // Yanıt kayıtları nesne, ülke kararları bayrak listesi olmalı
+    Object.keys(s.answers).forEach(k => { if (!isObj(s.answers[k])) delete s.answers[k]; });
+    Object.keys(s.countryRisk).forEach(k => { if (!Array.isArray(s.countryRisk[k])) delete s.countryRisk[k]; });
+
+    s.baseline = isObj(s.baseline) ? s.baseline : null;
+    s.ui = Object.assign({ theme: 'light' }, asObj(s.ui));
+    return s;
+  }
+
   /** Kaybı anlamlı olan kayıt sayısı: yanıt + skor + bulgu. */
   function workSize(s) {
     return Object.keys(s.answers || {}).length
@@ -75,8 +107,7 @@ const Store = (() => {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        state = Object.assign(blank(), parsed);
-        state.ui = Object.assign({ theme: 'light' }, parsed.ui || {});
+        state = normalize(Object.assign(blank(), parsed));
         migrateKpiKeys(state);
       }
     } catch (e) {
@@ -117,17 +148,36 @@ const Store = (() => {
   }
 
   let saveTimer = null;
+  let saveFailed = false;
+  const errorListeners = new Set();
+
+  /** Asıl yazma. Kota dolduğunda sessiz kalmaz: uygulama katmanı uyarılır. */
+  function write() {
+    state.updatedAt = new Date().toISOString();
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      snap('auto');
+      saveFailed = false;
+    } catch (e) {
+      // Depolama dolduysa çalışma sessizce kaybolur; kullanıcı bunu bilmeli.
+      const ilk = !saveFailed;
+      saveFailed = true;
+      console.error('Kayıt başarısız', e);
+      if (ilk) errorListeners.forEach(fn => { try { fn(e); } catch { /* dinleyici hatası yutulur */ } });
+    }
+  }
+
   function persist() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      state.updatedAt = new Date().toISOString();
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        snap('auto');
-      } catch (e) {
-        console.error('Kayıt başarısız', e);
-      }
-    }, 250);
+    saveTimer = setTimeout(() => { saveTimer = null; write(); }, 250);
+  }
+
+  /** Bekleyen yazmayı hemen tamamlar — sekme kapanırken çağrılır. */
+  function flush() {
+    if (saveTimer === null) return;
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    write();
   }
 
   function emit() { listeners.forEach(fn => fn(state)); }
@@ -136,6 +186,11 @@ const Store = (() => {
     get state() { return state; },
     init() { load(); return state; },
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+
+    /** Kayıt başarısız olduğunda (ör. depolama dolu) haber verilir. */
+    onSaveError(fn) { errorListeners.add(fn); return () => errorListeners.delete(fn); },
+    get saveFailed() { return saveFailed; },
+    flush,
 
     /** Değişikliği uygula, kaydet, dinleyicileri uyar. */
     update(mutator, opts = {}) {
@@ -146,8 +201,7 @@ const Store = (() => {
 
     replace(next) {
       snap('before-load', true);
-      state = Object.assign(blank(), next);
-      state.ui = Object.assign({ theme: 'light' }, next.ui || {});
+      state = normalize(Object.assign(blank(), next));
       migrateKpiKeys(state);
       persist();
       emit();
@@ -187,6 +241,9 @@ const Store = (() => {
       };
     },
 
+    /** Dışarıdan gelen durumu güvenli şekle sokar (Compare de kullanır). */
+    normalize(next) { return normalize(Object.assign(blank(), next || {})); },
+
     /** Otomatik yedekler — en yeni başta. */
     snapshots() { return readSnapshots().map(({ data, ...meta }) => meta); },
 
@@ -194,8 +251,7 @@ const Store = (() => {
       const rec = readSnapshots().find(x => x.at === at);
       if (!rec) return false;
       snap('before-restore', true);
-      state = Object.assign(blank(), rec.data);
-      state.ui = Object.assign({ theme: 'light' }, rec.data.ui || {});
+      state = normalize(Object.assign(blank(), rec.data));
       migrateKpiKeys(state);
       persist();
       emit();

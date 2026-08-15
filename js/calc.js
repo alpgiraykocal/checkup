@@ -62,12 +62,29 @@ const Calc = (() => {
     return scopeMap.get(q.domain + '|' + q.sectionKey) || null;
   }
 
+  /* ---------- Tarih yardımcıları ----------
+     Tarih alanları 'YYYY-MM-DD' olarak saklanır. new Date('2026-01-01') bunu UTC
+     gece yarısı olarak çözer; yerel saat dilimi UTC'den farklıysa gün kayar ve
+     toISOString() ile geri yazarken tarih bir gün oynar. Bu yüzden çözümleme de
+     biçimleme de yerel bileşenlerle yapılır. */
+
+  function parseDate(str) {
+    if (!str) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(str).trim());
+    const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(str);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function toISODate(d) {
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  }
+
   /* ---------- Künye ---------- */
 
   function monthsSince(dateStr) {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    if (Number.isNaN(d.getTime())) return null;
+    const d = parseDate(dateStr);
+    if (!d) return null;
     const now = new Date();
     return (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth())
       + (now.getDate() < d.getDate() ? -1 : 0);
@@ -112,7 +129,7 @@ const Calc = (() => {
     // Dönem tutarlılığı
     const bas = state.kunye.donem_baslangic, bit = state.kunye.donem_bitis;
     let periodError = null;
-    if (bas && bit && new Date(bit) < new Date(bas)) periodError = T('errPeriod');
+    if (bas && bit && parseDate(bit) < parseDate(bas)) periodError = T('errPeriod');
 
     // Sayısal tutarlılık
     const warnings = [];
@@ -141,8 +158,8 @@ const Calc = (() => {
   }
 
   function fmtTR(iso) {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(I18n.locale);
+    const d = parseDate(iso);
+    return d === null ? iso : d.toLocaleDateString(I18n.locale);
   }
 
   /** Otomatik hesaplanabilen KPI değeri; elle girilen değer varsa o kazanır. */
@@ -164,7 +181,11 @@ const Calc = (() => {
 
   /** 03_Soru_Bankasi G/I/J/R sütunları. */
   function scoreQuestion(q, rec, scopeReason) {
-    const raw = rec && rec.a ? rec.a : '';
+    const stored = rec && rec.a ? rec.a : '';
+    /* Tanınmayan bir yanıt değeri (elle düzenlenmiş dosya, başka sürüm) katsayısız
+       kalır; çarpıma girerse tüm domain skoru sessizce NaN olur. Bu yüzden
+       bilinmeyen değer yanıtlanmamış sayılır. */
+    const raw = Object.prototype.hasOwnProperty.call(ANSWER_COEF, stored) ? stored : '';
     const answer = scopeReason && !raw ? 'Uygulanamaz' : raw;
     const answered = answer !== '';
     const coef = answered ? ANSWER_COEF[answer] : undefined;
@@ -614,7 +635,7 @@ const Calc = (() => {
       let delay = '';
       if (a.due) {
         if (a.status === 'Kapalı') delay = 'Kapalı';
-        else delay = new Date(a.due + 'T00:00:00') < today ? 'GECİKMİŞ' : 'Zamanında';
+        else delay = parseDate(a.due) < today ? 'GECİKMİŞ' : 'Zamanında';
       }
       return Object.assign({}, a, { delay });
     });
@@ -650,17 +671,18 @@ const Calc = (() => {
   function slaDueDate(crit, from) {
     const days = DATA.ref.sla[crit];
     if (!days) return '';
-    const d = from ? new Date(from) : new Date();
+    const d = (from ? parseDate(from) : new Date()) || new Date();
+    d.setHours(12, 0, 0, 0);          // yaz saati geçişinde gün kaymasın
     if (crit === 'Kritik') { // 5 iş günü
       let left = days;
       while (left > 0) { d.setDate(d.getDate() + 1); const w = d.getDay(); if (w !== 0 && w !== 6) left -= 1; }
     } else {
       d.setDate(d.getDate() + days);
     }
-    return d.toISOString().slice(0, 10);
+    return toISODate(d);
   }
 
   return { compute, inherent, pfRisk, businessLines, extra, factorState, kunye, autoKpi, monthsSince,
-           maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite,
+           maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite, parseDate, toISODate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

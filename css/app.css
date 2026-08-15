@@ -190,6 +190,7 @@ a:hover { color: var(--primary-hover); }
 .sidebar-foot { padding: 10px; border-top: 1px solid var(--border-soft); display: grid; gap: 6px; }
 .foot-info { display: grid; gap: 2px; }
 .subtle.is-warn { color: var(--warn); font-weight: 600; }
+.subtle.is-danger { color: var(--danger); font-weight: 650; }
 
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 

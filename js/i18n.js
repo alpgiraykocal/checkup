@@ -40,6 +40,9 @@ const I18n = (() => {
     bkNever:         ['Yedek alınmadı', 'No backup taken'],
     bkUnloadWarn:    ['Son yedekten sonra girilen kayıtlar var.',
                       'There are records entered since the last backup.'],
+    saveFailedToast: ['Kayıt başarısız — tarayıcı depolaması dolu olabilir. Hemen JSON yedeği alın.',
+                      'Save failed — browser storage may be full. Download a JSON backup now.'],
+    saveFailedShort: ['Kayıt başarısız · JSON yedeği alın', 'Save failed · download a JSON backup'],
 
     /* --- Anket gezinme / survey navigation --- */
     qFabRemaining:   ['{n} soru kaldı', '{n} questions left'],
@@ -629,6 +632,8 @@ const I18n = (() => {
     vOwner:        ['Sahip alanı zorunlu.', 'The owner field is required.'],
     vDue:          ['Termin girilmeli.', 'A due date must be entered.'],
     vQuestionId:   ['Girilen soru ID bulunamadı.', 'The question ID entered was not found.'],
+    vIdTaken:      ['{id} kimliği başka bir bulguda kullanılıyor. Var olan kaydı düzenleyin ya da farklı bir kimlik verin.',
+                    '{id} is already used by another finding. Edit the existing record or choose a different ID.'],
     vMissingCount: ['({n} eksik alan)', '({n} fields missing)'],
     savedUpdated:  ['Bulgu güncellendi.', 'Finding updated.'],
     savedAdded:    ['{id} eklendi.', '{id} added.'],
