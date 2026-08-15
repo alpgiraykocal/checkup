@@ -107,6 +107,18 @@ const I18n = (() => {
     gdReadTip: ['Bir sayıya tıklayarak kaynağına gidebilirsiniz: artık risk tablosundaki her satır o alanın sorularını filtreli açar.',
                 'You can go from a number to its source: each row in the residual risk table opens that area\'s questions, filtered.'],
     rrSeeGaps: ['Aşımı besleyen eksik kontrolleri gör', 'See the gaps driving this breach'],
+
+    /* --- Terim sözlüğü / glossary --- */
+    gdGlossTtl: ['Soru metinlerindeki terimler', 'Terms used in the questions'],
+    gdGlossSub: ['Soru bankası sektör kısaltmalarını açıklamadan kullanır; karşılıkları burada',
+                 'The question bank uses industry abbreviations without expanding them; their meanings are here'],
+    gdCalibTtl: ['Skorları okurken dikkat', 'Reading the scores with care'],
+    gdCalibCrit:['Soru bankasının {n} sorusu "Kritik" ({p}). Kritik oranı bu kadar yüksekken "açık kritik kontrol" sayısı tek başına önceliklendirme aracı değildir; listeyi domain ve artık risk ile birlikte okuyun.',
+                 '{n} questions in the bank are rated "Critical" ({p}). With criticality this widespread, the open-critical count alone is not a prioritisation tool; read the list together with domain and residual risk.'],
+    gdCalibQa:  ['QA örneklem oranları risk katmanına göre sabitlenmiştir (çok yüksek riskli popülasyonlarda %100, yükseklerde %10–15, standartta %2–5) ve asgari adetle desteklenir. Bunlar istatistiksel güven düzeyine göre değil, denetim pratiğine göre belirlenmiş oranlardır; belirli bir güven düzeyi/hata payı iddia edilecekse örneklem büyüklüğü ayrıca hesaplanmalıdır.',
+                 'QA sampling rates are fixed by risk tier (100% for very high-risk populations, 10–15% for high, 2–5% for standard) and backed by a minimum count. These are audit-practice rates, not statistically derived ones; if a specific confidence level or margin of error is to be claimed, the sample size must be calculated separately.'],
+    gdCalibExtra:['Ek kontroller seti ana skora karışmaz. Kurumun genel etkinliği ana bankadan, ek setin etkinliği kendi satırından okunur; ikisi toplanmaz.',
+                  'The extra controls set does not mix into the main score. Overall effectiveness is read from the main bank and the extra set from its own line; the two are not added together.'],
     emptyDashNote: ['Skor kutuları, ısı haritası ve KPI tablosu ilk veriyi girdiğinizde burada belirir.',
                     'The score tiles, heat map and KPI table appear here once you enter the first data.'],
 
@@ -151,6 +163,28 @@ const I18n = (() => {
     cmpManageTtl:['Referans dönem', 'Reference period'],
     cmpManageBody:['Başka bir dosyayla karşılaştırmak için referansı değiştirin.',
                    'Replace the reference to compare against a different file.'],
+
+    /* --- Ek kontroller / supplementary controls --- */
+    navExtra:   ['Ek Kontroller', 'Extra Controls'],
+    ttlExtra:   ['Ek Kontroller — Tamamlayıcı Set', 'Extra Controls — Supplementary Set'],
+    subExtra:   ['Ana skorun dışında, kendi oranıyla raporlanır', 'Outside the main score, reported on its own rate'],
+    exIntroTtl: ['Bu set ana skora karışmaz', 'This set does not mix into the main score'],
+    exIntroBody:['Buradaki sorular kaynak çalışma kitabının dışındadır: terör finansmanının kontrol tarafı, personel ve dahili bildirim hattı, yaptırım lookback ile model yönetişimi ve banka dışı yükümlü tiplerine özgü kontroller. Ana soru bankasının paydasına girmez; girseydi domain etkinlikleri kayar, hem çalışma kitabıyla eşleşme hem de önceki dönemle karşılaştırma bozulurdu. Kendi kapsama ve etkinlik oranıyla raporlanır.',
+                 'These questions sit outside the source workbook: the control side of terrorist financing, the personnel and internal reporting line, sanctions lookback and model governance, and controls specific to non-bank obliged parties. They do not enter the main question bank\'s denominator; if they did, domain effectiveness would shift and both workbook parity and comparison with the previous period would break. They are reported on their own coverage and effectiveness rate.'],
+    exWhySet:   ['Bu set neden var', 'Why this set exists'],
+    exScopeType:['Bu set yalnızca belirli yükümlü tiplerinde sorulur; künyedeki tip: {t}',
+                 'This set applies only to certain obliged party types; the type on the profile is: {t}'],
+    exScopeActivity:['Künyede bu faaliyet "Hayır" işaretli: {s}', 'This activity is marked "No" on the profile: {s}'],
+    exOutOfScope:['Kapsam dışı', 'Out of scope'],
+    exActiveSets:['Geçerli set', 'Applicable sets'],
+    exSetsFoot: ['{n} setin {m} tanesi künyenize göre geçerli', '{m} of {n} sets apply to your profile'],
+    exCoverage: ['Ek set kapsaması', 'Extra set coverage'],
+    exEff:      ['Ek set etkinliği', 'Extra set effectiveness'],
+    exNotInMain:['Ana skora dahil değil', 'Not included in the main score'],
+    exSetCol:   ['Kontrol seti', 'Control set'],
+    exEmptyTtl: ['Ek kontroller henüz yanıtlanmadı', 'Extra controls not answered yet'],
+    exEmptyBody:['Ana anketi bitirdikten sonra bu seti doldurmak, denetimde en sık sorulan ama soru bankasında bulunmayan alanları kapatır.',
+                 'Completing this set after the main questionnaire closes the areas most often asked in an examination but absent from the question bank.'],
 
     /* --- İmza bloğu / sign-off --- */
     signTtl:     ['Onay ve imza', 'Sign-off'],

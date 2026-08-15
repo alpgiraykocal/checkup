@@ -4603,6 +4603,10 @@ const DATA = {
     [
      "D6",
      "Trade Finance"
+    ],
+    [
+     "D3",
+     "Trade Finance"
     ]
    ],
    "label": "Trade finance"

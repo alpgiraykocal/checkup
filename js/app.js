@@ -9,6 +9,7 @@ const App = (() => {
     { id: 'islem', key: 'Operations', icon: 'activity', group: 'groupInput', view: Operations.view },
     { id: 'dogustan', key: 'Inherent', icon: 'gauge', group: 'groupInput', view: Views.inherent },
     { id: 'anket', key: 'Survey', icon: 'list', group: 'groupInput', view: Views.questions },
+    { id: 'ek', key: 'Extra', icon: 'plus', group: 'groupInput', view: Extra.view },
     { id: 'qa', key: 'Qa', icon: 'flask', group: 'groupInput', view: Views.qa },
     { id: 'skorlar', key: 'Scores', icon: 'layers', group: 'groupResult', view: Views.domainScores },
     { id: 'artik', key: 'Residual', icon: 'target', group: 'groupResult', view: Views.residual },

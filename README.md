@@ -38,14 +38,30 @@ sonuçları birebir aynı.
 | 3 | **Doğuştan Risk** | 5 ML/TF boyutu ve 25 alt faktör, ayrıca 5 faktörlü PF bloğu ve 12 iş kollu değerlendirme matrisi. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
 | 4 | **İşlem Detayı** | 8 grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması ve blokaj, trade finance, muhabir bankacılık, izleme, ŞİB/dondurma/kolluk, müşteri kabul, kalite güvence. 16 türetilen oran hesaplanır; 12 KPI otomatik dolar. |
 | 5 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. Bölüm başlığı kaydırırken ekranda kalır, sabit "sonraki yanıtlanmamış" düğmesi kalan soru sayısını gösterir, filtreler adres satırında taşınır (`#/anket?d=D6&st=gap` gibi bir bağlantı paylaşılabilir ve yenilemeye dayanır). |
-| 6 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
-| 7 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
-| 8 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
-| 9 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
-| 10 | **Dönem Karşılaştırma** | Önceki dönemin çalışma dosyası yüklenir; etkinlik, artık risk, iştah aşımları ve bulgu kapanışı iki dönem yan yana okunur. |
-| 11 | **Yönetici Raporu** | Yazdırma / PDF çıktısı; altında hazırlayan / gözden geçiren / onaylayan imza bloğu. |
+| 6 | **Ek Kontroller** | Kaynak çalışma kitabının dışındaki 8 tamamlayıcı set, 44 soru. Ana skorun paydasına girmez. |
+| 7 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
+| 8 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
+| 9 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
+| 10 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
+| 11 | **Dönem Karşılaştırma** | Önceki dönemin çalışma dosyası yüklenir; etkinlik, artık risk, iştah aşımları ve bulgu kapanışı iki dönem yan yana okunur. |
+| 12 | **Yönetici Raporu** | Yazdırma / PDF çıktısı; altında hazırlayan / gözden geçiren / onaylayan imza bloğu. |
 
-Menüde ayrıca **Nasıl Okunur** ekranı vardır: doğuştan risk, beyan ile test edilmiş etkinlik farkı, güvence örtüsü, artık risk, iştah, %95 tavanı ve ölçek eşikleri tek sayfada tanımlanır; her tanım ilgili ekrana bağlanır.
+Menüde ayrıca **Nasıl Okunur** ekranı vardır: doğuştan risk, beyan ile test edilmiş etkinlik farkı, güvence örtüsü, artık risk, iştah, %95 tavanı ve ölçek eşikleri tek sayfada tanımlanır; her tanım ilgili ekrana bağlanır. Aynı ekranda soru metinlerinde açıklamasız geçen 26 sektör terimi (CBDDQ, nested, payable-through, SoF/SoW, BTL/ATL, %50 kuralı, Travel Rule, unhosted, dual-use, ayna işlem, FOP, KAGK...) tanımlanır ve skor okunurken dikkat edilecek kalibrasyon notları verilir.
+
+## Ek kontroller
+
+Uyum görevlisi gözüyle yapılan kapsam incelemesinde ana soru bankasının dört alanı kapsamadığı görüldü. Bu alanlar **ayrı bir set** olarak eklendi — 8 set, 44 soru:
+
+| Set | Kapsam | Neden ayrı |
+|---|---|---|
+| Terör Finansmanı ve KAGK | TF'ye özgü senaryo ve eşikler, KAGK müşteri yönetimi, çatışma bölgesi transferleri, düşük tutar/yüksek frekans toplama örüntüleri, 6415 listeleri | Ana banka TF'yi yalnızca EWRA düzeyinde soruyordu; kontrol tarafı yoktu (FATF R.5, R.8) |
+| Personel ve Dahili Bildirim | İşe alımda uygunluk taraması, kritik rollerde yeniden tarama, çalışan hesap izleme, dahili şüphe bildirim kanalı ve kaybolan bildirim kontrolü | FATF R.18 personel taraması hiç sorulmuyordu; dahili bildirim yalnızca sayı olarak izleniyordu |
+| Yaptırım Lookback ve Model Yönetişimi | Listeye giriş sonrası geçmiş işlem taraması ve penceresi, AI/ML model envanteri, açıklanabilirlik, drift, yanlılık, insan gözetimi | Yeniden tarama yalnızca müşteri tabanı için soruluyordu; model soruları klasik validasyonla sınırlıydı |
+| Sektöre özgü (5 set) | Sigorta/emeklilik (lehtar, iştira, üçüncü taraf primi), e-para ve ödeme (dağıtıcı ağı, ön ödemeli limitler, P2P mesaj bütünlüğü), VASP (karşı VASP doğrulaması, adres taraması, mixer/chain-hopping), yetkili müessese (eşik altı toplama), aracı kurum ve portföy (varlık transferi, ayna işlem, FOP) | Soru bankası banka merkezliydi; künye 16 yükümlü tipi sunuyor |
+
+Setler künyedeki **yükümlü tipine ve faaliyet sorularına** göre otomatik açılıp kapanır: banka için üç evrensel set, sigorta şirketi için ek olarak sigorta seti geçerli olur.
+
+**Skorlaması ana skordan ayrıdır.** Ek sorular 218 soruluk bankanın paydasına girseydi domain etkinlikleri kayar, hem kaynak çalışma kitabıyla birebir eşleşme hem de önceki dönem dosyalarıyla karşılaştırma kopardı. Bu set kendi kapsama ve etkinlik oranıyla panoda bir kutucuk ve yönetici raporunda ayrı bir tablo olarak görünür; soru CSV'sinde set adıyla işaretlenmiş satırlar hâlinde yer alır.
 
 QA testi sonucunda beyan ile dosya bulgusu çelişiyorsa ilgili sorunun yanıtı "Kısmen" veya "Hayır" olarak güncellenmelidir. Anket beyanı tek başına kontrol etkinliği sayılmaz.
 
@@ -226,6 +242,7 @@ index.html          kabuk, gezinme, dil değiştirici
 css/app.css         tasarım sistemi, açık/koyu tema, yazdırma stilleri
 js/countries.js     ISO 3166-1 ülke listesi ve varsayılan risk işaretleri
 js/riskmodel.data.js PF faktörleri ve iş kolu tanımları
+js/extra.data.js    ek kontrol setleri (8 set, 44 soru) ve terim sözlüğü (26 terim)
 js/settings.js      ülke risk ayarları ekranı ve ortak ülke çözümleyici
 js/operations.data.js işlem/operasyon ölçüt tanımları
 js/operations.js    işlem detayı ekranı ve türetilen oranlar
@@ -240,6 +257,7 @@ js/calc.js          skorlama motoru
 js/ui.js            ikonlar, biçimlendirme, modal, toast
 js/views.js         Pano, Künye, Doğuştan Risk, Anket, Kontrol Skorları, Artık Risk, QA, Nasıl Okunur
 js/actions.js       Aksiyon planı (CRUD, SLA, toplu üretim)
+js/extra.js         Ek kontroller ekranı
 js/compare.js       Dönem karşılaştırma (önceki dönem özeti ve fark okuma)
 js/export.js        JSON/CSV dışa aktarım, yönetici raporu, imza bloğu
 js/app.js           yönlendirme, tema, veri menüsü

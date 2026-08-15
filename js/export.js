@@ -84,6 +84,18 @@ const Exporter = (() => {
           s.actionNeeded === 'EVET - ÖNCELİKLİ' ? t('priorityAction') : s.actionNeeded ? I18n.ref('answers', s.actionNeeded) : '',
           s.scopeReason || '']);
       });
+      // Ek kontroller aynı dosyada, set adıyla işaretlenerek devam eder.
+      if (calc.extra) {
+        calc.extra.sets.forEach(set => set.questions.forEach(({ q, st }) => {
+          rows.push([q.id, q.domain, I18n.isEn ? set.spec.en : set.spec.tr, t('navExtra'),
+            I18n.isEn ? q.en : q.tr, I18n.ref('answers', st.answer), dec(st.coef), q.weight,
+            dec(st.applicableWeight || ''), dec(st.earned || ''), I18n.ref('crit', q.crit),
+            I18n.isEn ? q.enEvidence : q.trEvidence, q.source,
+            q.qa ? yes : no, '', (state.answers[q.id] || {}).evidence || '', '',
+            st.actionNeeded === 'EVET - ÖNCELİKLİ' ? t('priorityAction') : st.actionNeeded ? I18n.ref('answers', st.actionNeeded) : '',
+            st.scopeReason || '']);
+        }));
+      }
     } else if (kind === 'domains') {
       name = t('fileDomains');
       rows = [[H('code'), H('domain'), H('questionCount'), H('answeredCount'), H('notApplicable'),
@@ -393,6 +405,29 @@ const Exporter = (() => {
             <tbody>${overdue.map(a => `<tr><td class="mono">${esc(a.id)}</td><td>${esc(a.finding)}</td>
               <td>${esc(a.owner || '—')}</td><td>${fmtDate(a.due)}</td><td>${critChip(a.crit)}</td></tr>`).join('')}
             </tbody></table></div>` : ''}
+
+          ${calc.extra && calc.extra.totals.answered ? `
+          <div class="divider"></div>
+          <h3>${t('navExtra')}</h3>
+          <p class="subtle">${t('exNotInMain')}.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>${t('exSetCol')}</th><th class="num">${t('colAnswers')}</th>
+              <th class="num">${t('colEffTested')}</th><th>${t('maturityLabel')}</th><th class="num">${t('colOpenCrit')}</th></tr></thead>
+            <tbody>${calc.extra.sets.filter(s => !s.outOfScope).map(s => `<tr>
+              <td>${esc(I18n.isEn ? s.spec.en : s.spec.tr)}</td>
+              <td class="num">${fmtInt(s.answered)} / ${fmtInt(s.count)}</td>
+              <td class="num"><span class="heat-cell score-pill ${effClass(s.effectivenessTested)}">${fmtPct(s.effectivenessTested)}</span></td>
+              <td>${esc(s.maturity ? I18n.ref('maturity', s.maturity) : '—')}</td>
+              <td class="num">${fmtInt(s.openCritical)}</td></tr>`).join('')}
+            </tbody>
+            <tfoot><tr>
+              <td>${t('totalRow')}</td>
+              <td class="num">${fmtInt(calc.extra.totals.answered)} / ${fmtInt(calc.extra.totals.count)}</td>
+              <td class="num">${fmtPct(calc.extra.totals.effectivenessTested)}</td>
+              <td>${esc(calc.extra.totals.maturity ? I18n.ref('maturity', calc.extra.totals.maturity) : '—')}</td>
+              <td class="num">${fmtInt(calc.extra.totals.openCritical)}</td>
+            </tr></tfoot>
+          </table></div>` : ''}
 
           <div class="divider"></div>
           <h3>${t('signTtl')}</h3>

@@ -391,6 +391,75 @@ const Calc = (() => {
     };
   }
 
+  /* ---------- Ek kontroller ----------
+     Kaynak çalışma kitabının dışındaki tamamlayıcı set. Ana skorun paydasına
+     GİRMEZ: girseydi domain etkinlikleri kayar, hem kitapla eşleşme hem de
+     önceki dönem dosyalarıyla karşılaştırma kopardı. Kendi oranıyla raporlanır. */
+
+  function extra(state) {
+    if (typeof EXTRA === 'undefined') return null;
+    const type = state.kunye.yukumlu_tipi || '';
+
+    const sets = EXTRA.sets.map(s => {
+      // Yükümlü tipi eşleşmiyorsa ya da faaliyet yoksa set tümüyle kapsam dışı
+      const typeOut = Array.isArray(s.types) && s.types.length > 0 && !s.types.includes(type);
+      const actOut = Boolean(s.activity && (state.kunye[s.activity] || '') === 'Hayır');
+      const outOfScope = typeOut || actOut;
+
+      let answered = 0, appW = 0, earned = 0, earnedTested = 0, openCrit = 0, actions = 0, na = 0;
+      let qaReq = 0, qaDone = 0;
+
+      const questions = s.questions.map(q => {
+        const rec = state.answers[q.id];
+        const spec = { weight: q.weight, critKey: q.crit, qa: q.qa };
+        // Kapsam dışı set, elle yanıtlanmadıysa "Uygulanamaz" sayılır.
+        const st = scoreQuestion(spec, rec, outOfScope ? scopeReason(s, typeOut, type) : null);
+        if (st.answered) answered += 1;
+        if (st.coef === null && st.answered) na += 1;
+        appW += st.applicableWeight;
+        earned += st.earned;
+        earnedTested += st.earnedTested;
+        if (st.openCritical) openCrit += 1;
+        if (st.actionNeeded && st.actionNeeded !== 'Hayır') actions += 1;
+        if (q.qa) { qaReq += 1; if (st.qaResult && st.qaResult !== 'Test edilmedi') qaDone += 1; }
+        return { q, st };
+      });
+
+      return {
+        spec: s, outOfScope, typeOut, actOut, questions,
+        count: s.questions.length, answered, na,
+        applicableWeight: appW, earned, earnedTested,
+        effectiveness: appW ? earned / appW : null,
+        effectivenessTested: appW ? earnedTested / appW : null,
+        maturity: maturity(appW ? earnedTested / appW : null),
+        assurance: qaReq ? qaDone / qaReq : null,
+        openCritical: openCrit, actionsNeeded: actions,
+        progress: s.questions.length ? answered / s.questions.length : 0
+      };
+    });
+
+    const live = sets.filter(s => !s.outOfScope);
+    const t = live.reduce((a, s) => {
+      a.count += s.count; a.answered += s.answered; a.na += s.na;
+      a.applicableWeight += s.applicableWeight; a.earned += s.earned; a.earnedTested += s.earnedTested;
+      a.openCritical += s.openCritical; a.actionsNeeded += s.actionsNeeded;
+      return a;
+    }, { count: 0, answered: 0, na: 0, applicableWeight: 0, earned: 0, earnedTested: 0, openCritical: 0, actionsNeeded: 0 });
+
+    t.effectiveness = t.applicableWeight ? t.earned / t.applicableWeight : null;
+    t.effectivenessTested = t.applicableWeight ? t.earnedTested / t.applicableWeight : null;
+    t.maturity = maturity(t.effectivenessTested);
+    t.progress = t.count ? t.answered / t.count : 0;
+
+    return { sets, totals: t, activeSets: live.length, totalSets: sets.length };
+  }
+
+  function scopeReason(set, typeOut, type) {
+    return typeOut
+      ? I18n.t('exScopeType', { t: type || '—' })
+      : I18n.t('exScopeActivity', { s: I18n.isEn ? set.en : set.tr });
+  }
+
   /* ---------- Tam hesap ---------- */
 
   function compute(state) {
@@ -568,6 +637,7 @@ const Calc = (() => {
       },
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
       operations: (typeof Operations !== 'undefined') ? Operations.compute(state) : null,
+      extra: extra(state),
       inherent: inh, pf, lines, residual, pfLine, generalResidual,
       domainAvgResidual, worstDomain, masksBreach,
       maxControlEffect: MAX_CONTROL_EFFECT,
@@ -590,7 +660,7 @@ const Calc = (() => {
     return d.toISOString().slice(0, 10);
   }
 
-  return { compute, inherent, pfRisk, businessLines, factorState, kunye, autoKpi, monthsSince,
+  return { compute, inherent, pfRisk, businessLines, extra, factorState, kunye, autoKpi, monthsSince,
            maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

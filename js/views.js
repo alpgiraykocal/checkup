@@ -63,7 +63,15 @@ const Views = (() => {
         label: t('kpiClosureRate'), value: fmtPct(calc.actionStats.closureRate),
         foot: `${fmtInt(calc.actionStats.closed)} / ${fmtInt(calc.actionStats.total)} ${t('closedOfTotal')}` + meter(calc.actionStats.closureRate)
       })
-    ].join('');
+    ].concat(calc.extra && calc.extra.totals.count ? [
+      statTile({
+        label: t('exEff'), value: fmtPct1(calc.extra.totals.effectivenessTested),
+        tone: calc.extra.totals.effectivenessTested === null ? ''
+          : calc.extra.totals.effectivenessTested >= 0.75 ? 'ok' : calc.extra.totals.effectivenessTested >= 0.6 ? 'warn' : 'danger',
+        foot: `${fmtInt(calc.extra.totals.answered)}/${fmtInt(calc.extra.totals.count)} · ${t('exNotInMain')}`
+          + meter(calc.extra.totals.progress)
+      })
+    ] : []).join('');
 
     const banners = [];
     // Veri kaybı en pahalı hata; hatırlatma diğer uyarıların önüne geçer.
@@ -1636,6 +1644,34 @@ const Views = (() => {
             <li>${esc(t('gdF4'))}</li>
           </ul>
           <p class="subtle" style="margin-top:10px">${esc(t('gdReadTip'))}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div style="flex:1;min-width:220px">
+            <h2>${t('gdGlossTtl')}</h2>
+            <div class="subtle">${t('gdGlossSub')}</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap"><table>
+            <thead><tr><th style="width:26%">${t('gdTerm')}</th><th>${t('gdMeans')}</th></tr></thead>
+            <tbody>${(typeof GLOSSARY === 'undefined' ? [] : GLOSSARY).map(g =>
+              `<tr><td><b>${esc(g.k)}</b></td><td>${esc(I18n.isEn ? g.en : g.tr)}</td></tr>`).join('')}</tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>${t('gdCalibTtl')}</h2></div>
+        <div class="card-body">
+          ${(() => {
+            const crit = DATA.questions.filter(q => q.critKey === 'Kritik').length;
+            return `<p>${esc(t('gdCalibCrit', { n: crit, p: fmtPct(crit / DATA.questions.length) }))}</p>`;
+          })()}
+          <p>${esc(t('gdCalibQa'))}</p>
+          <p class="subtle">${esc(t('gdCalibExtra'))}</p>
         </div>
       </div>
 
