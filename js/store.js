@@ -28,13 +28,22 @@ const Store = (() => {
       answers: {},           // soruId -> {a, evidence, note, qaResult, qaNote}
       qaVolumes: {},         // popülasyon adı -> yıllık hacim
       actions: [],           // bulgu/aksiyon kayıtları
-      kpis: {},              // kpi adı -> {target, value, note}
+      kpis: {},              // kpi anahtarı -> {target, value, note}
+      signoff: {},           // hazırlayan/gözden geçiren/onaylayan -> {name, date}
+      baseline: null,        // önceki dönemin kompakt özeti (Compare.summarize)
       ui: { theme: 'light' }
     };
   }
 
   let state = blank();
   const listeners = new Set();
+
+  /** Kaybı anlamlı olan kayıt sayısı: yanıt + skor + bulgu. */
+  function workSize(s) {
+    return Object.keys(s.answers || {}).length
+      + Object.keys(s.inherent || {}).length
+      + (s.actions || []).length;
+  }
 
   /* KPI kayıtları bir dönem görünen ada göre saklandı; İngilizce arayüzde girilen
      değerler ayrı bir kayda düşüyordu. Anahtar artık her zaman DATA.kpis[].key
@@ -154,6 +163,28 @@ const Store = (() => {
     /** Dışa aktarım için tam anlık görüntü. */
     snapshot() {
       return JSON.parse(JSON.stringify(state));
+    },
+
+    /** JSON yedeği alındı: zamanı ve o andaki iş hacmi işaretlenir. */
+    markExported() {
+      state.ui = state.ui || {};
+      state.ui.lastExport = new Date().toISOString();
+      state.ui.lastExportSize = workSize(state);
+      persist();
+      emit();
+    },
+
+    /** Son yedekten bu yana biriken iş — hatırlatma eşiği buna bakar. */
+    backupStatus() {
+      const size = workSize(state);
+      const at = state.ui && state.ui.lastExport;
+      const since = size - ((state.ui && state.ui.lastExportSize) || 0);
+      const days = at ? (Date.now() - new Date(at).getTime()) / 86400000 : null;
+      return {
+        size, at: at || null, since: Math.max(0, since), days,
+        // Hiç yedek yoksa 15 kayıt, varsa 25 yeni kayıt ya da 7 gün.
+        due: size > 0 && (at ? (since >= 25 || days >= 7) : size >= 15)
+      };
     },
 
     /** Otomatik yedekler — en yeni başta. */

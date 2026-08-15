@@ -3,6 +3,7 @@
 const App = (() => {
   const ROUTES = [
     { id: 'pano', key: 'Dash', icon: 'dashboard', group: 'groupGeneral', view: Views.dashboard },
+    { id: 'nasil', key: 'Guide', icon: 'info', group: 'groupGeneral', view: Views.guide },
     { id: 'kunye', key: 'Kunye', icon: 'building', group: 'groupInput', view: Views.kunye },
     { id: 'portfoy', key: 'Portfolio', icon: 'users', group: 'groupInput', view: Portfolio.view },
     { id: 'islem', key: 'Operations', icon: 'activity', group: 'groupInput', view: Operations.view },
@@ -12,6 +13,7 @@ const App = (() => {
     { id: 'skorlar', key: 'Scores', icon: 'layers', group: 'groupResult', view: Views.domainScores },
     { id: 'artik', key: 'Residual', icon: 'target', group: 'groupResult', view: Views.residual },
     { id: 'aksiyon', key: 'Actions', icon: 'clipboard', group: 'groupResult', view: Actions.view },
+    { id: 'karsilastir', key: 'Compare', icon: 'reset', group: 'groupResult', view: Compare.view },
     { id: 'rapor', key: 'Report', icon: 'print', group: 'groupResult', view: Exporter.report },
     { id: 'ayarlar', key: 'Settings', icon: 'sliders', group: 'groupSettings', view: Settings.view }
   ];
@@ -24,9 +26,23 @@ const App = (() => {
   let current = 'pano';
   let calc = null;
 
+  /* Adres "#/anket?d=D6&st=unanswered" biçiminde olabilir: ekran kimliği
+     sorgudan ayrılır, sorgu ekranın kendi durumunu (filtre vb.) taşır. */
   function route() {
-    const hash = (location.hash || '').replace('#/', '');
+    const hash = (location.hash || '').replace('#/', '').split('?')[0];
     return ROUTES.find(r => r.id === hash) ? hash : 'pano';
+  }
+
+  /** Geçerli ekranın adres sorgusu. */
+  function routeQuery() {
+    return new URLSearchParams((location.hash || '').split('?')[1] || '');
+  }
+
+  /** Sorguyu yeniden çizim tetiklemeden yazar — geçmişte yığılma da yapmaz. */
+  function setRouteQuery(params) {
+    const q = params.toString();
+    const next = '#/' + current + (q ? '?' + q : '');
+    if (location.hash !== next) history.replaceState(null, '', next);
   }
 
   function badges(r) {
@@ -97,6 +113,14 @@ const App = (() => {
 
   function recompute() { calc = Calc.compute(Store.state); return calc; }
 
+  /** Yapışkan bölüm başlıkları üst barın altına oturmalı; yükseklik sarma
+      durumuna göre değiştiği için ölçülüp CSS değişkenine yazılır. */
+  function measureChrome() {
+    const bar = UI.el('.topbar');
+    if (!bar) return;
+    document.documentElement.style.setProperty('--topbar-h', Math.round(bar.getBoundingClientRect().height) + 'px');
+  }
+
   /** Kenar çubuğu rozetleri ve kayıt zamanı — tam yeniden çizim olmadan tazelenir. */
   function refreshChrome() {
     renderNav();
@@ -109,6 +133,14 @@ const App = (() => {
     UI.el('#saved-at').textContent = saved
       ? `${t('lastSave')} ${new Date(saved).toLocaleTimeString(I18n.locale)}`
       : t('noSave');
+
+    // Dosya yedeği tarayıcı kaydından ayrı izlenir; ikisi aynı şey değil.
+    const bk = Store.backupStatus();
+    const bkNode = UI.el('#backup-at');
+    bkNode.textContent = bk.at
+      ? `${t('bkLastExport')} ${new Date(bk.at).toLocaleDateString(I18n.locale)}`
+      : (bk.size ? t('bkNever') : '');
+    bkNode.classList.toggle('is-warn', bk.due);
     UI.el('#brand-title').textContent = t('appTitle');
     UI.el('#brand-sub').textContent = t('appSub');
     UI.el('#skip-link').textContent = t('skipToContent');
@@ -151,12 +183,16 @@ const App = (() => {
     r.view(host, { state, calc });
 
     paintChrome();
+    measureChrome();
     restoreFocus(snap);
   }
 
-  function go(id) {
+  /** query: ekranın açılış durumu (ör. anketi bir domaine filtreli açmak). */
+  function go(id, query) {
     current = ROUTES.find(r => r.id === id) ? id : 'pano';
-    if (location.hash !== '#/' + current) location.hash = '#/' + current;
+    const q = query ? new URLSearchParams(query).toString() : '';
+    const next = '#/' + current + (q ? '?' + q : '');
+    if (location.hash !== next) location.hash = next;
     else render();
     const c = UI.el('#content');
     if (c) c.focus();
@@ -270,6 +306,7 @@ const App = (() => {
 
     Store.subscribe(() => render());
     window.addEventListener('hashchange', () => { current = route(); render(); });
+    window.addEventListener('resize', measureChrome);
 
     document.addEventListener('click', e => {
       const nav = e.target.closest('[data-route]');
@@ -291,6 +328,16 @@ const App = (() => {
       }
     });
 
+    // Son yedekten sonra iş girilmişse sekme kapanırken tarayıcı onay sorar.
+    window.addEventListener('beforeunload', e => {
+      const bk = Store.backupStatus();
+      if (!bk.size) return;
+      if (bk.at && bk.since === 0) return;
+      e.preventDefault();
+      e.returnValue = t('bkUnloadWarn');
+      return e.returnValue;
+    });
+
     UI.el('#file-input').addEventListener('change', e => {
       const f = e.target.files[0];
       if (f) Exporter.loadJSON(f);
@@ -300,7 +347,8 @@ const App = (() => {
     render();
   }
 
-  return { init, rerender: render, go, recompute, refreshChrome, setLanguage, get calc() { return calc; } };
+  return { init, rerender: render, go, recompute, refreshChrome, setLanguage,
+           routeQuery, setRouteQuery, get calc() { return calc; } };
 })();
 
 document.addEventListener('DOMContentLoaded', App.init);

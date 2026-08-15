@@ -25,7 +25,8 @@ sonuçları birebir aynı.
 
 - Tüm veriler yalnızca tarayıcının `localStorage` alanında tutulur; hiçbir ağ isteği yapılmaz (harici font, CDN veya analitik yoktur).
 - Yedek ve cihaz değişimi için **Veri ve yedekleme → JSON indir** kullanılır; aynı ekrandan geri yüklenir.
-- Tarayıcı verisi temizlenirse çalışma kaybolur. Her oturum sonunda JSON yedeği alın.
+- Tarayıcı verisi temizlenirse çalışma kaybolur — otomatik yedekler de aynı depoda durduğu için onlar da birlikte gider. Her oturum sonunda JSON yedeği alın.
+- Uygulama bunu kendi de takip eder: son JSON yedeğinden bu yana 25 yeni kayıt girildiğinde ya da 7 gün geçtiğinde panoda hatırlatma çıkar, kenar çubuğunda son yedek tarihi görünür ve yedeklenmemiş iş varken sekme kapatılırken tarayıcı onay sorar.
 - Tarayıcı profili paylaşılan bir makinede kullanılıyorsa, veriler o profili açan herkesçe görülebilir.
 
 ## Akış
@@ -36,12 +37,15 @@ sonuçları birebir aynı.
 | 2 | **Portföy** | Müşteri dağılımı (7 tip × 4 risk seviyesi), 12 risk segmenti, ülke maruziyeti ve şube/birim ağı. Girilen sayılardan doğuştan risk için 12 faktöre skor önerisi üretilir. |
 | 3 | **Doğuştan Risk** | 5 ML/TF boyutu ve 25 alt faktör, ayrıca 5 faktörlü PF bloğu ve 12 iş kollu değerlendirme matrisi. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
 | 4 | **İşlem Detayı** | 8 grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması ve blokaj, trade finance, muhabir bankacılık, izleme, ŞİB/dondurma/kolluk, müşteri kabul, kalite güvence. 16 türetilen oran hesaplanır; 12 KPI otomatik dolar. |
-| 5 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. |
+| 5 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. Bölüm başlığı kaydırırken ekranda kalır, sabit "sonraki yanıtlanmamış" düğmesi kalan soru sayısını gösterir, filtreler adres satırında taşınır (`#/anket?d=D6&st=gap` gibi bir bağlantı paylaşılabilir ve yenilemeye dayanır). |
 | 6 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
 | 7 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
 | 8 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
 | 9 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
-| 10 | **Yönetici Raporu** | Yazdırma / PDF çıktısı. |
+| 10 | **Dönem Karşılaştırma** | Önceki dönemin çalışma dosyası yüklenir; etkinlik, artık risk, iştah aşımları ve bulgu kapanışı iki dönem yan yana okunur. |
+| 11 | **Yönetici Raporu** | Yazdırma / PDF çıktısı; altında hazırlayan / gözden geçiren / onaylayan imza bloğu. |
+
+Menüde ayrıca **Nasıl Okunur** ekranı vardır: doğuştan risk, beyan ile test edilmiş etkinlik farkı, güvence örtüsü, artık risk, iştah, %95 tavanı ve ölçek eşikleri tek sayfada tanımlanır; her tanım ilgili ekrana bağlanır.
 
 QA testi sonucunda beyan ile dosya bulgusu çelişiyorsa ilgili sorunun yanıtı "Kısmen" veya "Hayır" olarak güncellenmelidir. Anket beyanı tek başına kontrol etkinliği sayılmaz.
 
@@ -234,9 +238,10 @@ js/i18n.js          arayüz metinleri, dil uygulama motoru, mevzuat atıfı çev
 js/store.js         durum yönetimi ve localStorage kalıcılığı
 js/calc.js          skorlama motoru
 js/ui.js            ikonlar, biçimlendirme, modal, toast
-js/views.js         Pano, Künye, Doğuştan Risk, Anket, Kontrol Skorları, Artık Risk, QA
+js/views.js         Pano, Künye, Doğuştan Risk, Anket, Kontrol Skorları, Artık Risk, QA, Nasıl Okunur
 js/actions.js       Aksiyon planı (CRUD, SLA, toplu üretim)
-js/export.js        JSON/CSV dışa aktarım, yönetici raporu
+js/compare.js       Dönem karşılaştırma (önceki dönem özeti ve fark okuma)
+js/export.js        JSON/CSV dışa aktarım, yönetici raporu, imza bloğu
 js/app.js           yönlendirme, tema, veri menüsü
 ```
 

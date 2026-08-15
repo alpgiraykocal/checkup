@@ -66,6 +66,17 @@ const Views = (() => {
     ].join('');
 
     const banners = [];
+    // Veri kaybı en pahalı hata; hatırlatma diğer uyarıların önüne geçer.
+    const bk = Store.backupStatus();
+    if (bk.due) {
+      const title = !bk.at ? t('bkTitleNever')
+        : bk.since >= 25 ? t('bkTitleStale', { n: fmtInt(bk.since) })
+        : t('bkTitleDays', { n: Math.floor(bk.days) });
+      banners.push(`<div class="banner warn">${Icons.alert()}<div>
+        <b>${esc(title)}</b><span>${esc(t('bkBody'))}</span>
+        <button class="btn btn-sm btn-primary no-print" data-backup-now style="margin-top:8px">
+          ${Icons.download()} ${t('bkAction')}</button></div></div>`);
+    }
     if (tot.answered === 0) {
       banners.push(banner('info', t('bnStartTitle'), t('bnStartBody')));
     }
@@ -86,10 +97,14 @@ const Views = (() => {
       banners.push(banner('danger', t('bnQaConflictTtl', { n: calc.qa2.conflicts.length }), t('bnQaConflictBody')));
     }
 
+    /* Hiç veri yokken sonuç bölümleri yalnızca boş kutu gösterir; bunun
+       yerine başlangıç kartı ve kılavuz öne çıkar. */
+    const hasWork = tot.answered > 0 || inh.scored > 0 || calc.kunye.filled > 0;
+
     host.innerHTML = `
       ${banners.join('')}
       ${startCard(state, calc)}
-      <div class="grid grid-kpi">${tiles}</div>
+      ${hasWork ? `<div class="grid grid-kpi">${tiles}</div>
 
       <div class="card" style="margin-top:16px">
         <div class="card-head"><h2>${t('heatmapTitle')}</h2>
@@ -109,10 +124,27 @@ const Views = (() => {
         <div class="card-head"><h2>${t('kpiSectionTitle')}</h2>
           <span class="subtle">${t('kpiSectionSub')}</span></div>
         <div class="card-body" style="padding:0">${kpiTable(state, calc)}</div>
-      </div>
+      </div>`
+      : `<div class="card" style="margin-top:16px">
+        <div class="card-head">
+          <div style="flex:1;min-width:220px">
+            <h2>${t('gdIntroTtl')}</h2>
+            <div class="subtle">${esc(t('gdIntroBody'))}</div>
+          </div>
+          <button class="btn" data-route="nasil">${Icons.info()} ${t('navGuide')}</button>
+        </div>
+        <div class="card-body">
+          <ul class="formula-list">
+            <li>${esc(t('gdF3'))}</li>
+            <li>${esc(t('gdF4'))}</li>
+          </ul>
+          <p class="subtle" style="margin-top:10px">${esc(t('emptyDashNote'))}</p>
+        </div>
+      </div>`}
     `;
 
     host.addEventListener('click', e => {
+      if (e.target.closest('[data-backup-now]')) { Exporter.saveJSON(); return; }
       if (e.target.closest('[data-goto-last]')) {
         const id = Store.state.ui.lastQuestion;
         Object.keys(qFilter).forEach(k => qFilter[k] = '');
@@ -199,7 +231,7 @@ const Views = (() => {
       const declared = d.effectiveness;
       const differs = eff !== null && declared !== null && Math.abs(declared - eff) > 0.0005;
       return `<div class="heat-row">
-        <div class="heat-name"><b class="mono">${esc(r.code)}</b> ${esc(r.name)}
+        <div class="heat-name"><a class="heat-link" href="#/anket?d=${esc(r.code)}"><b class="mono">${esc(r.code)}</b> ${esc(r.name)}</a>
           <div class="subtle">${fmtInt(d.answered)}/${fmtInt(d.count)} ${t('colAnswers').toLocaleLowerCase(I18n.locale)}${d.na ? ` · ${fmtInt(d.na)} N/A` : ''}</div></div>
         <div class="heat-eff-bar">${meter(eff === null ? 0 : eff, eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger')}
           <div class="subtle">${esc(d.maturity ? I18n.ref('maturity', d.maturity) : t('awaitingAnswers'))}${differs ? ` · ${t('colEffDeclared')} ${fmtPct(declared)}` : ''}</div></div>
@@ -959,8 +991,24 @@ const Views = (() => {
      ========================================================= */
   const qFilter = { domain: '', section: '', crit: '', status: '', qa: '', q: '' };
 
+  /* Filtreler adres satırında taşınır: sayfa yenilenince seçim korunur ve
+     "D2 aşımda" gibi bir bulgudan doğrudan ilgili sorulara link verilebilir. */
+  const Q_PARAM = { domain: 'd', section: 'b', crit: 'k', status: 'st', qa: 'qa', q: 'ara' };
+
+  function readFilterFromUrl() {
+    const p = App.routeQuery();
+    Object.keys(Q_PARAM).forEach(k => { qFilter[k] = p.get(Q_PARAM[k]) || ''; });
+  }
+
+  function writeFilterToUrl() {
+    const p = new URLSearchParams();
+    Object.keys(Q_PARAM).forEach(k => { if (qFilter[k]) p.set(Q_PARAM[k], qFilter[k]); });
+    App.setRouteQuery(p);
+  }
+
   function questions(host, ctx) {
     const { state, calc } = ctx;
+    readFilterFromUrl();
 
     const sections = qFilter.domain
       ? [...new Map(DATA.questions.filter(q => q.domain === qFilter.domain)
@@ -1025,10 +1073,20 @@ const Views = (() => {
         </div>
       </div>
 
+      ${state.ui.kbdHintSeen ? '' : `<div class="banner no-print" data-kbd-hint>${Icons.keyboard()}<div>
+        <b>${t('qKbdHintTtl')}</b><span>${esc(t('qKbdHintBody'))}</span>
+        <button class="btn btn-sm" data-kbd-dismiss style="margin-top:8px">${t('qKbdHintClose')}</button></div></div>`}
+
       <div id="q-summary" class="grid grid-kpi" style="margin-bottom:16px"></div>
-      <div id="q-list"></div>`;
+      <div id="q-list"></div>
+      <div class="q-fab no-print" id="q-fab" hidden>
+        <button class="btn btn-sm" data-fab-top aria-label="${t('qFabTop')}" title="${t('qFabTop')}">${Icons.arrowDown()}</button>
+        <button class="btn btn-primary btn-sm" data-next-open>${Icons.arrowDown()} ${t('nextUnanswered')}
+          <span class="fab-count" id="q-fab-count"></span></button>
+      </div>`;
 
     renderQuestionList(host, ctx);
+    bindFab(host);
 
     // Klavye kısayolları yalnızca bu ekran açıkken bağlıdır
     document.addEventListener('keydown', onSurveyKey);
@@ -1045,7 +1103,7 @@ const Views = (() => {
 
     host.addEventListener('input', e => {
       const f = e.target.closest('[data-f]');
-      if (f && f.dataset.f === 'q') { qFilter.q = f.value; debounceList(host, ctx); return; }
+      if (f && f.dataset.f === 'q') { qFilter.q = f.value; writeFilterToUrl(); debounceList(host, ctx); return; }
       const qa = e.target.closest('[data-qa]');
       if (qa) {
         Store.update(s => {
@@ -1085,17 +1143,30 @@ const Views = (() => {
       if (!f || f.dataset.f === 'q') return;
       qFilter[f.dataset.f] = f.value;
       if (f.dataset.f === 'domain') qFilter.section = '';
+      writeFilterToUrl();
       App.rerender();
     });
 
     host.addEventListener('click', e => {
       if (e.target.closest('[data-clear]')) {
         Object.keys(qFilter).forEach(k => qFilter[k] = '');
+        writeFilterToUrl();
         App.rerender();
         return;
       }
       if (e.target.closest('[data-next-open]')) { gotoNextUnanswered(); return; }
       if (e.target.closest('[data-kbd-help]')) { showShortcuts(); return; }
+      if (e.target.closest('[data-fab-top]')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const f = UI.el('#f-q', host); if (f) f.focus({ preventScroll: true });
+        return;
+      }
+      if (e.target.closest('[data-kbd-dismiss]')) {
+        Store.update(s => { s.ui.kbdHintSeen = true; }, { silent: true });
+        const b = e.target.closest('[data-kbd-hint]');
+        if (b) b.remove();
+        return;
+      }
       const ab = e.target.closest('[data-answer]');
       if (ab) {
         const id = ab.dataset.answer, val = ab.dataset.a;
@@ -1120,6 +1191,31 @@ const Views = (() => {
       const act = e.target.closest('[data-mkaction]');
       if (act) { Actions.openForm(null, { questionId: act.dataset.mkaction }); }
     });
+  }
+
+  /** Filtre çubuğu ekrandan çıkınca sabit gezinme düğmesi belirir;
+      218 soruluk listede en üste dönmek zorunda kalınmaz. */
+  function bindFab(host) {
+    const fab = UI.el('#q-fab', host);
+    if (!fab) return;
+    const count = UI.el('#q-fab-count', fab);
+
+    const sync = () => {
+      const calc = App.calc;
+      if (!calc) return;
+      const open = UI.els('.q', host).filter(c => {
+        const s = calc.perQuestion[c.id.replace(/^q-/, '')];
+        return s && !s.answered;
+      }).length;
+      count.textContent = open ? open : '';
+      fab.hidden = window.scrollY < 320 || open === 0;
+    };
+
+    sync();
+    window.addEventListener('scroll', sync, { passive: true });
+    host.addEventListener('view:teardown', () => window.removeEventListener('scroll', sync));
+    // Yanıt verildikçe kalan sayısı tazelensin
+    host.addEventListener('click', e => { if (e.target.closest('[data-answer]')) setTimeout(sync, 0); });
   }
 
   /* ---------- Anket klavye ve gezinme ---------- */
@@ -1415,7 +1511,7 @@ const Views = (() => {
     const rows = calc.domains.map(d => `
       <tr>
         <td><b class="mono">${esc(d.code)}</b></td>
-        <td>${esc(d.name)}</td>
+        <td><a href="#/anket?d=${esc(d.code)}">${esc(d.name)}</a></td>
         <td class="num">${fmtInt(d.count)}</td>
         <td class="num">${fmtInt(d.answered)}</td>
         <td class="num">${fmtInt(d.na)}</td>
@@ -1474,6 +1570,97 @@ const Views = (() => {
       </div>`;
   }
 
+  /* =========================================================
+     NASIL OKUNUR
+     ========================================================= */
+  function guide(host, { calc }) {
+    const term = (tKey, mKey, where) => `<tr>
+      <td style="min-width:190px"><b>${esc(t(tKey))}</b></td>
+      <td>${esc(t(mKey))}</td>
+      <td class="subtle nowrap">${where}</td></tr>`;
+
+    const chain = [
+      { n: 'navKunye', d: 'stepKunye', route: 'kunye' },
+      { n: 'navPortfolio', d: 'stepPortfolio', route: 'portfoy' },
+      { n: 'navInherent', d: 'stepInherent', route: 'dogustan' },
+      { n: 'navSurvey', d: 'stepSurvey', route: 'anket' },
+      { n: 'navQa', d: 'subQa', route: 'qa' },
+      { n: 'navResidual', d: 'subResidual', route: 'artik' },
+      { n: 'navActions', d: 'subActions', route: 'aksiyon' }
+    ];
+
+    host.innerHTML = `
+      ${banner('info', t('gdIntroTtl'), t('gdIntroBody'))}
+
+      <div class="card">
+        <div class="card-head"><h2>${t('gdFlowTtl')}</h2>
+          <span class="subtle">${t('gdChainTtl')}</span></div>
+        <div class="card-body">
+          <ol class="steps">
+            ${chain.map((s, i) => `<li class="step">
+              <span class="step-no">${i + 1}</span>
+              <button class="step-main" data-route="${s.route}">
+                <b>${esc(t(s.n))}</b><span class="subtle">${esc(t(s.d))}</span>
+              </button></li>`).join('')}
+          </ol>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>${t('gdTermsTtl')}</h2></div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap"><table>
+            <thead><tr><th>${t('gdTerm')}</th><th>${t('gdMeans')}</th><th>${t('gdWhere')}</th></tr></thead>
+            <tbody>
+              ${term('gdInherentT', 'gdInherentM', `<a href="#/dogustan">${esc(t('navInherent'))}</a>`)}
+              ${term('gdDeclaredT', 'gdDeclaredM', `<a href="#/skorlar">${esc(t('navScores'))}</a>`)}
+              ${term('gdTestedT', 'gdTestedM', `<a href="#/skorlar">${esc(t('navScores'))}</a>`)}
+              ${term('gdAssuranceT', 'gdAssuranceM', `<a href="#/qa">${esc(t('navQa'))}</a>`)}
+              ${term('gdResidualT', 'gdResidualM', `<a href="#/artik">${esc(t('navResidual'))}</a>`)}
+              ${term('gdAppetiteT', 'gdAppetiteM', `<a href="#/artik">${esc(t('navResidual'))}</a>`)}
+              ${term('gdCapT', 'gdCapM', `<a href="#/artik">${esc(t('navResidual'))}</a>`)}
+              ${term('gdCriticalT', 'gdCriticalM', `<a href="#/anket?st=opencrit">${esc(t('navSurvey'))}</a>`)}
+              ${term('gdPfT', 'gdPfM', `<a href="#/artik">${esc(t('navResidual'))}</a>`)}
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>${t('gdFormulaTtl')}</h2></div>
+        <div class="card-body">
+          <ul class="formula-list">
+            <li>${esc(t('gdF1'))}</li>
+            <li>${esc(t('gdF2'))}</li>
+            <li>${esc(t('gdF3', { }))}</li>
+            <li>${esc(t('gdF4'))}</li>
+          </ul>
+          <p class="subtle" style="margin-top:10px">${esc(t('gdReadTip'))}</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>${t('gdScaleTtl')}</h2></div>
+        <div class="card-body">
+          <h3>${t('gdScaleInh')}</h3>
+          <div class="inline-list" style="margin-bottom:12px">
+            ${['Çok Yüksek', 'Yüksek', 'Orta', 'Düşük'].map((lv, i) =>
+              `<span class="chip ${levelClass(lv)}">${esc(I18n.ref('riskLevel', lv))} ${['≥ 4', '≥ 3', '≥ 2', '< 2'][i]}</span>`).join('')}
+          </div>
+          <h3>${t('gdScaleRes')}</h3>
+          <div class="inline-list" style="margin-bottom:12px">
+            ${['Çok Yüksek', 'Yüksek', 'Orta', 'Düşük'].map((lv, i) =>
+              `<span class="chip ${levelClass(lv)}">${esc(I18n.ref('riskLevel', lv))} ${['≥ 3,50', '≥ 2,50', '≥ 1,50', '< 1,50'][i]}</span>`).join('')}
+          </div>
+          <h3>${t('gdScaleMat')}</h3>
+          <div class="inline-list">
+            ${[['Gelişmiş', '≥ 90%'], ['Yeterli', '≥ 75%'], ['Gelişime Açık', '≥ 60%'], ['Zayıf', '≥ 40%'], ['Kritik Zayıf', '< 40%']]
+              .map(([m, r]) => `<span class="chip ${maturityClass(m)}">${esc(I18n.ref('maturity', m))} ${r}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
   function maturityClass(m) {
     return { 'Gelişmiş': 'chip-ok', 'Yeterli': 'chip-mid', 'Gelişime Açık': 'chip-high', 'Zayıf': 'chip-high', 'Kritik Zayıf': 'chip-critical' }[m] || 'chip';
   }
@@ -1486,7 +1673,9 @@ const Views = (() => {
     const rows = calc.residual.map(r => `
       <tr>
         <td><b class="mono">${esc(r.code)}</b></td>
-        <td>${esc(r.name)}<div class="subtle">${t('inherentSource')}: ${esc(r.source)}</div></td>
+        <td><a href="#/anket?d=${esc(r.code)}">${esc(r.name)}</a>
+          <div class="subtle">${t('inherentSource')}: ${esc(r.source)}</div>
+          ${r.breach ? `<div class="subtle"><a href="#/anket?d=${esc(r.code)}&st=gap">${t('rrSeeGaps')}</a></div>` : ''}</td>
         <td class="num">${fmtNum2(r.inherentRisk)}</td>
         <td class="num">${fmtPct1(r.effectivenessTested)}
           ${r.effectiveApplied !== null && r.effectivenessTested > r.effectiveApplied
@@ -1666,5 +1855,5 @@ const Views = (() => {
     });
   }
 
-  return { dashboard, kunye, inherent: inherentView, questions, domainScores, residual, qa, banner, maturityClass };
+  return { dashboard, kunye, inherent: inherentView, questions, domainScores, residual, qa, guide, banner, maturityClass };
 })();

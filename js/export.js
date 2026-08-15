@@ -25,6 +25,8 @@ const Exporter = (() => {
     const snap = Store.snapshot();
     const name = (snap.kunye.kurum_unvani || 'kurum').replace(/[^\p{L}\p{N}]+/gu, '-').slice(0, 40);
     download(`${t('fileWorkbook')}-${name}-${stamp()}.json`, JSON.stringify(snap, null, 2), 'application/json');
+    // Yedeğin ne zaman ve hangi hacimde alındığı işaretlenir; hatırlatma buna bakar.
+    Store.markExported();
     UI.toast(t('savedJson'), 'ok');
   }
 
@@ -393,9 +395,50 @@ const Exporter = (() => {
             </tbody></table></div>` : ''}
 
           <div class="divider"></div>
+          <h3>${t('signTtl')}</h3>
+          <p class="subtle no-print">${t('signBody')} ${t('signHint')}</p>
+          ${signBlock(state)}
+
+          <div class="divider"></div>
           <p class="subtle">${t('reportMethod')}</p>
         </div>
       </div>`;
+
+    host.addEventListener('input', e => {
+      const f = e.target.closest('[data-sign]');
+      if (!f) return;
+      Store.update(s => {
+        s.signoff = s.signoff || {};
+        s.signoff[f.dataset.sign] = s.signoff[f.dataset.sign] || {};
+        s.signoff[f.dataset.sign][f.dataset.field] = f.value;
+      }, { silent: true });
+    });
+  }
+
+  /** Hazırlayan / gözden geçiren / onaylayan. Boş satır imza yeri olarak basılır. */
+  function signBlock(state) {
+    const so = state.signoff || {};
+    const roles = [['prepared', t('signPrepared')], ['reviewed', t('signReviewed')], ['approved', t('signApproved')]];
+    return `<div class="table-wrap"><table class="sign-table">
+      <thead><tr><th style="width:22%"></th><th>${t('signName')}</th><th style="width:22%">${t('signDate')}</th><th class="only-print" style="width:26%"></th></tr></thead>
+      <tbody>${roles.map(([key, label]) => {
+        const rec = so[key] || {};
+        return `<tr>
+          <td><b>${esc(label)}</b></td>
+          <td>
+            <input class="no-print" type="text" id="sg-${key}" data-sign="${key}" data-field="name"
+              value="${esc(rec.name || '')}" placeholder="${esc(t('signName'))}" aria-label="${esc(label)} — ${t('signName')}">
+            <span class="only-print">${esc(rec.name || '')}</span>
+          </td>
+          <td>
+            <input class="no-print" type="date" id="sd-${key}" data-sign="${key}" data-field="date"
+              value="${esc(rec.date || '')}" aria-label="${esc(label)} — ${t('signDate')}">
+            <span class="only-print">${rec.date ? fmtDate(rec.date) : ''}</span>
+          </td>
+          <td class="only-print sign-line"></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
   }
 
   return { saveJSON, loadJSON, exportCSV, report };
