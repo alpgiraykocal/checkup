@@ -21,6 +21,13 @@ aksiyon kayıtları her zaman aynı iç anahtarlarla tutulur, bu yüzden dil de�
 hesabı ya da kaydı bozmaz — doğrulandı: iki dilde kontrol etkinliği, doğuştan risk ve örneklem
 sonuçları birebir aynı.
 
+## Kullanım kılavuzu
+
+Teknik bilgisi olmayan bir uyum görevlisi için baştan sona kullanım kılavuzu:
+[KILAVUZ.html](KILAVUZ.html) — hazırlık, veri güvenliği, on adımlık akış,
+anket püf noktaları, skorların okunması, ekip çalışması, dönem sonu kontrol
+listesi ve sorun giderme.
+
 ## Test
 
 Bağımlılık yok. Node 18+ yeterli:

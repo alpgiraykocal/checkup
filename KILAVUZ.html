@@ -1,0 +1,998 @@
+<title>Uyum Check-up Kılavuzu</title>
+<style>
+  /* ---- Belirteçler: açık tema tam set, karanlık yalnızca üzerine yazar ---- */
+  :root {
+    --kagit: #F7F8FA;
+    --yuzey: #FFFFFF;
+    --yuzey-2: #EFF2F6;
+    --murekkep: #131A26;
+    --murekkep-yumusak: #414C5F;
+    --murekkep-silik: #5A6579;
+    --cizgi: #E1E6ED;
+    --cizgi-koyu: #C7D0DC;
+    --vurgu: #1E40AF;
+    --vurgu-yumusak: #E9EEFB;
+    --uyari: #9A5B08;
+    --uyari-zemin: #FDF6E9;
+    --tehlike: #C81E1E;
+    --tehlike-zemin: #FDF0F0;
+    --tamam: #15703C;
+    --tamam-zemin: #EEF8F1;
+
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", "Noto Serif", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    --olcu: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --kagit: #0D131F;
+      --yuzey: #161E2C;
+      --yuzey-2: #1D2738;
+      --murekkep: #E7EDF7;
+      --murekkep-yumusak: #B3C0D4;
+      --murekkep-silik: #8B99AE;
+      --cizgi: #26324A;
+      --cizgi-koyu: #35435E;
+      --vurgu: #7CADFB;
+      --vurgu-yumusak: #16233A;
+      --uyari: #EFB552;
+      --uyari-zemin: #2A2113;
+      --tehlike: #F98080;
+      --tehlike-zemin: #2B1618;
+      --tamam: #5FD08B;
+      --tamam-zemin: #12261C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --kagit: #0D131F;
+    --yuzey: #161E2C;
+    --yuzey-2: #1D2738;
+    --murekkep: #E7EDF7;
+    --murekkep-yumusak: #B3C0D4;
+    --murekkep-silik: #8B99AE;
+    --cizgi: #26324A;
+    --cizgi-koyu: #35435E;
+    --vurgu: #7CADFB;
+    --vurgu-yumusak: #16233A;
+    --uyari: #EFB552;
+    --uyari-zemin: #2A2113;
+    --tehlike: #F98080;
+    --tehlike-zemin: #2B1618;
+    --tamam: #5FD08B;
+    --tamam-zemin: #12261C;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--kagit);
+    color: var(--murekkep);
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sayfa {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  @media (min-width: 1100px) {
+    .sayfa { grid-template-columns: 232px minmax(0, 1fr); gap: 56px; padding-right: 40px; }
+  }
+
+  /* ---- Başlık bloğu ---- */
+  .ustbilgi {
+    grid-column: 1 / -1;
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--cizgi);
+    margin-bottom: 48px;
+  }
+  .etiket {
+    font-size: 12px; font-weight: 650; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--vurgu); margin-bottom: 18px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(34px, 5.5vw, 52px);
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    font-weight: 400;
+    margin: 0 0 20px;
+    text-wrap: balance;
+    max-width: 20ch;
+  }
+  .girizgah {
+    font-size: 19px; line-height: 1.6; color: var(--murekkep-yumusak);
+    max-width: 62ch; margin: 0;
+  }
+  .ustbilgi-kunye {
+    display: flex; flex-wrap: wrap; gap: 8px 28px;
+    margin-top: 28px; font-size: 13.5px; color: var(--murekkep-silik);
+  }
+  .ustbilgi-kunye b { color: var(--murekkep-yumusak); font-weight: 600; }
+
+  /* ---- İçindekiler ---- */
+  .icindekiler { display: none; }
+  @media (min-width: 1100px) {
+    .icindekiler {
+      display: block; position: sticky; top: 32px; align-self: start;
+      max-height: calc(100vh - 64px); overflow-y: auto;
+      font-size: 13.5px; line-height: 1.5;
+      padding-bottom: 24px;
+    }
+    .icindekiler h2 {
+      font-family: var(--sans); font-size: 11px; font-weight: 650;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--murekkep-silik); margin: 0 0 14px; padding: 0; border: 0;
+    }
+    .icindekiler ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+    .icindekiler a {
+      display: block; padding: 5px 10px; border-radius: 5px;
+      color: var(--murekkep-yumusak); text-decoration: none;
+      border-left: 2px solid transparent;
+    }
+    .icindekiler a:hover { background: var(--yuzey-2); color: var(--murekkep); }
+    .icindekiler a:focus-visible { outline: 2px solid var(--vurgu); outline-offset: 1px; }
+  }
+
+  main { min-width: 0; }
+
+  /* ---- Tipografi ---- */
+  h2 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: 30px; line-height: 1.2; letter-spacing: -.015em;
+    margin: 72px 0 6px; padding-top: 4px;
+    text-wrap: balance;
+  }
+  h2:first-of-type { margin-top: 0; }
+  .h2-alt {
+    color: var(--murekkep-silik); font-size: 15px; margin: 0 0 26px;
+    max-width: var(--olcu);
+  }
+  h3 {
+    font-size: 17px; font-weight: 650; letter-spacing: -.005em;
+    margin: 40px 0 10px; color: var(--murekkep);
+  }
+  h4 {
+    font-size: 14.5px; font-weight: 650; margin: 26px 0 6px;
+    color: var(--murekkep-yumusak);
+  }
+  p { margin: 0 0 18px; max-width: var(--olcu); }
+  ul, ol { margin: 0 0 18px; padding-left: 22px; max-width: var(--olcu); }
+  li { margin-bottom: 7px; }
+  li > ul, li > ol { margin-top: 7px; margin-bottom: 4px; }
+  strong { font-weight: 650; }
+  a { color: var(--vurgu); text-underline-offset: 2px; }
+
+  code {
+    font-family: var(--mono); font-size: .875em;
+    background: var(--yuzey-2); color: var(--murekkep);
+    padding: 1px 5px; border-radius: 4px;
+    border: 1px solid var(--cizgi);
+  }
+
+  /* Ekran adı — uygulamada tıklanacak yeri işaret eder */
+  .ekran {
+    font-weight: 650; color: var(--vurgu);
+    white-space: nowrap;
+  }
+
+  /* ---- Adım listesi: gerçekten sıra olduğu için numaralı ---- */
+  .adimlar { list-style: none; padding: 0; margin: 0; max-width: none; counter-reset: adim; }
+  .adim {
+    display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 20px;
+    padding: 28px 0; border-top: 1px solid var(--cizgi); margin: 0;
+  }
+  .adim:last-child { border-bottom: 1px solid var(--cizgi); }
+  .adim-no {
+    counter-increment: adim;
+    font-family: var(--serif); font-size: 26px; line-height: 1.1;
+    color: var(--vurgu); font-variant-numeric: tabular-nums;
+  }
+  .adim-no::before { content: counter(adim, decimal-leading-zero); }
+  .adim-govde { min-width: 0; }
+  .adim-govde h3 { margin-top: 0; }
+  .adim-govde > *:last-child { margin-bottom: 0; }
+  .adim-sure {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    color: var(--murekkep-silik); background: var(--yuzey-2);
+    border: 1px solid var(--cizgi); border-radius: 999px;
+    padding: 2px 10px; margin-left: 10px; vertical-align: 2px;
+  }
+
+  /* ---- Uyarı kutuları: uygulamadaki banner diliyle aynı ---- */
+  .kutu {
+    border: 1px solid var(--cizgi); border-left: 3px solid var(--vurgu);
+    background: var(--yuzey); border-radius: 6px;
+    padding: 16px 20px; margin: 24px 0; max-width: var(--olcu);
+  }
+  .kutu > *:first-child { margin-top: 0; }
+  .kutu > *:last-child { margin-bottom: 0; }
+  .kutu-baslik {
+    font-weight: 650; font-size: 14.5px; margin-bottom: 6px;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .kutu.dikkat { border-left-color: var(--uyari); background: var(--uyari-zemin); }
+  .kutu.dikkat .kutu-baslik { color: var(--uyari); }
+  .kutu.kritik { border-left-color: var(--tehlike); background: var(--tehlike-zemin); }
+  .kutu.kritik .kutu-baslik { color: var(--tehlike); }
+  .kutu.ipucu { border-left-color: var(--tamam); background: var(--tamam-zemin); }
+  .kutu.ipucu .kutu-baslik { color: var(--tamam); }
+
+  /* ---- Tablolar ---- */
+  .tablo-sar { overflow-x: auto; margin: 22px 0; max-width: 100%; }
+  table {
+    border-collapse: collapse; width: 100%; font-size: 14.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td {
+    text-align: left; padding: 10px 14px;
+    border-bottom: 1px solid var(--cizgi); vertical-align: top;
+  }
+  thead th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
+    font-weight: 650; color: var(--murekkep-silik);
+    border-bottom: 1px solid var(--cizgi-koyu); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td code { white-space: nowrap; }
+
+  /* ---- Kontrol listesi ---- */
+  .liste-kontrol { list-style: none; padding: 0; max-width: var(--olcu); }
+  .liste-kontrol li {
+    display: grid; grid-template-columns: 22px 1fr; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--cizgi); margin: 0;
+  }
+  .liste-kontrol li::before {
+    content: ""; width: 15px; height: 15px; margin-top: 5px;
+    border: 1.5px solid var(--cizgi-koyu); border-radius: 3px;
+  }
+  .liste-kontrol li:last-child { border-bottom: 0; }
+
+  /* ---- Tuş göstergesi ---- */
+  kbd {
+    font-family: var(--mono); font-size: 12px; font-weight: 650;
+    background: var(--yuzey); color: var(--murekkep);
+    border: 1px solid var(--cizgi-koyu); border-bottom-width: 2px;
+    border-radius: 4px; padding: 1px 6px; min-width: 20px;
+    display: inline-block; text-align: center;
+  }
+
+  /* ---- Bölüm ayracı ---- */
+  .ayrac {
+    border: 0; border-top: 1px solid var(--cizgi);
+    margin: 64px 0 0; max-width: none;
+  }
+
+  .altbilgi {
+    margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--cizgi);
+    font-size: 13.5px; color: var(--murekkep-silik); max-width: var(--olcu);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+
+<div class="sayfa">
+
+  <header class="ustbilgi">
+    <div class="etiket">Kullanım kılavuzu</div>
+    <h1>AML/CFT Uyum Check-up</h1>
+    <p class="girizgah">
+      Bu kılavuz, uygulamayı ilk kez açan bir uyum görevlisinin dönem sonunda
+      imzalı bir yönetici raporu çıkarana kadar izleyeceği yolu anlatır.
+      Bilgisayar bilgisi gerekmez; AML bilginiz yeter.
+    </p>
+    <div class="ustbilgi-kunye">
+      <span><b>Uygulama:</b> checkup.alpgiraykocal.com</span>
+      <span><b>Kapsam:</b> 17 ekran · 218 soru · 25 risk faktörü</span>
+      <span><b>Gereken süre:</b> ilk dönem 3–5 iş günü</span>
+    </div>
+  </header>
+
+  <nav class="icindekiler" aria-label="İçindekiler">
+    <h2>İçindekiler</h2>
+    <ol>
+      <li><a href="#nedir">Bu araç ne yapar</a></li>
+      <li><a href="#hazirlik">Başlamadan önce</a></li>
+      <li><a href="#veri">Veriniz nerede duruyor</a></li>
+      <li><a href="#akis">On adımda değerlendirme</a></li>
+      <li><a href="#anket-detay">Anketi doldurmanın püf noktaları</a></li>
+      <li><a href="#okuma">Skorları okumak</a></li>
+      <li><a href="#ekip">Ekip olarak çalışmak</a></li>
+      <li><a href="#rapor">Rapor ve imza</a></li>
+      <li><a href="#kapanis">Dönem sonu kontrol listesi</a></li>
+      <li><a href="#sonraki">Bir sonraki dönem</a></li>
+      <li><a href="#sorun">Bir şeyler ters gittiğinde</a></li>
+      <li><a href="#sozluk">Terimler nerede</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <h2 id="nedir">Bu araç ne yapar</h2>
+    <p class="h2-alt">Ve daha önemlisi, ne yapmaz.</p>
+
+    <p>
+      Uygulama üç soruyu sırayla yanıtlatır: işinizin doğası gereği ne kadar risk
+      taşıyorsunuz, bu riske karşı kontrolleriniz ne kadar çalışıyor, geriye ne
+      kalıyor. Kalan risk kurumunuzun kabul ettiği sınırı aşıyorsa, oradan bir
+      bulgu ve bir aksiyon çıkar.
+    </p>
+    <p>
+      Sonuçta elinize üç şey geçer: yazdırılabilir bir yönetici raporu, kanıt
+      referanslarıyla eşleşmiş 218 soruluk bir kontrol envanteri, ve sahibi ile
+      termini belli bir aksiyon planı. Denetimde sorulan “bunu nereden
+      biliyorsunuz” sorusunun cevabı bu üçünde durur.
+    </p>
+
+    <div class="kutu">
+      <div class="kutu-baslik">Yapmadığı şey</div>
+      <p>
+        Uygulama sizin yerinize karar vermez. Skorları siz verirsiniz, kanıtı siz
+        gösterirsiniz. Uygulamanın yaptığı, verdiğiniz skorları tutarlı biçimde
+        toplamak, çelişkileri yüzünüze çıkarmak ve sonucu savunulabilir bir
+        biçimde raporlamak.
+      </p>
+    </div>
+
+    <p>
+      Bir şeyi baştan bilin: uygulama sunucuya bağlanmaz. Hiçbir veri kurum
+      dışına çıkmaz, hiçbir yere kaydolmazsınız, internetsiz de çalışır. Bunun
+      bedeli, verinizin sorumluluğunun sizde olması — birazdan buna geleceğiz.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="hazirlik">Başlamadan önce</h2>
+    <p class="h2-alt">Yarım saatlik toplama işi, üç günlük aramayı önler.</p>
+
+    <p>
+      Uygulamayı açmadan önce şunları masanıza toplayın. Hepsini bulamazsanız da
+      başlayabilirsiniz — boş bırakılan alan sonucu bozmaz, sadece o alandan gelen
+      hesap yapılmaz.
+    </p>
+
+    <h3>Kurum bilgileri</h3>
+    <ul>
+      <li>Ticaret sicilindeki tam unvan, lisanslar, faaliyet gösterilen ülkeler</li>
+      <li>Değerlendirme dönemi (genellikle bir takvim yılı)</li>
+      <li>Uyum görevlisi ve vekilinin adı</li>
+      <li>Son bağımsız AML denetimi, son EWRA, son senaryo tuning ve son tarama
+        eşiği kalibrasyonu tarihleri</li>
+    </ul>
+
+    <h3>Sayılar</h3>
+    <ul>
+      <li>Toplam müşteri, yüksek riskli müşteri ve PEP sayısı</li>
+      <li>Yıllık işlem adedi ve bunun içinde sınır ötesi işlem adedi</li>
+      <li>Uyum biriminin FTE kadrosu</li>
+      <li>Müşteri dağılımı: müşteri tipi × risk seviyesi tablosu</li>
+      <li>Operasyon rakamları: alert, vaka, ŞİB, dondurma, eğitim, QA sayıları</li>
+    </ul>
+
+    <h3>Belgeler</h3>
+    <p>
+      Anketi doldururken her soruya kanıt referansı yazacaksınız. Bunlar dosyanın
+      kendisi değil, <em>nerede olduğu</em>: “Uyum Programı v6.1”, “YK kararı
+      2025/14”, “QA test raporu T-88” gibi. Politika seti, prosedürler, YK
+      kararları, denetim raporları ve QA test sonuçları elinizin altında olsun.
+    </p>
+
+    <div class="kutu ipucu">
+      <div class="kutu-baslik">Önce demoyu açın</div>
+      <p>
+        Kendi verinizi girmeden önce demo dosyasını yükleyip on dakika dolaşmanızı
+        öneririm. Dolu ekranları bir kez görmek, boş ekranlarda ne yapacağınızı
+        çok daha net hale getirir. Demo dosyası
+        <code>demo-calisma-dosyasi.json</code> — sol menüden
+        <span class="ekran">Çalışma dosyası yükle</span> ile açılır. İncelemeniz
+        bitince <span class="ekran">Sıfırla</span> deyip kendi dönemimizle
+        başlarsınız.
+      </p>
+    </div>
+
+    <hr class="ayrac">
+
+    <h2 id="veri">Veriniz nerede duruyor</h2>
+    <p class="h2-alt">Kılavuzun en önemli bölümü burası.</p>
+
+    <p>
+      Çalışmanız yalnızca kullandığınız tarayıcıda durur. Sunucu yok, bulut yok,
+      otomatik senkronizasyon yok. Bu, verinizin kurum dışına çıkmaması demek —
+      ama aynı zamanda şu demek: <strong>tarayıcı verisini temizlerseniz
+      çalışmanız gider.</strong> Uygulamanın kendi otomatik yedekleri de aynı
+      yerde durduğu için onlar da birlikte gider.
+    </p>
+
+    <div class="kutu kritik">
+      <div class="kutu-baslik">Tek kural</div>
+      <p>
+        Her çalışma seansının sonunda <span class="ekran">Veri ve yedekleme →
+        JSON indir</span> deyin ve dosyayı kurum arşivinize koyun. Otuz saniye
+        sürer. Yapmadığınızda kaybedeceğiniz şey üç günlük iş.
+      </p>
+    </div>
+
+    <p>Uygulama size bu konuda yardımcı olur, ama sizin yerinize yapmaz:</p>
+    <ul>
+      <li>Son yedekten sonra <strong>25 yeni kayıt</strong> girdiğinizde ya da
+        <strong>7 gün</strong> geçtiğinde panoda hatırlatma çıkar.</li>
+      <li>Sol menünün altında son yedek tarihi durur; gecikince sarıya döner.</li>
+      <li>Yedeklenmemiş iş varken sekmeyi kapatmaya çalışırsanız tarayıcı sorar.</li>
+      <li>Tarayıcı deposu dolarsa kayıt sessizce başarısız olmaz — uyarı çıkar.
+        Bunu görürseniz hemen JSON indirin.</li>
+    </ul>
+
+    <h3>Aynı bilgisayarı paylaşıyorsanız</h3>
+    <p>
+      Veri, tarayıcı profiline bağlıdır. Ortak kullanılan bir makinede aynı
+      profili açan herkes çalışmanızı görebilir. Kendi kullanıcı profilinizde
+      çalışın.
+    </p>
+
+    <h3>Otomatik yedekler</h3>
+    <p>
+      Uygulama son beş sürümü kendi içinde saklar; sıfırlama veya yanlış dosya
+      yüklemesi gibi kazalardan sonra <span class="ekran">Veri ve yedekleme</span>
+      ekranından geri alabilirsiniz. Bunlar kaza kurtarma içindir, arşiv değil.
+      Arşiv, indirdiğiniz JSON dosyalarıdır.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="akis">On adımda değerlendirme</h2>
+    <p class="h2-alt">
+      Sıra önemli: her adım bir sonrakini besler. Künyeyi doldurmadan ankete
+      geçerseniz, kapsam dışı bırakılması gereken sorular karşınıza çıkar.
+    </p>
+
+    <ol class="adimlar">
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Künye <span class="adim-sure">20 dakika</span></h3>
+          <p>
+            Kurum profili ve 26 alan. Her alanın altında ne yazacağınızı anlatan
+            bir açıklama ve örnek değer var; okumadan geçmeyin.
+          </p>
+          <p>
+            En kritik kısım altı faaliyet sorusu: trade finance, muhabir
+            bankacılık, sanal varlık, uzaktan müşteri kabulü, acente ağı, yurt dışı
+            şube. Bunlardan birine <strong>“Hayır”</strong> derseniz, ilgili soru
+            bölümleri otomatik olarak “Uygulanamaz” sayılır ve skorunuzu
+            düşürmez. Sanal varlık faaliyetiniz yoksa o soruların size sorulmaması
+            gerekir — bunu sağlayan tek şey buradaki yanıt.
+          </p>
+          <p>
+            Girdiğiniz sayılardan oranlar türer (yüksek riskli müşteri payı, PEP
+            payı, FTE başına müşteri) ve tarihlerden yaşlandırma uyarıları çıkar.
+            EWRA tarihiniz 12 ayı geçtiyse uygulama bunu söyler.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Portföy <span class="adim-sure">30 dakika</span></h3>
+          <p>
+            Dört tablo: müşteri dağılımı (7 tip × 4 risk seviyesi), 12 risk
+            segmenti, ülke maruziyeti ve şube ağı. Dördü de isteğe bağlı —
+            girdiğiniz kadarı kullanılır.
+          </p>
+          <p>
+            Buranın asıl faydası şu: girdiğiniz sayılardan 12 doğuştan risk
+            faktörü için <strong>skor önerisi</strong> üretilir. Dördüncü adımda
+            “yüksek riskli müşteri payına kaç vereyim” diye düşünmek yerine,
+            hesaplanmış oranı ve önerilen skoru görürsünüz. Öneriyi tek tıkla
+            uygular ya da kendi skorunuzu verirsiniz.
+          </p>
+          <p>
+            Ülke tablosunda temas ettiğiniz her ülkeyi ekleyin. Risk işaretleri
+            (FATF gri/kara, yaptırım, offshore) hazır gelir. “Yurt içi” işareti
+            koyduğunuz ülkeler sınır ötesi payına girmez.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>İşlem Detayı <span class="adim-sure">45 dakika</span></h3>
+          <p>
+            Sekiz grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması,
+            trade finance, muhabir bankacılık, izleme, ŞİB ve dondurma, müşteri
+            kabul, kalite güvence. Adet, tutar, gün veya saat cinsinden girersiniz.
+          </p>
+          <p>
+            Bu ekran en çok emek isteyen ama en çok geri veren yer. Girdiğiniz
+            rakamlardan 16 oran hesaplanır (alert–vaka dönüşümü, izleme kapsama
+            oranı, QA hata oranı) ve <strong>12 KPI kendiliğinden dolar</strong>.
+            Ayrıca tutarsızlıkları yakalar: izlenen işlem sayısı toplamı aşarsa,
+            vaka sayısı alert sayısını geçerse uyarır.
+          </p>
+          <p>
+            Rakamı bulamadığınız ölçütü boş bırakın. Yanlış rakam girmek boş
+            bırakmaktan kötüdür.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Doğuştan Risk <span class="adim-sure">1 saat</span></h3>
+          <p>
+            Beş boyutta 25 faktör, her biri 1–5 arası skorlanır. Ayrıca beş
+            faktörlü bir PF (yayılmanın finansmanı) bloğu ve 12 iş kolluk bir
+            matris var.
+          </p>
+          <p>
+            Her faktörün altında <strong>beş seviyenin ne anlama geldiğini
+            anlatan bir rubrik</strong> var. “3 mü 4 mü” diye düşünürken tahmin
+            yürütmeyin, rubriği açın: her seviyenin karşılığı somut olarak yazılı.
+          </p>
+          <p>
+            4 veya 5 verdiğiniz her faktörde gerekçe zorunlu. Bunu keyfi bir
+            zorlama olarak görmeyin — denetimde ilk sorulan şey budur. Gerekçesiz
+            yüksek skor bırakırsanız panoda kırmızı uyarı çıkar.
+          </p>
+          <p>
+            Bir faktör size hiç uymuyorsa <strong>“Uygulanamaz”</strong> deyin;
+            paydadan çıkar, ortalamanızı bozmaz. Ağırlığın kurumunuza uymadığını
+            düşünüyorsanız değiştirebilirsiniz — değiştirdiğiniz yerler işaretli
+            kalır.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Anket <span class="adim-sure">2–3 gün</span></h3>
+          <p>
+            218 soru, 11 domain. İşin ağırlık merkezi burası; bir oturuşta
+            bitmez, bitmemeli de. Bir sonraki bölümde bu ekranı ayrıntılı
+            anlatıyorum.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Ek Kontroller <span class="adim-sure">45 dakika</span></h3>
+          <p>
+            Ana soru bankasının kapsamadığı dört alan için sekiz set, 44 soru:
+            terör finansmanının kontrol tarafı, personel taraması ve dahili
+            bildirim hattı, yaptırım lookback ile model yönetişimi, ve banka dışı
+            yükümlü tiplerine özgü kontroller.
+          </p>
+          <p>
+            Setler künyenizdeki yükümlü tipine göre kendiliğinden açılıp kapanır.
+            Bankaysanız üç evrensel set görürsünüz; sigorta şirketiyseniz bir de
+            sigorta seti eklenir.
+          </p>
+          <p>
+            Bu setin skoru <strong>ana skorunuza karışmaz</strong>, kendi oranıyla
+            raporlanır. Sebebi teknik ama sonucu sizi ilgilendiriyor: ana bankanın
+            skoru kaynak çalışma kitabıyla ve geçmiş dönemlerinizle
+            karşılaştırılabilir kalıyor.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>QA Planı <span class="adim-sure">20 dakika</span></h3>
+          <p>
+            24 popülasyon için dönem içi hacmi girersiniz; örneklem büyüklüğü ve
+            test başına düşen dosya sayısı hesaplanır.
+          </p>
+          <p>
+            Oranlar risk katmanına göre sabit: ŞİB dosyaları, dondurma kararları,
+            gerçek yaptırım eşleşmeleri ve PEP dosyaları %100 incelenir; EDD ve
+            override dosyalarında %10–15; standart hesap açılışlarında %2–5.
+            Bunlar denetim pratiğine göre belirlenmiş oranlardır, istatistiksel
+            güven düzeyine göre değil — belirli bir güven düzeyi iddia edecekseniz
+            örneklem büyüklüğünü ayrıca hesaplamanız gerekir.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Kontrol Skorları <span class="adim-sure">okuma</span></h3>
+          <p>
+            Girdi yok. Domain bazında kontrol etkinliğiniz, olgunluk seviyeniz ve
+            güvence örtünüz burada. Üç sütunu ayrı okuyun: beyan edilen etkinlik,
+            test ile düzeltilmiş etkinlik, ve testi gereken soruların kaçının
+            gerçekten test edildiği.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Artık Risk <span class="adim-sure">30 dakika</span></h3>
+          <p>
+            Doğuştan risk ile kontrol etkinliğinin buluştuğu yer. Her domain için
+            kalan risk hesaplanır ve iştah limitinizle karşılaştırılır.
+          </p>
+          <p>
+            Varsayılan limit 1,50. Kurumunuzun yönetim kurulu farklı bir sınır
+            onayladıysa, ilgili satırdaki kutuya kendi limitinizi yazın —
+            değiştirdiğiniz satır işaretli kalır.
+          </p>
+          <p>
+            Aşım gördüğünüz satırda “aşımı besleyen eksik kontrolleri gör”
+            bağlantısı var; tıklayınca o domainin eksik kontrolleri filtreli
+            olarak açılır. Aşımdan bulguya giden en kısa yol bu.
+          </p>
+        </div>
+      </li>
+
+      <li class="adim">
+        <div class="adim-no" aria-hidden="true"></div>
+        <div class="adim-govde">
+          <h3>Aksiyon Planı <span class="adim-sure">1 gün</span></h3>
+          <p>
+            Bulgularınız burada toplanır. <span class="ekran">Eksiklerden
+            üret</span> düğmesi, “Evet” dışında yanıtladığınız her sorudan taslak
+            bir bulgu çıkarır — sonra bunları tek tek düzenlersiniz.
+          </p>
+          <p>
+            Denetimde savunulabilir bir bulgu satırında beş alan bulunmalı: kök
+            neden, aksiyon, sahip, termin, doğrulama yöntemi. Eksik alanı olan
+            satırlar listede işaretli görünür.
+          </p>
+          <p>
+            Termin, kritikliğe göre otomatik önerilir: Kritik için 5 iş günü,
+            Yüksek için 30 gün, Orta için 90, Düşük için 180. Gerçekçi değilse
+            değiştirin — ama değiştirdiğinizi bilerek yapın.
+          </p>
+        </div>
+      </li>
+
+    </ol>
+
+    <hr class="ayrac">
+
+    <h2 id="anket-detay">Anketi doldurmanın püf noktaları</h2>
+    <p class="h2-alt">218 soru, doğru yaklaşımla iki güne iner.</p>
+
+    <h3>Dört yanıt ne demek</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead>
+          <tr><th>Yanıt</th><th>Ne zaman</th><th>Skora etkisi</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Evet</strong></td><td>Kontrol var, çalışıyor ve kanıtlanabilir</td><td>Tam puan</td></tr>
+          <tr><td><strong>Kısmen</strong></td><td>Kontrol var ama kapsamı dar, düzensiz ya da belgesiz</td><td>Yarım puan</td></tr>
+          <tr><td><strong>Hayır</strong></td><td>Kontrol yok ya da çalışmıyor</td><td>Sıfır</td></tr>
+          <tr><td><strong>Uygulanamaz</strong></td><td>Bu kontrol kurumunuz için anlamsız</td><td>Paydadan çıkar</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      “Uygulanamaz” ile “Hayır” arasındaki farka dikkat edin. Trade finance
+      yapmıyorsanız trade finance taraması “Uygulanamaz”. Yapıyorsanız ama tarama
+      kurmadıysanız “Hayır”. Birincisi skorunuzu etkilemez, ikincisi bulgudur.
+    </p>
+
+    <h3>Kanıt referansı</h3>
+    <p>
+      Her sorunun altında “beklenen kanıt” yazar — ne aramanız gerektiğini söyler.
+      Yan tarafındaki kutuya o kanıtın <em>nerede</em> olduğunu yazın. Belgenin
+      adı, karar numarası, rapor kodu. Denetçi bu satır üzerinden arar.
+    </p>
+    <p>
+      Yanıtladığınız ama kanıt referansı yazmadığınız sorularda uyarı işareti
+      çıkar. Anket ekranının üstündeki durum filtresinden “kanıtsız” diyerek
+      hepsini toplu görebilirsiniz.
+    </p>
+
+    <h3>QA dosya testi sonucu</h3>
+    <p>
+      218 sorunun 115'i bağımsız dosya testi gerektirir. Bu sorularda yanıtın
+      altında katlanır bir bölüm var: test sonucu, incelenen dosya sayısı, hatalı
+      dosya sayısı ve not.
+    </p>
+    <p>
+      Bu bölüm işin kalbi. Anket yanıtı sizin <strong>beyanınız</strong>; QA testi
+      o beyanın doğrulanması. Testte “Çelişkili” çıkan bir kontrol, siz “Evet”
+      demiş olsanız bile etkin sayılmaz — katsayısı sıfırlanır. “Kısmen
+      doğrulandı” çıkarsa en çok yarım puan alır.
+    </p>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Beyanla test çelişirse</div>
+      <p>
+        Panoda kırmızı bir uyarı çıkar. Doğru davranış, testi görmezden gelmek
+        değil: ya yanıtı “Kısmen” veya “Hayır” olarak düzeltin, ya da testin neden
+        yanıltıcı olduğunu QA notuna yazın. Çelişkiyi açıkta bırakmak, denetimde
+        en zor savunulacak durumdur.
+      </p>
+    </div>
+
+    <h3>218 soruda kaybolmamak</h3>
+    <ul>
+      <li>Bölüm başlığı kaydırırken ekranın üstünde asılı kalır — hangi domainde
+        olduğunuzu hep görürsünüz.</li>
+      <li>Sağ altta sabit duran <span class="ekran">Sonraki yanıtlanmamış</span>
+        düğmesi kalan soru sayısını gösterir ve sizi bir sonraki boş soruya
+        götürür.</li>
+      <li>Filtreler adres satırında taşınır. Yani “D6 domaininde eksik
+        kontroller” görünümünü bir ekip arkadaşınıza bağlantı olarak
+        gönderebilirsiniz; sayfayı yenilediğinizde de kaybolmaz.</li>
+      <li>Klavyeyle çok daha hızlı: <kbd>1</kbd>–<kbd>4</kbd> yanıtı işaretler,
+        <kbd>J</kbd> ve <kbd>K</kbd> sorular arasında gezer, <kbd>N</kbd> sonraki
+        boş soruya atlar, <kbd>E</kbd> kanıt alanına gider, <kbd>?</kbd> listeyi
+        açar.</li>
+    </ul>
+
+    <div class="kutu ipucu">
+      <div class="kutu-baslik">Nasıl bölmeli</div>
+      <p>
+        Domain domain ilerleyin, karışık atlamayın. Bir domaini bitirdiğinizde
+        yanıtlarınız arasında tutarlılık kurmuş olursunuz. Günde üç domain makul
+        bir hız; dördüncü domainde dikkat düşer ve “Evet” demeye başlarsınız.
+      </p>
+    </div>
+
+    <hr class="ayrac">
+
+    <h2 id="okuma">Skorları okumak</h2>
+    <p class="h2-alt">Panoda gördüğünüz sayıların her biri neyi söylüyor.</p>
+
+    <h3>Beyan ile test edilmiş etkinlik</h3>
+    <p>
+      İki ayrı sayı görürsünüz ve ikisi farklıysa bu iyi bir işarettir — testin
+      çalıştığı anlamına gelir. Beyan, anket yanıtlarınızın toplamı. Test ile
+      düzeltilmiş etkinlik ise QA sonuçlarıyla aşağı çekilmiş hali. Artık risk
+      hesabı, panodaki kutular ve rapor <strong>hep test ile düzeltilmiş
+      değeri</strong> kullanır.
+    </p>
+
+    <h3>%95 tavanı</h3>
+    <p>
+      Kontrol etkinliğiniz %100 olsa bile artık risk hesabında en çok %95
+      uygulanır. Sebebi basit: hiçbir kontrol seti riski sıfırlamaz. Tavan
+      olmasaydı tam puan alan bir domain “0,00 artık risk” gösterirdi ve bunu
+      hiçbir denetimde savunamazdınız. Tavan yalnızca artık risk hesabına
+      uygulanır; etkinlik skorunuz olduğu gibi kalır.
+    </p>
+
+    <h3>Eşikler</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead>
+          <tr><th>Doğuştan risk (1–5)</th><th>Artık risk (0–5)</th><th>Olgunluk (etkinliğe göre)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>≥ 4,00 Çok Yüksek</td><td>≥ 3,50 Çok Yüksek</td><td>≥ %90 Gelişmiş</td></tr>
+          <tr><td>≥ 3,00 Yüksek</td><td>≥ 2,50 Yüksek</td><td>≥ %75 Yeterli</td></tr>
+          <tr><td>≥ 2,00 Orta</td><td>≥ 1,50 Orta</td><td>≥ %60 Gelişime Açık</td></tr>
+          <tr><td>&lt; 2,00 Düşük</td><td>&lt; 1,50 Düşük</td><td>≥ %40 Zayıf</td></tr>
+          <tr><td></td><td></td><td>&lt; %40 Kritik Zayıf</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Genel skora tek başına bakmayın</h3>
+    <p>
+      Genel artık risk bir ortalamadır ve ortalama, tek bir domainde yoğunlaşmış
+      bir zafiyeti seyreltebilir. Bu yüzden panoda ayrıca <strong>en yüksek domain
+      artık riski</strong> gösterilir. Genel skorunuz iştahın altındayken bir
+      domain aşımdaysa uygulama sizi uyarır. Kurumsal risk değerlendirmesinde
+      domain düzeyindeki bir aşım genel ortalamayla kapatılamaz.
+    </p>
+
+    <h3>Açık kritik kontrol</h3>
+    <p>
+      Kritiklik derecesi “Kritik” olan ve “Evet” dışında yanıtlanan sorular. 218
+      sorunun 40'ı kritik; bu derece yazılı bir kurala göre veriliyor — bir kontrol
+      ancak yokluğu tek başına doğrudan yasal ihlal ya da başka hiçbir kontrolün
+      telafi edemeyeceği bir maruziyet doğuruyorsa kritik sayılıyor. Yani açık
+      kritik listesi, önceliklendirebileceğiniz bir listedir.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="ekip">Ekip olarak çalışmak</h2>
+    <p class="h2-alt">Gerçekte bu işi tek kişi yapmaz.</p>
+
+    <p>
+      Uygulamanın sunucusu olmadığı için paralel çalışma dosya üzerinden yürür.
+      Yol şu:
+    </p>
+    <ol>
+      <li><span class="ekran">Ekip ve Birleştirme</span> ekranında her domaine bir
+        sorumlu yazın. Bu atama çalışma dosyasında saklanır.</li>
+      <li>Herkese kendi payını doldurması için dosyayı gönderin — ya da herkes
+        boş dosyayla başlayıp yalnızca kendi domainini doldursun.</li>
+      <li>Herkes bitirince JSON dosyasını size göndersin.</li>
+      <li>Aynı ekrandan gelen dosyayı yükleyin. Uygulama size <strong>alan bazında
+        bir karşılaştırma</strong> gösterir: hangi domainde kaç yanıt sizde var,
+        kaçı gelen dosyada, kaç tanesi çakışıyor.</li>
+      <li>Her parça için “bendeki” mi “gelen” mi kalacağını seçin, sonra
+        birleştirin.</li>
+    </ol>
+    <p>
+      Sessiz üzerine yazma yok. “Gelen” seçtiğiniz bir parçada bile, gelen dosyada
+      boş olan alanlar sizdeki değerini korur. Birleştirmeden önce otomatik yedek
+      alınır ve işlem değişiklik günlüğüne yazılır.
+    </p>
+
+    <h3>Değişiklik günlüğü</h3>
+    <p>
+      <span class="ekran">Değişiklik Günlüğü</span> ekranı, hangi yanıtın ne zaman
+      ve kim tarafından değiştirildiğini tutar. Kayıtlar yalnızca eklenir, hiç
+      düzenlenmez. “Kim” alanı künyedeki uyum görevlisidir — uygulama kimlik
+      doğrulaması yapmadığı için bu bir beyandır, ama dosya bir denetim kaydına
+      dönüşmesi için yeterlidir.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="rapor">Rapor ve imza</h2>
+
+    <p>
+      <span class="ekran">Yönetici Raporu</span> ekranı, dosyaya konacak çıktıdır.
+      Kurum künyesi, genel skorlar, doğuştan risk profili, domain sonuçları, iştah
+      aşımları, açık kritik kontroller ve aksiyon özeti tek sayfada toplanır.
+      Yazdır düğmesiyle PDF alırsınız.
+    </p>
+    <p>
+      Raporun altında üç satırlık imza bloğu var: hazırlayan, gözden geçiren,
+      onaylayan. Doldurduğunuz satırlar isim ve tarihle basılır; boş bıraktığınız
+      satır çıktıda imza yeri olarak görünür.
+    </p>
+    <p>
+      Raporun en altında iki bilgi daha yazar: kullanılan skorlama yöntemi ve
+      referans veri paketinin sürümü. İkisi de denetimde “bu sayıyı hangi kurallarla
+      ürettiniz” sorusunun cevabıdır.
+    </p>
+
+    <h3>CSV çıktıları</h3>
+    <p>
+      <span class="ekran">Veri ve yedekleme</span> ekranından sekiz ayrı CSV
+      alabilirsiniz: sorular, domainler, portföy, işlem detayı, ülkeler, doğuştan
+      risk, QA planı, aksiyonlar ve değişiklik günlüğü. Excel'de Türkçe yerelde
+      düzgün açılacak biçimde üretilirler.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="kapanis">Dönem sonu kontrol listesi</h2>
+    <p class="h2-alt">Raporu imzaya göndermeden önce.</p>
+
+    <ul class="liste-kontrol">
+      <li>218 sorunun tamamı yanıtlandı; yanıtsız soru kalmadı</li>
+      <li>Yanıtlanan her soruda kanıt referansı var</li>
+      <li>QA testi gereken 115 sorunun test sonucu girildi</li>
+      <li>Beyan ile testin çeliştiği sorular ya düzeltildi ya gerekçelendirildi</li>
+      <li>25 faktörün tamamı skorlandı; 4–5 verilen her faktörde gerekçe var</li>
+      <li>İştahı aşan her alan için en az bir bulgu açıldı</li>
+      <li>Açık kritik kontrollerin tamamı aksiyon planında karşılığını buldu</li>
+      <li>Her bulguda kök neden, aksiyon, sahip, termin ve doğrulama dolu</li>
+      <li>Künyedeki tarihler güncel; yaşlandırma uyarısı kalmadı ya da açıklandı</li>
+      <li>Ayarlar ekranındaki ülke risk işaretleri güncel listelerle karşılaştırıldı</li>
+      <li>İmza bloğu dolduruldu</li>
+      <li>JSON yedeği indirildi ve kurum arşivine kondu</li>
+    </ul>
+
+    <hr class="ayrac">
+
+    <h2 id="sonraki">Bir sonraki dönem</h2>
+
+    <p>
+      Check-up yılda bir tekrarlanır ve asıl değeri ikinci dönemde ortaya çıkar:
+      “geçen yıla göre ne düzeldi”.
+    </p>
+    <p>
+      Yeni dönemde <span class="ekran">Dönem Karşılaştırma</span> ekranından geçen
+      dönemin JSON dosyasını yükleyin. Etkinlik, artık risk, iştah aşımları ve
+      bulgu kapanışı iki dönem yan yana gelir. Her domain satırında “aşım
+      giderildi”, “yeni aşım” ya da “aşım sürüyor” yazar. Geçen dönem açık olup bu
+      dönem kapanan bulgular ayrı sayılır — yönetim kuruluna götüreceğiniz tablo
+      budur.
+    </p>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Karşılaştırmanın anlamlı olması için</div>
+      <p>
+        İki dönemin aynı skorlama yöntemiyle hesaplanmış olması gerekir. Yöntemi
+        değiştirdiyseniz uygulama uyarır. Soru bankasına soru eklediyseniz de
+        karşılaştırma kopar — bu yüzden yeni kontroller ana bankaya değil, Ek
+        Kontroller setine eklenir.
+      </p>
+    </div>
+
+    <hr class="ayrac">
+
+    <h2 id="sorun">Bir şeyler ters gittiğinde</h2>
+
+    <h3>“Çalışmam kayboldu”</h3>
+    <p>
+      Önce <span class="ekran">Veri ve yedekleme</span> ekranını açın: uygulama son
+      beş sürümü saklar, tarihine bakıp geri yükleyebilirsiniz. Orada da yoksa,
+      indirdiğiniz son JSON dosyasını yükleyin. İkisi de yoksa maalesef
+      kurtarılamaz — bu yüzden yedek disiplinini kılavuzun başına koydum.
+    </p>
+
+    <h3>“Kayıt başarısız” uyarısı çıkıyor</h3>
+    <p>
+      Tarayıcı deposu dolmuş demektir. Hemen JSON indirin, sonra tarayıcının
+      site verilerini temizleyip indirdiğiniz dosyayı geri yükleyin.
+    </p>
+
+    <h3>Dosya yüklenmiyor</h3>
+    <p>
+      “Bu dosya bir AML Check-up çalışma dosyası değil” diyorsa, yanlış dosyayı
+      seçmiş olabilirsiniz — uzantısı <code>.json</code> olmalı ve bu uygulamadan
+      çıkmış olmalı. Elle düzenlenmiş bir dosyaysa bozulmuş olabilir; uygulama
+      bozuk dosyayı yükleyip çökmek yerine reddeder.
+    </p>
+
+    <h3>Skorlar beklediğim gibi değil</h3>
+    <p>
+      Üç yaygın sebep: künyedeki faaliyet sorularını doldurmadığınız için kapsam
+      dışı olması gereken sorular skora giriyordur; “Uygulanamaz” demeniz gereken
+      yerde “Hayır” demişsinizdir; ya da QA testleri beyanınızı aşağı çekmiştir.
+      <span class="ekran">Kontrol Skorları</span> ekranında beyan ve test
+      sütunlarını karşılaştırarak üçüncüyü hemen görürsünüz.
+    </p>
+
+    <h3>Ekranı büyütmek istiyorum</h3>
+    <p>
+      Tarayıcının kendi yakınlaştırması çalışır (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> ve
+      <kbd>+</kbd>). Sağ üstteki ay simgesi koyu temaya geçirir; uzun okuma
+      seanslarında gözü yormaz.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="sozluk">Terimler nerede</h2>
+
+    <p>
+      Soru metinlerinde açıklamasız geçen sektör kısaltmaları için ayrı bir sayfa
+      var: <span class="ekran">Nasıl Okunur</span>. CBDDQ, nested ilişki,
+      payable-through, SoF ve SoW farkı, BTL/ATL testi, %50 kuralı, Travel Rule,
+      unhosted cüzdan, dual-use, ayna işlem, FOP, KAGK — 26 terim tanımlı.
+    </p>
+    <p>
+      Aynı sayfada skorlama kavramları da tek yerde toplanmış: doğuştan risk,
+      beyan ile test edilmiş etkinlik farkı, güvence örtüsü, artık risk, iştah,
+      %95 tavanı ve ölçek eşikleri. Her tanım ilgili ekrana bağlanıyor.
+    </p>
+
+    <div class="altbilgi">
+      <p>
+        Bu kılavuz uygulamanın 2.9.0 sürümüne göre yazıldı. Ekran adları ve
+        sayılar o sürümdeki hâlleriyle verilmiştir. Kılavuzda bulamadığınız bir
+        şey varsa uygulamanın kendi <span class="ekran">Nasıl Okunur</span>
+        ekranına bakın; orada bulamazsanız muhtemelen henüz yazılmamıştır.
+      </p>
+    </div>
+
+  </main>
+</div>
