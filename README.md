@@ -21,12 +21,29 @@ aksiyon kayıtları her zaman aynı iç anahtarlarla tutulur, bu yüzden dil de�
 hesabı ya da kaydı bozmaz — doğrulandı: iki dilde kontrol etkinliği, doğuştan risk ve örneklem
 sonuçları birebir aynı.
 
-## Kullanım kılavuzu
+## Metodoloji ve kullanım kılavuzu
 
-Teknik bilgisi olmayan bir uyum görevlisi için baştan sona kullanım kılavuzu:
-[KILAVUZ.html](KILAVUZ.html) — hazırlık, veri güvenliği, on adımlık akış,
-anket püf noktaları, skorların okunması, ekip çalışması, dönem sonu kontrol
-listesi ve sorun giderme.
+Uygulamanın içinden erişilen ayrı belge, iki dilde:
+[KILAVUZ.html](KILAVUZ.html) (TR) ve [GUIDE.html](GUIDE.html) (EN).
+İki bölümden oluşur — (1) **metodoloji**: değerlendirme zinciri, kapsam kuralları,
+doğuştan risk, kontrol beyanı, bağımsız test ve QA tavanları, artık risk ve %95
+tavanı, risk iştahı, PF ayrımı, iş kolu yöntemi, örneklem, bulgu SLA'sı, referans
+paketi, formül özeti ve metodolojinin bilinen sınırları; (2) **ekran ekran tam
+referans**: 17 ekranın her özelliği, ortak kabuk, anket kısayolları, ekip
+çalışması, dönem sonu kontrol listesi, sorun giderme ve tablo ekleri.
+
+Erişim: kenar çubuğunun altındaki **Metodoloji ve kılavuz** düğmesi ve **Nasıl
+Okunur** ekranındaki kart. Bağlantı arayüz diline göre doğru sürümü açar; iki
+belge aynı bölüm kimliklerini kullandığı için TR/EN geçişi okunan bölümü korur.
+Belgeler `css/kilavuz.css` ve `js/kilavuz.js` dosyalarını paylaşır (açık/koyu
+tema, okuma ilerlemesi, etkin bölüm işareti); harici istek yoktur.
+
+Yazdırma sürümleri depoda hazır durur: [KILAVUZ.pdf](KILAVUZ.pdf) (A4, 36 sayfa)
+ve [GUIDE.pdf](GUIDE.pdf) (A4, 28 sayfa). Yeniden üretmek için:
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=KILAVUZ.pdf KILAVUZ.html
+```
 
 ## Test
 
@@ -315,6 +332,10 @@ js/compare.js       Dönem karşılaştırma (önceki dönem özeti ve fark okum
 js/merge.js         Ekip ataması ve alan bazında dosya birleştirme
 js/log.js           Değişiklik günlüğü ekranı
 js/refpack.data.js  Referans veri paketi künyesi (sürüm ve bölüm tarihleri)
+KILAVUZ.html        metodoloji ve kullanım kılavuzu (TR)
+GUIDE.html          metodoloji ve kullanım kılavuzu (EN)
+css/kilavuz.css     kılavuz belgesinin tasarımı ve A4 baskı stilleri
+js/kilavuz.js       kılavuz belgesi: tema, okuma ilerlemesi, etkin bölüm
 test/               Regresyon paketi — node test/run.js
 js/export.js        JSON/CSV dışa aktarım, yönetici raporu, imza bloğu
 js/app.js           yönlendirme, tema, veri menüsü

@@ -1697,6 +1697,17 @@ const Views = (() => {
       ${banner('info', t('gdIntroTtl'), t('gdIntroBody'))}
 
       <div class="card">
+        <div class="card-head">
+          <div style="flex:1;min-width:240px">
+            <h2>${t('guideDocTtl')}</h2>
+            <div class="subtle">${esc(t('guideDocBody'))}</div>
+          </div>
+          <a class="btn btn-primary" href="${esc(t('guideDocFile'))}" target="_blank" rel="noopener"
+             style="text-decoration:none">${Icons.file()} ${t('guideDocOpen')}</a>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="card-head"><h2>${t('gdFlowTtl')}</h2>
           <span class="subtle">${t('gdChainTtl')}</span></div>
         <div class="card-body">

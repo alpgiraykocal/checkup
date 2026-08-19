@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Methodology and Guide · AML/CFT Compliance Check-up</title>
+<meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
+<link rel="alternate" hreflang="tr" href="KILAVUZ.html">
+<link rel="alternate" hreflang="en" href="GUIDE.html">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.9.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
+</head>
+<body>
+<div class="ilerleme" id="ilerleme" role="presentation"></div>
+
+<div class="sayfa">
+
+  <header class="ustbilgi">
+    <div class="ust-arac no-print">
+      <a class="geri-link" href="index.html">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Back to the app
+      </a>
+      <div class="sag">
+        <div class="dil-switch" role="group" aria-label="Change language / Dili değiştir">
+          <a class="dil-btn" href="KILAVUZ.html" data-dil="tr" lang="tr">TR</a>
+          <a class="dil-btn" href="GUIDE.html" data-dil="en" aria-current="page" lang="en">EN</a>
+        </div>
+        <button type="button" class="tema-btn" id="tema-btn" aria-label="Switch to dark theme">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <span id="tema-etiket">Dark</span>
+        </button>
+      </div>
+    </div>
+    <div class="etiket">Methodology and user guide</div>
+    <h1>AML/CFT Compliance Check-up</h1>
+    <p class="girizgah">
+      This document does two jobs: it explains the assessment methodology behind
+      the application down to the formula level, and it walks through every
+      feature of all seventeen screens. No technical knowledge is required; your
+      AML knowledge is enough.
+    </p>
+    <div class="ustbilgi-kunye">
+      <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
+      <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
+      <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.9.0</span></div>
+    </div>
+  </header>
+
+  <nav class="icindekiler" id="icindekiler" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li class="ic-ust"><a href="#nedir">What this tool does</a></li>
+      <li class="ic-ust"><a href="#metodoloji">Methodology</a>
+        <ol class="ic-alt">
+          <li><a href="#m-kapsam">Setting the scope</a></li>
+          <li><a href="#m-dogustan">Inherent risk</a></li>
+          <li><a href="#m-kontrol">Control declaration</a></li>
+          <li><a href="#m-test">Independent testing</a></li>
+          <li><a href="#m-artik">Residual risk and the cap</a></li>
+          <li><a href="#m-istah">Risk appetite</a></li>
+          <li><a href="#m-pf">The separate PF line</a></li>
+          <li><a href="#m-iskolu">Business line method</a></li>
+          <li><a href="#m-ek">Extra control sets</a></li>
+          <li><a href="#m-orneklem">Sampling</a></li>
+          <li><a href="#m-bulgu">Findings and SLA</a></li>
+          <li><a href="#m-referans">Reference pack</a></li>
+          <li><a href="#m-ozet">Formula summary</a></li>
+          <li><a href="#m-sinir">Limitations</a></li>
+        </ol>
+      </li>
+      <li class="ic-ust"><a href="#hazirlik">Before you start</a></li>
+      <li class="ic-ust"><a href="#veri">Where your data lives</a></li>
+      <li class="ic-ust"><a href="#kabuk">Shell and navigation</a></li>
+      <li class="ic-ust"><a href="#ekranlar">Screen-by-screen reference</a>
+        <ol class="ic-alt">
+          <li><a href="#e-pano">1 Dashboard</a></li>
+          <li><a href="#e-nasil">2 How to Read</a></li>
+          <li><a href="#e-kunye">3 Profile</a></li>
+          <li><a href="#e-portfoy">4 Portfolio</a></li>
+          <li><a href="#e-islem">5 Transactions</a></li>
+          <li><a href="#e-dogustan">6 Inherent Risk</a></li>
+          <li><a href="#e-anket">7 Questionnaire</a></li>
+          <li><a href="#e-ek">8 Extra Controls</a></li>
+          <li><a href="#e-qa">9 QA Plan</a></li>
+          <li><a href="#e-skorlar">10 Control Scores</a></li>
+          <li><a href="#e-artik">11 Residual Risk</a></li>
+          <li><a href="#e-aksiyon">12 Action Plan</a></li>
+          <li><a href="#e-karsilastir">13 Period Comparison</a></li>
+          <li><a href="#e-ekip">14 Team and Merge</a></li>
+          <li><a href="#e-gunluk">15 Change Log</a></li>
+          <li><a href="#e-rapor">16 Executive Report</a></li>
+          <li><a href="#e-ayarlar">17 Settings</a></li>
+        </ol>
+      </li>
+      <li class="ic-ust"><a href="#anket-detay">Filling in the questionnaire</a></li>
+      <li class="ic-ust"><a href="#ekip">Working as a team</a></li>
+      <li class="ic-ust"><a href="#kapanis">Period-end checklist</a></li>
+      <li class="ic-ust"><a href="#sonraki">The next period</a></li>
+      <li class="ic-ust"><a href="#sorun">When something goes wrong</a></li>
+      <li class="ic-ust"><a href="#ekler">Appendices and tables</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <h2 id="nedir">What this tool does</h2>
+    <p class="h2-alt">And, more importantly, what it does not do.</p>
+
+    <p>
+      The application answers three questions in order: how much risk does your
+      business carry by its very nature, how well do your controls work against
+      that risk, and what is left over. If the remaining risk exceeds the limit
+      your institution has accepted, a finding and an action come out of it.
+    </p>
+    <p>
+      You end up with three things: a printable executive report, an inventory of
+      218 controls matched to evidence references, and an action plan with named
+      owners and due dates. When an examiner asks “how do you know that?”, the
+      answer lives in those three.
+    </p>
+
+    <div class="kutu">
+      <div class="kutu-baslik">What it does not replace</div>
+      <p>
+        This is a self-assessment tool. It does not replace independent audit,
+        internal inspection or regulatory examination. Its scores rest on the
+        answers and evidence you enter; a false declaration produces a false
+        score. The value it adds is that it ties declarations to written
+        evidence, tests them against samples, and puts the result on a
+        repeatable formula.
+      </p>
+    </div>
+
+    <h3>What it is based on</h3>
+    <p>
+      The question bank, risk factors, sampling rates and thresholds were derived
+      from a source workbook; the scoring engine matches that workbook's formulas
+      exactly. The methodological frame is aligned with FATF Recommendations 1
+      and 7, the EBA ML/TF risk factors guidelines, the Basel approach to AML/CFT
+      risk management, the Wolfsberg effectiveness statement and the IIA three
+      lines model. Regulatory citations are indicative; article numbers must be
+      checked against the legislation in force.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="metodoloji">Methodology</h2>
+    <p class="h2-alt">The chain, the formulas, and why each step is there.</p>
+
+    <p>
+      The assessment is a chain with seven links. Each link takes the previous
+      one's output as its input; no link can be skipped, and if one is, the next
+      link reports “not measured” and stays empty.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Link</th><th>What it produces</th><th>Screen</th></tr></thead>
+        <tbody>
+          <tr><td><b>1 · Scope</b></td><td>Which questions, factors and business lines enter the assessment</td><td>Profile</td></tr>
+          <tr><td><b>2 · Exposure</b></td><td>Customer, country, channel and transaction volumes; score suggestions</td><td>Portfolio · Transactions</td></tr>
+          <tr><td><b>3 · Inherent risk</b></td><td>1–5 scores across 5 dimensions plus PF</td><td>Inherent Risk</td></tr>
+          <tr><td><b>4 · Control declaration</b></td><td>Declared control effectiveness per domain</td><td>Questionnaire · Extra Controls</td></tr>
+          <tr><td><b>5 · Independent testing</b></td><td>Test-adjusted effectiveness and assurance coverage</td><td>QA Plan · Questionnaire</td></tr>
+          <tr><td><b>6 · Residual risk</b></td><td>Remaining risk and appetite breaches</td><td>Control Scores · Residual Risk</td></tr>
+          <tr><td><b>7 · Action</b></td><td>Finding, root cause, owner, due date, verification</td><td>Action Plan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="m-kapsam">Setting the scope</h3>
+    <p>
+      Scoring a control as “absent” for business you do not conduct depresses the
+      score unfairly; scoring it as “present” is a false declaration. That is why
+      scope is set first, and in writing. A “No” to any of the six business scope
+      questions in the Profile screen automatically takes the related question
+      sections, inherent risk factors, business lines and extra control sets out
+      of scope.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Profile field answered “No”</th><th>Question section taken out of scope</th><th>Inherent risk factor taken out of scope</th></tr></thead>
+        <tbody>
+          <tr><td>Trade finance activity</td><td>D6 · Trade Finance</td><td>Trade finance product volume</td></tr>
+          <tr><td>Correspondent banking</td><td>D2 · Correspondent Banking</td><td>Geographic risk of the correspondent network</td></tr>
+          <tr><td>Virtual asset activity</td><td>D3 · Virtual Assets</td><td>Virtual asset products and services</td></tr>
+          <tr><td>Remote customer onboarding</td><td>D3 · Digital Channel</td><td>Share of remote onboarding</td></tr>
+          <tr><td>Agent / representative network</td><td>D3 · Intermediated Channel · D1 · Outsourcing and Agents</td><td>Share of the agent and representative channel</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      A question taken out of scope counts as “Not applicable”: it enters neither
+      the numerator nor the denominator, and moves the score neither up nor down.
+      The rule binds only records you have <b>not filled in manually</b> — if you
+      answered a question or scored a factor yourself, the automatic scope rule
+      no longer applies to that record. That way the “we generally don't, but
+      there is this one relationship” case is not lost.
+    </p>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Scope decisions get examined</div>
+      <p>
+        Saying “No” is a declaration and it appears in the report. If the activity
+        started during the period, update the Profile: the section you excluded
+        reopens immediately, its questions become unanswered, and the progress
+        badge drops.
+      </p>
+    </div>
+
+    <h3 id="m-dogustan">Inherent risk</h3>
+    <p>
+      Inherent risk is the risk the business carries when you imagine there are no
+      controls at all. It is measured across five dimensions with 25 factors in
+      total: <b>Customer</b>, <b>Geography and Sanctions</b>, <b>Product</b>,
+      <b>Channel</b>, <b>Transaction</b>. Each factor is scored from 1 to 5 and
+      each factor carries its own weight.
+    </p>
+
+    <div class="formul"><b>Dimension score</b> = Σ(factor score × weight) ÷ Σ(weights of scored factors)</div>
+    <div class="formul"><b>OVERALL</b> = plain average of the measured dimension scores</div>
+
+    <ul>
+      <li>A factor marked <b>Not applicable</b> stays out of the denominator.</li>
+      <li>A factor not yet scored also stays out of the denominator — a
+        half-filled dimension does not produce a misleading average, but the
+        number of missing factors is visible on the screen and in the badge.</li>
+      <li>A dimension with no scored factors counts as <b>“not measured”</b>.
+        Residual risk is not calculated for the domains fed by that dimension;
+        showing zero would be misleading.</li>
+      <li>When every factor is scored, the result matches the source workbook
+        exactly.</li>
+    </ul>
+
+    <h4>Scoring anchors</h4>
+    <p>
+      Each of the 25 factors has a written rubric defining what every score from 1
+      to 5 means (for example “share of high-risk customers 3–7% → 3”). The rubric
+      makes scoring independent of the person and defensible in an examination.
+      Do not score a factor without reading its rubric.
+    </p>
+
+    <h4>Mandatory rationale</h4>
+    <p>
+      A rationale/evidence note is treated as mandatory for scores of 4 and 5.
+      This is the first thing an examiner asks: “what did you base this score on?”
+      High scores without a rationale are counted as a warning on the dashboard.
+    </p>
+
+    <h4>Changing weights</h4>
+    <p>
+      Factor weights are editable. A changed weight is tagged “weight changed”,
+      written to the CSV export alongside the default, and reverted with one
+      click. Changing a weight is a methodology decision of the institution and
+      should be approved in writing.
+    </p>
+
+    <h4>Score suggestions</h4>
+    <p>
+      The figures entered on the Portfolio and Transactions screens produce score
+      suggestions for 16 factors (12 from the portfolio, 4 from operations). A
+      suggestion is derived by placing the calculated ratio into the rubric bands,
+      and it is applied with one click. Suggestions are not binding; you still
+      write the rationale. If there is no portfolio data, the figures from the
+      Profile screen step in.
+    </p>
+
+    <h3 id="m-kontrol">Control declaration</h3>
+    <p>
+      The control side is measured with 218 questions across 11 domains. Every
+      question carries a weight and a criticality; 40 questions are rated
+      “Critical”.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Answer</th><th>Coefficient</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><b>Yes</b></td><td>1.00</td><td>The control is defined, applied, and evidenced</td></tr>
+          <tr><td><b>Partial</b></td><td>0.50</td><td>Present but incomplete: narrow coverage, undocumented, or applied irregularly</td></tr>
+          <tr><td><b>No</b></td><td>0.00</td><td>The control does not exist or does not work</td></tr>
+          <tr><td><b>Not applicable</b></td><td>—</td><td>Excluded from scoring entirely; enters neither numerator nor denominator</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="formul"><b>Control effectiveness</b> = points earned ÷ applicable total weight (per domain)</div>
+
+    <p>
+      This value is the <b>declared effectiveness</b>: it is the institution's own
+      statement and is not evidence on its own. An unrecognised answer value (a
+      hand-edited file, a different version) is treated as unanswered; a silently
+      broken score is never produced.
+    </p>
+
+    <h4>Maturity bands</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Effectiveness</th><th>Maturity</th></tr></thead>
+        <tbody>
+          <tr><td>≥ 90%</td><td>Advanced</td></tr>
+          <tr><td>≥ 75%</td><td>Adequate</td></tr>
+          <tr><td>≥ 60%</td><td>Needs improvement</td></tr>
+          <tr><td>≥ 40%</td><td>Weak</td></tr>
+          <tr><td>&lt; 40%</td><td>Critically weak</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      The maturity label is derived from the <b>test-adjusted</b> effectiveness;
+      it always comes from the same source as the percentage shown on the
+      dashboard, in the heatmap, in the score table and in the report.
+    </p>
+
+    <h4>Open critical control</h4>
+    <p>
+      Any question rated “Critical” whose answer is not “Yes” counts as an open
+      critical. Criticality is assigned by a written rule: a control is critical
+      only if its absence on its own creates a direct legal breach or an exposure
+      that cannot be remedied. What is important but recoverable — governance,
+      methodology, an approval step, measurement — is rated “High”. Open criticals
+      are listed separately even when the overall score looks good, and they get
+      their own section in the report.
+    </p>
+
+    <h3 id="m-test">Independent testing: challenging the declaration</h3>
+    <p>
+      This is the backbone of the methodology: <b>a questionnaire answer alone
+      does not count as control effectiveness.</b> Of the 218 questions, 115
+      require file testing. The test result applies a cap to the declaration.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>QA file test result</th><th>Cap applied to the declaration</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td>Confirmed</td><td>—</td><td>The declaration stands as given</td></tr>
+          <tr><td>Partly confirmed</td><td>0.50</td><td>A “Yes” declaration earns at most half a point</td></tr>
+          <tr><td>Contradicted</td><td>0.00</td><td>Whatever the declaration says, the control does not count as effective</td></tr>
+          <tr><td>Not tested</td><td>—</td><td>The declaration stands, but it does not enter assurance coverage</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Three separate numbers are therefore reported for each domain, and none of
+      them substitutes for another:
+    </p>
+    <ul>
+      <li><b>Declared effectiveness</b> — from the questionnaire answers only.</li>
+      <li><b>Test-adjusted effectiveness</b> — after the QA caps are applied.
+        Residual risk is calculated from this value.</li>
+      <li><b>Assurance coverage</b> — how many of the questions requiring a test
+        were actually tested. If it is low, your scores have weak evidential
+        force; the score itself does not change, your confidence does.</li>
+    </ul>
+
+    <div class="kutu kritik">
+      <div class="kutu-baslik">A contradiction is a state that must be corrected</div>
+      <p>
+        If the answer is “Yes” but the file test says “Contradicted”, a red
+        warning appears on the question card and the contradiction count shows on
+        the dashboard and in the questionnaire summary. The right response is not
+        to leave the score as it is, but to correct the declaration: the answer
+        should be “Partial” or “No”. A report signed off with open contradictions
+        cannot be defended.
+      </p>
+    </div>
+
+    <p>
+      Basis: the Wolfsberg effectiveness statement (separating what is declared
+      from what is demonstrated), the IIA three lines model (the second line's
+      declaration being challenged by the third line), and the independent testing
+      pillar of BSA/AML programmes.
+    </p>
+
+    <h3 id="m-artik">Residual risk and the 95% cap</h3>
+
+    <div class="formul"><b>Residual risk</b> = inherent risk × (1 − applied control effectiveness)</div>
+    <div class="formul"><b>Applied effectiveness</b> = MIN(test-adjusted effectiveness, 95%)</div>
+
+    <p>
+      Controls reduce risk; they do not eliminate it. FATF Recommendation 1, the
+      EBA ML/TF risk factors guidelines and the Basel approach are explicit on
+      this. Without the cap, a domain with full marks would show 0.00 residual
+      risk, which is indefensible in any examination. The cap applies only to the
+      residual risk calculation, not to the effectiveness score itself — you see
+      98% on the Control Scores screen, and on the Residual Risk screen that row
+      carries a “capped at 95%” note.
+    </p>
+
+    <h4>The inherent risk source of each domain</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Domain</th><th>Inherent risk source</th></tr></thead>
+        <tbody>
+          <tr><td>D1 · Governance and Compliance Programme</td><td>OVERALL</td></tr>
+          <tr><td>D2 · Customer Profile and Geographic Risk</td><td>Customer + Geography and Sanctions</td></tr>
+          <tr><td>D3 · Product and Channel Risk</td><td>Product + Channel</td></tr>
+          <tr><td>D4 · Transaction Universe and Data Integrity</td><td>Transaction</td></tr>
+          <tr><td>D5 · Customer Lifecycle (CDD/EDD)</td><td>Customer</td></tr>
+          <tr><td>D6 · Financial Sanctions and Screening</td><td>Geography and Sanctions</td></tr>
+          <tr><td>D7 · AML Transaction Monitoring</td><td>Transaction + Product</td></tr>
+          <tr><td>D8 · STR, Freezing and Customer Exit</td><td>Customer + Transaction</td></tr>
+          <tr><td>D9 · Regulatory Events and Law Enforcement Requests</td><td>OVERALL</td></tr>
+          <tr><td>D10 · Training, Awareness and Feedback</td><td>OVERALL</td></tr>
+          <tr><td>D11 · Enterprise-Wide Risk Assessment (EWRA)</td><td>OVERALL</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      For domains with two sources, inherent risk is the average of the two
+      dimensions. If even one of the source dimensions is unmeasured, that
+      domain's residual risk is not calculated.
+    </p>
+
+    <h4>Residual risk bands</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Residual risk (0–5)</th><th>Level</th></tr></thead>
+        <tbody>
+          <tr><td>≥ 3.50</td><td>Very high</td></tr>
+          <tr><td>≥ 2.50</td><td>High</td></tr>
+          <tr><td>≥ 1.50</td><td>Medium</td></tr>
+          <tr><td>&lt; 1.50</td><td>Low</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>The institution-wide figure is never read on its own</h4>
+    <p>
+      Overall residual risk is calculated with the source workbook's formula:
+      overall inherent risk × (1 − MIN(overall test-adjusted effectiveness, 95%)).
+      That formula can dilute a concentrated weakness through averaging. This is
+      why the dashboard also shows the <b>highest domain residual risk</b>, and a
+      separate warning appears when the overall figure hides a domain breach. In
+      an enterprise-wide risk assessment, a breach at domain level cannot be
+      closed off by the overall average.
+    </p>
+
+    <h3 id="m-istah">Risk appetite</h3>
+    <p>
+      The default appetite limit is <b>1.50</b> for every domain and for PF; it is
+      a starting value based on industry practice, not your institution's
+      decision. On the Residual Risk screen the limit can be changed on every
+      row; a changed limit is tagged as an “institution decision” and appears that
+      way in the report. If you enter a value equal to the default, no override
+      is stored.
+    </p>
+    <p>
+      When residual risk exceeds the limit, the row is flagged <b>OVER —
+      ACTION</b>, the sidebar badge shows the number of breaches, and the report
+      lists breaches in their own section. A breach requires a finding in the
+      action plan.
+    </p>
+
+    <h3 id="m-pf">Why proliferation financing (PF) is separate</h3>
+    <p>
+      The 2020 revision of FATF Recommendation 1 and Recommendation 7 require PF
+      risk to be assessed <b>separately</b> from money laundering and terrorist
+      financing risk. The application keeps that separation:
+    </p>
+    <ul>
+      <li>Five PF factors are scored in their own block: contact with countries
+        under UN proliferation regimes, trade in dual-use goods, exposure to
+        maritime and logistics customers, shell and supply network structures,
+        and exposure to sanctions evasion typologies.</li>
+      <li>The PF score is <b>never mixed</b> into the ML/TF overall average.</li>
+      <li>On the control side it is paired with D6 sanctions screening
+        effectiveness.</li>
+      <li>It is reported on its own row on the Residual Risk screen, with its own
+        appetite limit.</li>
+      <li>The mandatory rationale for scores of 4 and 5 applies to PF factors
+        too.</li>
+    </ul>
+
+    <h3 id="m-iskolu">Business line assessment and the method choice</h3>
+    <p>
+      The EBA ML/TF risk factors guidelines and the Basel approach expect risk to
+      be assessed at business line and product level and then aggregated to the
+      institution weighted by business volume. In the matrix on the Inherent Risk
+      screen you activate 12 business lines; for each you enter a business share
+      (%) and 1–5 scores across the five dimensions.
+    </p>
+    <ul>
+      <li>The application computes volume-weighted institutional inherent risk and
+        flags the riskiest business line.</li>
+      <li>If the shares deviate from 100 by more than 0.5 points, a warning
+        appears.</li>
+      <li>If the gap between the business-line weighted result and the dimension
+        average exceeds 0.50 points, a warning appears: the dimension average may
+        be hiding risk concentrated in a single business line.</li>
+      <li>Business lines belonging to activities marked “none” in the Profile are
+        automatically out of scope.</li>
+    </ul>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Exposure weighting option — off by default</div>
+      <p>
+        When the option on the Inherent Risk screen is switched on, dimension
+        scores are computed not from factor weights but from the business line
+        level, weighted by business volume. With it on, the result no longer
+        matches the source workbook, and comparison with previous period files is
+        only meaningful if both periods use the same method. The option is only
+        actually applied when there is scored business line data with shares; the
+        method used is written into the executive report, and a method difference
+        produces a warning in the period comparison.
+      </p>
+    </div>
+
+    <h3 id="m-ek">Why extra control sets are scored separately</h3>
+    <p>
+      Beyond the main question bank there are eight complementary sets with 44
+      questions: terrorist financing and NPOs, staff and internal reporting,
+      sanctions lookback and model governance, and five sector-specific sets
+      (insurance/pensions, e-money and payments, VASPs, currency exchange offices,
+      brokerage and portfolio management).
+    </p>
+    <p>
+      Sets open and close automatically according to the <b>obliged entity type</b>
+      and the business scope answers in the Profile. Questions in an out-of-scope
+      set count as “Not applicable” unless answered manually, and the reason is
+      shown on screen.
+    </p>
+    <p>
+      These sets <b>do not enter the denominator of the main score</b>. If they
+      did, domain effectiveness would shift, breaking both the exact match with
+      the source workbook and comparability with previous period files. The set is
+      reported with its own coverage and effectiveness ratio: a tile on the
+      dashboard, a separate table in the executive report, and rows tagged with the
+      set name in the questionnaire CSV. The same QA caps and the same maturity
+      bands apply within this set.
+    </p>
+
+    <h3 id="m-orneklem">QA sampling methodology</h3>
+    <p>
+      There are 24 defined populations. Each population has a domain, a risk
+      rating, a sampling rule and a testing frequency.
+    </p>
+    <ul>
+      <li>For populations marked <b>full coverage</b>, the entire population is
+        tested (STRs filed, freezing decisions, sanctions true matches, PEP files,
+        exit decisions, law enforcement requests, correspondent relationships,
+        closed audit findings).</li>
+      <li>For the rest: <b>annual sample = MIN(volume, MAX(volume × rate, minimum
+        count))</b>. Rates run from 2% to 15%, minimum counts from 15 to 30.</li>
+      <li><b>Sample per test = annual sample ÷ number of tests</b>, rounded up.
+        Quarterly means 4 tests, Semi-annual 2, Annual 1.</li>
+    </ul>
+    <p>
+      The sampling is stratified: rates and minimum counts are higher for
+      high-risk populations. The sampling plan tells you how many files to test,
+      not which ones; file selection should be random or risk-stratified, and the
+      selection method should be documented.
+    </p>
+
+    <h3 id="m-bulgu">Findings, criticality and due dates</h3>
+    <p>
+      A finding that can be defended in an examination has five fields filled in:
+      root cause, action, owner, due date and verification method. The application
+      counts findings with missing fields in a separate tile.
+    </p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Criticality</th><th>Closure time (suggested due date)</th><th>Error class definition</th></tr></thead>
+        <tbody>
+          <tr><td>Critical</td><td>5 working days</td><td>A gap creating a legal breach or an exposure that cannot be remedied</td></tr>
+          <tr><td>High</td><td>30 days</td><td>A recoverable gap that defeats the purpose of the control</td></tr>
+          <tr><td>Medium</td><td>90 days</td><td>A process or documentation gap with limited impact</td></tr>
+          <tr><td>Low</td><td>180 days (the next QA cycle)</td><td>An improvement opportunity</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      For a new finding the due date is suggested automatically by this rule; for
+      critical findings five <b>working</b> days are counted, skipping weekends.
+      The suggested date can be changed by hand. A finding past its due date and
+      not closed counts as “OVERDUE”.
+    </p>
+
+    <h3 id="m-referans">Freshness of the reference data</h3>
+    <p>
+      It is not the code that expires but the external facts it rests on. Country
+      risk flags, regulatory citations and the question bank are tied to a dated
+      <b>reference data pack</b>. Each section ages on its own publication cycle:
+      FATF lists change at every plenary, regulatory citations yearly, the
+      question bank more slowly.
+    </p>
+    <p>
+      The pack version is shown on the Settings screen and at the bottom of the
+      executive report. When a section passes its own threshold, a warning
+      appears; the job then is to verify the lists against primary sources and
+      update them on the Settings screen. Country flags the institution has
+      changed itself are preserved as “institution decisions”.
+    </p>
+
+    <h3 id="m-ozet">Formula summary</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Quantity</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr><td>Answer coefficient</td><td>Yes 1.00 · Partial 0.50 · No 0.00 · Not applicable excluded</td></tr>
+          <tr><td>Question points</td><td>weight × coefficient</td></tr>
+          <tr><td>Test-adjusted question points</td><td>weight × MIN(coefficient, QA cap)</td></tr>
+          <tr><td>Control effectiveness</td><td>Σ points earned ÷ Σ applicable weight</td></tr>
+          <tr><td>Assurance coverage</td><td>questions tested ÷ questions requiring a test</td></tr>
+          <tr><td>Dimension inherent risk</td><td>Σ(score × weight) ÷ Σ(scored weight)</td></tr>
+          <tr><td>OVERALL inherent risk</td><td>plain average of the measured dimensions</td></tr>
+          <tr><td>Residual risk</td><td>inherent risk × (1 − MIN(test-adjusted effectiveness, 0.95))</td></tr>
+          <tr><td>Volume-weighted inherent risk</td><td>Σ(business line score × share) ÷ Σ(share)</td></tr>
+          <tr><td>Annual QA sample</td><td>full coverage: the volume; otherwise MIN(volume, MAX(volume × rate, minimum))</td></tr>
+          <tr><td>Sample per test</td><td>ROUNDUP(annual sample ÷ number of tests)</td></tr>
+          <tr><td>Action closure rate</td><td>closed findings ÷ total findings</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="m-sinir">Known limitations of the methodology</h3>
+    <ul>
+      <li><b>Input quality sets the ceiling.</b> The tool does not verify
+        declarations; you enter the QA test results as well. When assurance
+        coverage is low, a high effectiveness score has weak evidential force.</li>
+      <li><b>Weights and rates are starting values.</b> Question weights, factor
+        weights, sampling rates and minimum sample sizes are based on industry
+        practice; they should be calibrated to the institution's approved
+        methodology.</li>
+      <li><b>The default appetite is the same (1.50) for every domain.</b> It
+        should be replaced with the limits approved by the board.</li>
+      <li><b>Regulatory citations are indicative.</b> Article numbers and
+        thresholds must be verified against the legislation in force.</li>
+      <li><b>Averages can hide concentration.</b> This is why the worst domain,
+        the riskiest business line and open criticals are reported separately; do
+        not read the overall score on its own.</li>
+      <li><b>The tool is not an independent audit.</b> It produces detection,
+        prioritisation and remediation tracking.</li>
+    </ul>
+
+    <hr class="ayrac">
+
+    <h2 id="hazirlik">Before you start</h2>
+    <p class="h2-alt">Half an hour of preparation prevents three days of searching.</p>
+
+    <p>
+      Before opening the application, gather these three sets on your desk. You
+      may not have all of them; a missing field can stay empty, but starting with
+      a clear picture of what is missing is faster than hunting for it later.
+    </p>
+
+    <h3>Institution details</h3>
+    <ul>
+      <li>Legal name, obliged entity type, countries of operation.</li>
+      <li>Assessment period (start and end dates).</li>
+      <li>Names of the compliance officer and of the person performing the assessment.</li>
+      <li>Names and versions of the monitoring, screening and KYC systems in use.</li>
+      <li>Answers to the six business scope questions: trade finance,
+        correspondent banking, virtual assets, remote onboarding, agent network
+        and other relevant activities.</li>
+    </ul>
+
+    <h3>Figures</h3>
+    <ul>
+      <li>Total customers at period end; number of high-risk and PEP customers.</li>
+      <li>Annual transaction count and cross-border transaction count.</li>
+      <li>Compliance headcount in FTE.</li>
+      <li>Customer distribution: type × risk band breakdown.</li>
+      <li>Customer and transaction counts by country.</li>
+      <li>Branch/unit list: country, customer count, compliance FTE, last audit date.</li>
+      <li>Operational figures: alerts, cases, STRs, freezes, screening, RFIs, QA
+        errors, training completion.</li>
+      <li>Period volumes of the QA populations.</li>
+    </ul>
+
+    <h3>Documents</h3>
+    <ul>
+      <li>Current compliance policy and procedures (to cite as evidence references).</li>
+      <li>The latest EWRA, the latest internal/external audit report, the dates of
+        the last scenario tuning and screening threshold calibration.</li>
+      <li>Risk appetite limits approved by the board, if any.</li>
+      <li>The previous period's working file (JSON) — for the period comparison.</li>
+    </ul>
+
+    <div class="kutu ipucu">
+      <div class="kutu-baslik">Make the evidence reference a habit</div>
+      <p>
+        Next to every “Yes” answer, write where the evidence sits: policy name and
+        clause number, procedure code, screenshot file name, report number. In an
+        examination this field is your first line of defence, and it will not be
+        remembered later.
+      </p>
+    </div>
+
+    <hr class="ayrac">
+
+    <h2 id="veri">Where your data lives</h2>
+    <p class="h2-alt">No server. That is a security feature and a responsibility.</p>
+
+    <p>
+      The application makes no network requests at all: no external fonts, no CDN,
+      no analytics. All data is held only in the local storage of the browser you
+      use. Institutional data never leaves the device.
+    </p>
+    <p>
+      The price of that is this: <b>if browser data is cleared, the assessment is
+      gone.</b> The automatic backups sit in the same storage, so they go with it.
+      There is only one way to take a durable backup: <span class="ekran">Data and
+      backup → Download JSON</span>.
+    </p>
+
+    <h3>How the application protects you</h3>
+    <ul>
+      <li><b>Backup reminder</b> — a warning appears on the dashboard once 25 new
+        records have been entered since the last JSON backup, or 7 days have
+        passed. If no backup has ever been taken, the threshold is 15 records. The
+        sidebar shows the date of the last backup.</li>
+      <li><b>Tab-close warning</b> — if there is unbacked-up work, the browser asks
+        for confirmation when you close the tab.</li>
+      <li><b>Save failures are never silent</b> — if storage fills up, you get a
+        notification and a persistent strip in the sidebar.</li>
+      <li><b>Deferred writes are safe</b> — saving is debounced by 250 ms; any
+        pending write is completed when the page is hidden, closed or unloaded.</li>
+      <li><b>Automatic backups</b> — the last five versions are also kept in the
+        browser, and a mandatory backup is taken immediately before reset, file
+        load, backup restore and merge operations.</li>
+    </ul>
+
+    <h3>If you share a computer</h3>
+    <p>
+      Data is tied to the browser profile. Anyone who opens that profile sees the
+      assessment. On shared machines, work in your own user profile; at period end
+      download the JSON and clear the machine with <span class="ekran">Reset</span>.
+    </p>
+
+    <h3>Moving to another device</h3>
+    <p>
+      Download the JSON on the old device and open it on the new one with
+      <span class="ekran">Load working file</span>. The file is the complete
+      working file: answers, scores, notes, findings, settings and the change log
+      are all inside it.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="kabuk">Shell and navigation</h2>
+    <p class="h2-alt">The things that stay in the same place on every screen.</p>
+
+    <h3>The left sidebar</h3>
+    <p>
+      Screens are listed in four groups: <b>Overview</b> (Dashboard, How to Read),
+      <b>Input</b> (Profile, Portfolio, Transactions, Inherent Risk,
+      Questionnaire, Extra Controls, QA Plan), <b>Results</b> (Control Scores,
+      Residual Risk, Action Plan, Period Comparison, Team and Merge, Change Log,
+      Executive Report) and <b>Settings</b>.
+    </p>
+
+    <h4>What the menu badges mean</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Screen</th><th>Badge</th></tr></thead>
+        <tbody>
+          <tr><td>Questionnaire</td><td>answered / total questions; amber while incomplete</td></tr>
+          <tr><td>Inherent Risk</td><td>scored / applicable factors; amber if incomplete</td></tr>
+          <tr><td>Transactions</td><td>filled / total metrics</td></tr>
+          <tr><td>Portfolio</td><td>number of score suggestions produced</td></tr>
+          <tr><td>Residual Risk</td><td>number of appetite breaches (red)</td></tr>
+          <tr><td>Action Plan</td><td>open findings; red if any are overdue</td></tr>
+          <tr><td>Settings</td><td>countries changed by institution decision</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>The bottom of the sidebar</h4>
+    <ul>
+      <li><span class="ekran">Data and backup</span> — JSON download, file load,
+        nine CSV exports, automatic backups and reset in a single dialog.</li>
+      <li><span class="ekran">Load working file</span> — opens a saved JSON (an
+        automatic backup is taken before loading).</li>
+      <li><span class="ekran">Reset</span> — deletes everything; asks for
+        confirmation, and language and theme preferences are preserved.</li>
+      <li>Below that: the time of the last save, the date of the last JSON backup
+        (turns amber when overdue), the “data is stored in this browser only”
+        note, and the save error strip.</li>
+    </ul>
+
+    <h3>The top bar</h3>
+    <ul>
+      <li><b>TR / EN</b> — switches the whole interface: menus, all 218 questions,
+        expected evidence, regulatory citations, the rubrics of the 25 factors,
+        the 24 QA populations, profile fields, KPIs, warnings, CSV headers and
+        file names. Stored data is language-independent; switching language never
+        breaks a score or a record.</li>
+      <li><b>Print</b> — prints the open screen. Use it for the executive report;
+        the print styles hide the toolbars.</li>
+      <li><b>Theme</b> — light/dark toggle; the preference is remembered.</li>
+    </ul>
+
+    <h3>The address bar and shareable links</h3>
+    <p>
+      Screen addresses look like <code>#/anket?d=D6&amp;st=gap</code>.
+      Questionnaire filters are carried in the address bar: you can send a
+      colleague a direct link to “the questions that came out as gaps in D6”, and
+      the filter survives a page refresh.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="ekranlar">Screen-by-screen reference</h2>
+    <p class="h2-alt">Seventeen screens and every feature on them.</p>
+
+    <h3 id="e-pano">1 · Dashboard</h3>
+    <p>The whole assessment on one page. No input is taken, with two exceptions.</p>
+
+    <h4>The four headline measures</h4>
+    <ul>
+      <li><b>Control effectiveness</b> — the test-adjusted value; below it the
+        maturity label, and the declared value if it differs.</li>
+      <li><b>Inherent risk</b> — the OVERALL score (0–5), its level, and the
+        scored/applicable factor count.</li>
+      <li><b>Residual risk</b> — the institution-wide figure and its level.</li>
+      <li><b>Highest domain residual risk</b> — which domain, which level. It makes
+        visible the concentration that the overall figure can hide.</li>
+    </ul>
+
+    <h4>The second row of measures</h4>
+    <p>
+      Progress (answered/total), open criticals, appetite breaches, open actions
+      (with overdue and critical counts), closure rate, and — if the extra control
+      sets have been filled in — extra control effectiveness.
+    </p>
+
+    <h4>Warning strips</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Warning</th><th>When it appears</th></tr></thead>
+        <tbody>
+          <tr><td>Backup reminder</td><td>At 15 records if no backup exists; after 25 new records or 7 days if one does. The button on the strip downloads the JSON immediately.</td></tr>
+          <tr><td>Getting started</td><td>When no question has been answered</td></tr>
+          <tr><td>Missing factors</td><td>When inherent risk scoring has started but is not finished</td></tr>
+          <tr><td>High score without rationale</td><td>When factors scored 4–5 have an empty rationale</td></tr>
+          <tr><td>Open critical</td><td>When critical questions are not answered “Yes”</td></tr>
+          <tr><td>Overall score hides a breach</td><td>When the institution figure is within appetite but a domain is over</td></tr>
+          <tr><td>QA contradiction</td><td>When a “Yes” declaration meets a “Contradicted” file test</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>The start card</h4>
+    <p>
+      While the assessment is empty it walks through five steps in order, each
+      linking to the relevant screen. Once work has begun it gives way to a
+      <b>“Last question”</b> button that returns you to the question you worked on
+      most recently.
+    </p>
+
+    <h4>Heatmap, dimension bars and the KPI table</h4>
+    <ul>
+      <li><b>Heatmap</b> — inherent risk, effectiveness and residual risk per
+        domain; clicking a cell takes you to the relevant screen.</li>
+      <li><b>Dimension bars</b> — a comparison of the five inherent risk
+        dimensions.</li>
+      <li><b>KPI table</b> — a target and a period measurement are entered for 15
+        KPIs; the status (“On target / Off target”) is derived automatically from
+        the direction. Three are calculated automatically (action closure rate,
+        months since the last scenario tuning and since the last screening
+        calibration); if the Transactions screen has been filled in, 12 more KPIs
+        are populated from there. A value you enter by hand overrides the
+        automatic one.</li>
+    </ul>
+
+    <h3 id="e-nasil">2 · How to Read</h3>
+    <p>
+      The methodology summarised inside the application. It holds the chain that
+      explains why the screens are in this order, the definition of eight core
+      concepts and where each appears, four formulas, the scale thresholds
+      (inherent 1–5, residual 0–5, maturity bands) and calibration notes.
+    </p>
+    <p>
+      The same screen defines <b>26 industry terms that appear in the question
+      texts without explanation</b>: CBDDQ, nested relationship, payable-through
+      account, SoF/SoW, BTL/ATL, the 50 Percent Rule, the Travel Rule, unhosted
+      wallet, dual-use, mirror trade, FOP, NPO and others. Have whoever fills in
+      the questionnaire read this screen first.
+    </p>
+
+    <h3 id="e-kunye">3 · Profile</h3>
+    <p>
+      The institution profile: 26 fields in six groups, five of them mandatory.
+      Every field carries a description of what to write and a sample value; in
+      numeric fields the value you enter is read back with thousands separators.
+    </p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Group</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td>Institution identity</td><td>Legal name, obliged entity type, geography of operations</td></tr>
+          <tr><td>Assessment</td><td>Period start/end, assessor, compliance officer</td></tr>
+          <tr><td>Scale and exposure</td><td>Customer, high-risk and PEP counts, transaction and cross-border counts, compliance headcount (FTE)</td></tr>
+          <tr><td>Systems</td><td>Monitoring, screening and KYC system names and versions</td></tr>
+          <tr><td>Business scope</td><td>Six Yes/No questions — these set the scope</td></tr>
+          <tr><td>Audit and model history</td><td>Dates of the last audit, EWRA, scenario tuning and screening threshold calibration</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>What the screen produces</h4>
+    <ul>
+      <li><b>Four ratios</b> — share of high-risk customers, share of PEPs, share
+        of cross-border transactions, and customers per compliance FTE.</li>
+      <li><b>Scope effect table</b> — which section each “No” took out of scope,
+        why, and how many questions it affects.</li>
+      <li><b>Date ageing table</b> — for every date field, the months elapsed and
+        whether the expected interval has been exceeded.</li>
+      <li><b>Consistency warnings</b> — a red strip appears if the high-risk or PEP
+        count exceeds the total, if cross-border transactions exceed total
+        transactions, or if the period end precedes the start.</li>
+      <li><b>Score suggestions</b> — where there is no portfolio data, these
+        figures produce suggestions for inherent risk factors.</li>
+    </ul>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">The obliged entity type opens the extra sets</div>
+      <p>
+        The obliged entity type in the Profile determines which sector-specific
+        sets apply on the Extra Controls screen. A bank gets three universal sets;
+        an insurance company additionally gets the insurance set. Choose the type
+        carefully.
+      </p>
+    </div>
+
+    <h3 id="e-portfoy">4 · Portfolio</h3>
+    <p>Four tables, all optional; as much as you enter is used.</p>
+    <ol>
+      <li><b>Customer distribution</b> — 7 customer types × 4 risk bands. The
+        total, the high-risk share and the legal entity share come from here; a
+        deviation of more than 1% from the customer count in the Profile raises a
+        warning.</li>
+      <li><b>Risk segments</b> — 12 segments (PEPs and close associates,
+        non-residents, complex ownership structures, cash-intensive sectors,
+        offshore structures, VASPs, private banking, NPOs, new customers, rejected
+        applications, exits, dormant accounts). Customer and high-risk counts are
+        entered per segment; values exceeding the segment base raise a warning.</li>
+      <li><b>Country exposure</b> — for every country you touch: relationship type
+        (6 options), customer count and inbound/outbound transaction counts. Risk
+        flags are read from the Settings screen and only displayed here. Countries
+        flagged “domestic” do not enter the cross-border share.</li>
+      <li><b>Branch and unit network</b> — 7 unit types; for each unit the country,
+        customer count, high-risk customers, compliance FTE and last audit date.
+        Customers per FTE and audit ages over 24 months are flagged.</li>
+    </ol>
+
+    <h4>The top tiles</h4>
+    <p>
+      Total customers, high-risk share, number of countries touched, share of
+      transactions with FATF-listed countries, cross-border transaction share,
+      number of units, units with overdue audits, and the number of score
+      suggestions produced.
+    </p>
+
+    <h4>The 12 factors it feeds</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Source</th><th>Inherent risk factor it feeds</th></tr></thead>
+        <tbody>
+          <tr><td>Share of high-risk customers</td><td>Customer — share of high-risk segments</td></tr>
+          <tr><td>PEP segment</td><td>Customer — PEP exposure</td></tr>
+          <tr><td>Non-resident segment</td><td>Customer — non-resident ratio</td></tr>
+          <tr><td>Complex ownership segment</td><td>Customer — complex ownership ratio</td></tr>
+          <tr><td>Cash-intensive segment</td><td>Customer — share of cash-intensive sectors</td></tr>
+          <tr><td>Offshore segment</td><td>Geography — offshore-linked volume</td></tr>
+          <tr><td>Private banking segment</td><td>Product — wealth management volume</td></tr>
+          <tr><td>Transaction share with FATF-listed countries</td><td>Geography — business volume with FATF grey/black list countries</td></tr>
+          <tr><td>Transaction share with sanctions regimes</td><td>Geography — trade with sanctioned countries</td></tr>
+          <tr><td>Share of flagged correspondent countries</td><td>Geography — geographic risk of the correspondent network</td></tr>
+          <tr><td>Cross-border transaction share</td><td>Geography — cross-border transfer share · Transaction — cross-border intensity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="e-islem">5 · Transactions</h3>
+    <p>
+      101 operational metrics in eight groups. Each metric is entered as a count,
+      an amount, days or hours; which fields are open depends on the metric.
+    </p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Group</th><th>Metrics</th><th>Coverage</th></tr></thead>
+        <tbody>
+          <tr><td>Transaction universe</td><td>13</td><td>Total and monitored transactions, cash, above/below threshold, cross-border out and in, transfers with missing information, suspended, unsupervised channel, agent, virtual asset, unhosted wallet</td></tr>
+          <tr><td>Sanctions screening and blocking</td><td>14</td><td>Customers and transactions screened, alerts, true matches, blocked and rejected transactions, released, alert closure time, list reflection time, rescreening, 50 Percent Rule detections</td></tr>
+          <tr><td>Trade finance</td><td>17</td><td>Letters of credit, documentary collections, guarantees, acceptances, goods/vessel/port/end-user screening, dual-use, high-risk corridors, price reasonableness, transit and free zones, red flags, rejected files</td></tr>
+          <tr><td>Correspondent banking</td><td>14</td><td>Active/new/closed relationships, relationships terminated by the correspondent, CBDDQ, nested detection, inbound and outbound RFIs and response times, returned transactions, payable-through accounts</td></tr>
+          <tr><td>Monitoring</td><td>10</td><td>Active and changed scenarios, alerts generated/closed, converted to cases, bulk closures, backlog, closure time, internal suspicion reports</td></tr>
+          <tr><td>STR, freezing, law enforcement</td><td>15</td><td>STR count and amount, filing time, late filings, cases without an STR, freezing decisions and amounts, law enforcement requests and response times, exits, rejected applications, tipping-off breaches</td></tr>
+          <tr><td>Onboarding and review</td><td>11</td><td>New accounts, remote accounts, failed liveness checks, EDD files, senior management approvals, undetermined beneficial ownership, risk overrides, periodic reviews, overdue KYC, adverse media</td></tr>
+          <tr><td>Quality assurance</td><td>7</td><td>Files tested, critical/major/minor errors, re-tests, training population and completions</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>What is derived</h4>
+    <ul>
+      <li><b>16 ratios</b> are shown in a separate table with numerator,
+        denominator and result: monitoring coverage, cash share, cross-border
+        share, alert→case, case→STR, bulk closure share, screening hit rate, RFI
+        response rate, returns from correspondents, trade finance screening
+        coverage, QA critical and major error rates, training completion, remote
+        onboarding share, agent share, unsupervised channel share.</li>
+      <li><b>12 KPIs</b> are carried automatically to the dashboard.</li>
+      <li><b>4 inherent risk factors</b> receive score suggestions.</li>
+      <li><b>Consistency warnings</b> — warnings appear if monitored transactions
+        exceed the total, cases exceed alerts, STRs exceed cases, or answered RFIs
+        exceed those received.</li>
+      <li>If there is no trade finance activity, that group is taken out of scope
+        by the Profile.</li>
+    </ul>
+
+    <h3 id="e-dogustan">6 · Inherent Risk</h3>
+    <p>Three blocks: the five ML/TF dimensions, the PF block and the business line matrix.</p>
+
+    <h4>Dimension cards (25 factors)</h4>
+    <p>On every factor row:</p>
+    <ul>
+      <li>A <b>1–5 score</b> with the matching rubric text beside it.</li>
+      <li>A <b>rationale / evidence</b> field — treated as mandatory for scores of
+        4 and 5.</li>
+      <li>A <b>Not applicable</b> flag — removes the factor from the denominator.</li>
+      <li>The <b>weight</b> — editable; if changed it is tagged and reverted with
+        one click.</li>
+      <li>A <b>score suggestion</b> — if it comes from portfolio or operational
+        data, the ratio it rests on is written out and it is applied with one
+        click.</li>
+      <li>If the factor is out of scope because of the Profile, the reason appears
+        on the row.</li>
+    </ul>
+    <p>
+      The card header carries the dimension score, its level and the
+      scored/applicable factor count. A separate card lists the <b>dominant risk
+      drivers</b>: the factors with the highest weighted contribution. When
+      management asks “why is this high?”, that list is the answer.
+    </p>
+
+    <h4>The PF block</h4>
+    <p>
+      Five factors, a separate score, a separate average. It never mixes into the
+      dimension averages; its control side is D6. The mandatory rationale applies
+      here too.
+    </p>
+
+    <h4>The business line matrix</h4>
+    <p>
+      12 business lines as rows, five dimensions as columns. For each line you
+      enter an active flag, a business share (%) and the dimension scores. The
+      card shows the volume-weighted institutional inherent risk, the riskiest
+      business line, the sum of the shares and the gap against the dimension
+      average. A gap above 0.50 points raises a warning.
+    </p>
+
+    <h4>The method option</h4>
+    <p>
+      The same screen carries the “weight dimensions by business volume” option.
+      It is off by default. When switched on with sufficient business line data,
+      all dimension scores are aggregated from the business line level; the chosen
+      method appears in the report and in the period comparison.
+    </p>
+
+    <h3 id="e-anket">7 · Questionnaire</h3>
+    <p>218 questions across 11 domains. The longest screen of the assessment.</p>
+
+    <h4>The filter bar</h4>
+    <p>
+      Free-text search (across question text, evidence, source and section),
+      domain, section, criticality, status and QA requirement. The status filter
+      options are: unanswered, answered, <b>gaps</b>, open critical, no evidence
+      reference, <b>QA test pending</b>, <b>contradicted by QA</b>. Filters are
+      carried in the address bar and can be shared.
+    </p>
+
+    <h4>Selection summary</h4>
+    <p>
+      When a filter is applied, five tiles appear: number of questions selected,
+      answered, the effectiveness of the selection, the number requiring action
+      (including open criticals) and QA coverage (with the contradiction count).
+    </p>
+
+    <h4>The question card</h4>
+    <ul>
+      <li><b>Answer buttons</b> — Yes / Partial / No / Not applicable. On
+        out-of-scope questions the buttons are locked and a reason badge is shown.</li>
+      <li><b>Expected evidence</b>, the <b>source/regulatory citation</b> and, where
+        relevant, the <b>sampling population</b> are printed on the card.</li>
+      <li><b>Evidence reference</b> and <b>finding note</b> fields. Questions that
+        are answered but have no evidence reference are badged and can be found
+        through the filter.</li>
+      <li>The <b>QA file test block</b> (on 115 questions) — result, number of files
+        tested, number of files in error, and a note. The error rate is calculated
+        automatically. If the answer is “Yes” while the result is “Contradicted”, a
+        red warning appears.</li>
+      <li><b>Create action</b> — on questions that came out as gaps, opens a
+        pre-filled finding form from the card.</li>
+      <li>The criticality badge, the weight and the “priority action” flag sit at
+        the top of the card.</li>
+    </ul>
+
+    <h4>Navigation</h4>
+    <p>
+      The list is divided by section headings; each heading shows that section's
+      progress and stays on screen while you scroll. When the filter bar scrolls
+      out of view, a floating “next unanswered” button appears showing how many
+      questions remain. For keyboard shortcuts see
+      <a href="#anket-detay">Filling in the questionnaire</a>.
+    </p>
+
+    <h3 id="e-ek">8 · Extra Controls</h3>
+    <p>
+      Eight sets, 44 questions. The top tiles: how many sets apply, coverage,
+      test-adjusted effectiveness and the number of open criticals. Each set has
+      its own card, and the card header states why the set was added.
+    </p>
+    <ul>
+      <li>Out-of-scope sets are dimmed with the reason written out (“your obliged
+        entity type is not …” or “this activity does not exist”).</li>
+      <li>Question rows have the same structure as the main questionnaire: answer,
+        evidence, note, and a QA result where required.</li>
+      <li>This set's score does not enter the denominator of the main score; it is
+        reported separately.</li>
+    </ul>
+
+    <h3 id="e-qa">9 · QA Plan</h3>
+    <p>
+      24 populations are listed: population name and focus, domain, risk rating,
+      sampling rule, frequency. You enter only the <b>period volume</b>; the annual
+      sample and the sample per test are calculated automatically.
+    </p>
+    <p>
+      Four tiles at the top: number of populations and how many have volumes
+      entered, total volume, total annual sample, total sample per test. Below, a
+      table of error classes (Critical / High / Medium / Low) with definitions and
+      closure times.
+    </p>
+
+    <h3 id="e-skorlar">10 · Control Scores</h3>
+    <p>A derived screen; there is no input. The columns per domain are:</p>
+    <ul>
+      <li>Question count, answered, N/A</li>
+      <li>Applicable weight and points earned</li>
+      <li><b>Declared effectiveness</b> and <b>test-adjusted effectiveness</b> (with
+        a note on how many questions were adjusted by testing)</li>
+      <li><b>Assurance coverage</b> (tested / requiring a test)</li>
+      <li>Maturity label, open critical count, number of questions needing action</li>
+    </ul>
+    <p>
+      The bottom row carries the institution total, and below it a reminder of the
+      maturity bands. Clicking a domain name opens the questionnaire filtered to
+      that domain.
+    </p>
+
+    <h3 id="e-artik">11 · Residual Risk</h3>
+    <p>
+      Per domain: inherent risk, test-adjusted effectiveness (with a note if
+      capped at 95%), residual risk, level, an <b>appetite limit input</b> and the
+      status (OVER / within appetite). Rows in breach carry a “see the gaps” link
+      that opens the filtered questionnaire directly.
+    </p>
+    <p>
+      Below, PF sits in its own table with its own appetite limit. Then come the
+      residual risk bands and a methodology card explaining the method in use. If
+      there are breaches, a red strip appears at the top; if the overall figure
+      hides a breach, an amber strip appears as well.
+    </p>
+
+    <h3 id="e-aksiyon">12 · Action Plan</h3>
+    <p>Finding → root cause → action → owner → due date → verification.</p>
+    <h4>The top tiles</h4>
+    <p>
+      Total findings, open, overdue, <b>findings with missing fields</b> and the
+      closure rate.
+    </p>
+    <h4>Filters and bulk generation</h4>
+    <ul>
+      <li>Filter by status, criticality, domain and view (open only / overdue
+        only).</li>
+      <li><span class="ekran">Generate from control gaps</span> — creates draft
+        findings in bulk from questions that came out as gaps in the questionnaire
+        and the extra controls; the source question id, domain, criticality and a
+        QA verification suggestion are pre-filled.</li>
+    </ul>
+    <h4>The finding form</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Field</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Id</td><td>Assigned automatically; must be unique</td></tr>
+          <tr><td>Domain · Question id</td><td>If a question id is entered, the question text echoes below</td></tr>
+          <tr><td>Finding <b>(required)</b></td><td>What is missing, and which evidence shows it</td></tr>
+          <tr><td>Source</td><td>Questionnaire question, QA test, audit report…</td></tr>
+          <tr><td>Root cause <b>(required)</b></td><td>Chosen from a list</td></tr>
+          <tr><td>Criticality</td><td>Determines the due date</td></tr>
+          <tr><td>Action</td><td>What will be done</td></tr>
+          <tr><td>Owner <b>(required)</b></td><td>A person or a unit</td></tr>
+          <tr><td>Due date <b>(required)</b></td><td>Suggested from the criticality</td></tr>
+          <tr><td>Status</td><td>Open / In progress / Closed etc.</td></tr>
+          <tr><td>Verification</td><td>How the closure will be tested</td></tr>
+          <tr><td>Closure date · Residual risk after closure</td><td>Filled in when closing</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Before saving, the form checks the required fields, and rows with missing
+      fields are flagged in the list. Adding, editing and deleting findings are
+      written to the change log.
+    </p>
+
+    <h3 id="e-karsilastir">13 · Period Comparison</h3>
+    <p>
+      The previous period's working file (JSON) is loaded and kept as a summary.
+      Six tiles read the two periods side by side: test-adjusted effectiveness,
+      inherent risk, residual risk, appetite breaches, open criticals and
+      assurance coverage — each with the delta and a direction arrow.
+    </p>
+    <ul>
+      <li><b>Domain table</b> — “was / now / delta” columns for effectiveness and
+        residual risk, the change in open criticals, and the status: new breach,
+        fixed, still in breach.</li>
+      <li><b>Finding closure</b> — findings open in the previous period that have
+        been closed, those still open (listed), and findings opened this period.</li>
+      <li><b>Method warning</b> — if the two periods use different scoring methods,
+        the comparison is flagged as limited.</li>
+      <li>The comparison baseline can be replaced or cleared.</li>
+    </ul>
+
+    <h3 id="e-ekip">14 · Team and Merge</h3>
+    <p>
+      The application has no server; parallel work runs through files.
+    </p>
+    <ul>
+      <li><b>Assignment table</b> — an owner is named for each of the 11 domains,
+        with that domain's progress beside it.</li>
+      <li><b>Merge</b> — an incoming JSON is compared field by field. The parts
+        are: questionnaire answers per domain, extra control sets, inherent risk
+        per dimension (score, N/A, rationale, weight), profile, QA volumes,
+        operations, KPIs, PF, business lines, appetite limits, country settings,
+        portfolio and findings.</li>
+      <li>Each part shows how many filled records exist on your side and on
+        theirs, plus the <b>conflict count</b> (filled and different on both
+        sides); a few examples are listed as “yours → theirs”.</li>
+      <li>You choose “mine” or “theirs” per part. In a part where “theirs” is
+        chosen, only the fields that are filled in the incoming file are
+        transferred; nothing is overwritten silently.</li>
+      <li>An automatic backup is taken before the merge, and the operation is
+        written to the change log.</li>
+    </ul>
+
+    <h3 id="e-gunluk">15 · Change Log</h3>
+    <p>
+      Append-only; never edited. The events recorded are: questionnaire answers,
+      inherent risk scores, adding/editing/deleting findings, merges and file
+      loads. Each row carries the date and time, who, what, which record, the old
+      value and the new value.
+    </p>
+    <ul>
+      <li>The <b>“who”</b> field is read from the compliance officer or the assessor
+        in the Profile — it is a declaration; no identity verification is
+        performed.</li>
+      <li>Free-text search and filtering by event type; a CSV export is available.</li>
+      <li>The screen shows the most recent 500 records; storage keeps at most 4,000
+        and the oldest drop off when the limit is reached.</li>
+      <li>If a value has not actually changed, no record is created.</li>
+    </ul>
+
+    <h3 id="e-rapor">16 · Executive Report</h3>
+    <p>A printable single-flow page. The sections in order:</p>
+    <ol>
+      <li>Institution and period details, the assessor</li>
+      <li>Portfolio and exposure summary</li>
+      <li>Inherent risk profile (dimensions, PF)</li>
+      <li>The risk model and method used</li>
+      <li>Domain results: effectiveness, assurance, maturity, residual risk</li>
+      <li>Appetite breaches</li>
+      <li>Open critical controls</li>
+      <li>Action plan summary</li>
+      <li>Extra control sets (separate table)</li>
+      <li>Prepared by / reviewed by / approved by signature block</li>
+      <li>At the bottom, the reference data pack version and any stale sections</li>
+    </ol>
+    <p>
+      Use the print button in the top bar to send it to paper or PDF. The names in
+      the signature block come from the Profile; if empty they are left blank for
+      handwriting.
+    </p>
+
+    <h3 id="e-ayarlar">17 · Settings</h3>
+    <p><b>Country risk settings</b> and the <b>reference data pack</b> details live here.</p>
+    <ul>
+      <li>211 countries and territories are defined; 137 arrive pre-flagged.</li>
+      <li>Six flags can be toggled per country: FATF black list, FATF grey list,
+        comprehensive sanctions regime, EU high-risk third country, offshore
+        centre, weak AML supervision.</li>
+      <li>Every country you change is tagged as an “institution decision”; it
+        reverts to the default with one click, and all changes revert with one
+        button.</li>
+      <li>Search and filter: flagged, unflagged, changed, or by individual flag
+        type.</li>
+      <li>A change is reflected in all exposure calculations immediately; in
+        country pickers the heaviest flag is shown in the option (“Iran (IR) —
+        FATF black”).</li>
+      <li><b>Reference pack card</b> — version, compilation date and the age of the
+        three sections (country flags, regulatory citations, question bank); a
+        section past its threshold raises a warning.</li>
+    </ul>
+
+    <hr class="ayrac">
+
+    <h2 id="anket-detay">Filling in the questionnaire</h2>
+    <p class="h2-alt">218 questions do not have to be clicked one by one.</p>
+
+    <h3>What the four answers mean</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Answer</th><th>When</th><th>Common mistake</th></tr></thead>
+        <tbody>
+          <tr><td><b>Yes</b></td><td>The control is defined, applied, and you can show the evidence</td><td>Answering “Yes” because it is written in the procedure. Being documented is not the same as being applied.</td></tr>
+          <tr><td><b>Partial</b></td><td>Present but incomplete: narrow coverage, irregular, or undocumented</td><td>Answering “Yes” because it is “almost complete”. Partial is the honest answer and it produces an action.</td></tr>
+          <tr><td><b>No</b></td><td>The control does not exist or does not work</td><td>Leaving it blank out of embarrassment. A blank question does not lower the score, but it shows as incomplete in an examination.</td></tr>
+          <tr><td><b>Not applicable</b></td><td>The activity the control addresses does not exist at the institution at all</td><td>Using N/A to skip a hard question. N/A is a scope declaration and it appears in the report.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Keyboard shortcuts</h3>
+    <p>While the questionnaire screen is open and focus is outside a text field:</p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Yes / Partial / No / Not applicable</td></tr>
+          <tr><td><kbd>J</kbd> / <kbd>K</kbd></td><td>Next / previous question</td></tr>
+          <tr><td><kbd>N</kbd></td><td>Next unanswered question</td></tr>
+          <tr><td><kbd>E</kbd></td><td>Jump to the evidence reference field</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Leave the text field</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Open the shortcut list</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      The active question is the card at the top of the screen, marked with a thin
+      border. The “Last question” button on the dashboard returns you to the
+      question you worked on most recently.
+    </p>
+
+    <h3>An efficient order</h3>
+    <ol>
+      <li>Use the domain filter to focus on one domain; finish one domain per
+        sitting.</li>
+      <li>Filter to critical questions first and answer those — open criticals are
+        the backbone of the action plan.</li>
+      <li>Then come back with the “no evidence reference” filter and complete the
+        references.</li>
+      <li>Once the QA tests are done, enter the results using the “QA test pending”
+        filter.</li>
+      <li>Finally, empty the “contradicted by QA” filter: every contradiction is
+        closed either by correcting the declaration or by repeating the test.</li>
+    </ol>
+
+    <hr class="ayrac">
+
+    <h2 id="ekip">Working as a team</h2>
+    <p class="h2-alt">Nobody works in the same file at the same time; you work in parallel and merge.</p>
+
+    <ol>
+      <li><b>Assign.</b> Name an owner for each domain on the Team and Merge
+        screen. Have one person fill in the Profile, the Portfolio and the
+        Inherent Risk.</li>
+      <li><b>Distribute.</b> Download the JSON of that first file and send it to
+        everyone. Each person loads it in their own browser and fills in only
+        their domain.</li>
+      <li><b>Collect.</b> When finished, everyone sends their JSON to the merger.</li>
+      <li><b>Merge.</b> The merger loads the files one by one, chooses “mine /
+        theirs” per part, reviews every conflict, and applies. An automatic backup
+        is taken before each merge.</li>
+      <li><b>Verify.</b> After merging, check on the Control Scores screen that the
+        answer counts have reached the expected total; the merge appears in the
+        Change Log.</li>
+    </ol>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Avoid version confusion</div>
+      <p>
+        Put the date and the owner's name in file names. Keep the merge direction
+        one-way: everyone sends to the merger, and the merger sends back to no
+        one — they only publish the merged file.
+      </p>
+    </div>
+
+    <hr class="ayrac">
+
+    <h2 id="kapanis">Period-end checklist</h2>
+    <p class="h2-alt">Before sending the report for signature.</p>
+
+    <ul class="liste-kontrol">
+      <li>Mandatory Profile fields are filled, period dates are correct, no consistency warning remains.</li>
+      <li>The business scope answers reflect the reality of the period.</li>
+      <li>All 218 questions are answered or excluded from scope with a reason.</li>
+      <li>Answered questions have an evidence reference (the “no evidence” filter is empty).</li>
+      <li>Results are entered for the 115 questions requiring a QA test; assurance coverage is at an acceptable level.</li>
+      <li>The “contradicted by QA” filter is empty — every contradiction has been closed.</li>
+      <li>All 25 inherent risk factors are scored; rationales are written for scores of 4–5.</li>
+      <li>The PF block and, if used, the business line matrix are filled in; shares total 100%.</li>
+      <li>QA population volumes are entered and the sampling plan has been produced.</li>
+      <li>Appetite limits are updated with the values approved by the board.</li>
+      <li>Every appetite breach and every open critical has a finding in the action plan.</li>
+      <li>Findings have all five fields: root cause, action, owner, due date, verification.</li>
+      <li>The previous period file is loaded, the comparison has been read, no method warning remains.</li>
+      <li>Either there is no stale-section warning in the reference pack, or it has been updated.</li>
+      <li>The executive report is printed and the signature block completed.</li>
+      <li>The JSON backup is downloaded and filed in the institution archive; the CSV exports are taken.</li>
+    </ul>
+
+    <hr class="ayrac">
+
+    <h2 id="sonraki">The next period</h2>
+    <p class="h2-alt">Do not start from scratch.</p>
+
+    <ol>
+      <li>Open the new period <b>with this period's JSON</b>: answers, evidence
+        references and settings stay in place.</li>
+      <li>Load the same file as the baseline on the
+        <span class="ekran">Period Comparison</span> screen — that fixes the
+        “before” picture.</li>
+      <li>Update the period dates, the figures and the audit dates in the Profile.</li>
+      <li>Close the findings that have been remediated; record the closure date and
+        the residual risk after closure. Those left open show as “still open” in
+        the comparison.</li>
+      <li>Clear the QA results and enter this period's tests — last period's test
+        is not this period's assurance.</li>
+      <li>Review the inherent risk scores: if the portfolio has changed, so have
+        the suggestions.</li>
+      <li>Do not change the method option; if you must, write in the report that
+        the comparison is limited.</li>
+    </ol>
+
+    <hr class="ayrac">
+
+    <h2 id="sorun">When something goes wrong</h2>
+
+    <h3>“My work has disappeared”</h3>
+    <p>
+      First make sure you are in the same browser and the same profile; data is
+      tied to the profile. Then check the automatic backups list in the
+      <span class="ekran">Data and backup</span> dialog: the last five versions sit
+      there with their dates and any of them can be restored. If you have a JSON,
+      open it with <span class="ekran">Load working file</span>.
+    </p>
+
+    <h3>A “save failed” warning keeps appearing</h3>
+    <p>
+      The browser storage is full. Download the JSON straight away. Then clear
+      unnecessary site data in that browser, or continue in another profile and
+      load the file there.
+    </p>
+
+    <h3>The file will not load</h3>
+    <p>
+      The file must be a JSON produced by this application. In hand-edited files,
+      unrecognised answer values count as unanswered; the score is not silently
+      corrupted, but the record does not appear either. A corrupt file does not
+      crash the application — it produces a warning.
+    </p>
+
+    <h3>The scores are not what I expected</h3>
+    <ul>
+      <li>If a domain's residual risk is empty, one of its source dimensions has no
+        scores at all.</li>
+      <li>If effectiveness is lower than expected, look at the QA cap: a
+        “Contradicted” result zeroes the coefficient.</li>
+      <li>If the overall figure looks fine but a warning appears, a domain is in
+        breach — check the worst-domain tile.</li>
+      <li>If the percentages do not match the source workbook, the exposure
+        weighting option may be switched on.</li>
+      <li>If a question is locked, a business scope answer in the Profile has taken
+        it out of scope.</li>
+    </ul>
+
+    <h3>I want a larger display</h3>
+    <p>
+      The browser zoom (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> and <kbd>+</kbd>) scales
+      everything together without breaking the layout. The dark theme is on the
+      button in the top bar.
+    </p>
+
+    <hr class="ayrac">
+
+    <h2 id="ekler">Appendices and tables</h2>
+
+    <h3>Domains and question distribution</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Code</th><th>Domain</th><th class="num">Questions</th></tr></thead>
+        <tbody>
+          <tr><td>D1</td><td>Governance and Compliance Programme</td><td>20</td></tr>
+          <tr><td>D2</td><td>Customer Profile and Geographic Risk</td><td>20</td></tr>
+          <tr><td>D3</td><td>Product and Channel Risk</td><td>18</td></tr>
+          <tr><td>D4</td><td>Transaction Universe and Data Integrity</td><td>18</td></tr>
+          <tr><td>D5</td><td>Customer Lifecycle (CDD/EDD)</td><td>26</td></tr>
+          <tr><td>D6</td><td>Financial Sanctions and Screening</td><td>26</td></tr>
+          <tr><td>D7</td><td>AML Transaction Monitoring</td><td>24</td></tr>
+          <tr><td>D8</td><td>STR, Freezing and Customer Exit</td><td>22</td></tr>
+          <tr><td>D9</td><td>Regulatory Events and Law Enforcement Requests</td><td>14</td></tr>
+          <tr><td>D10</td><td>Training, Awareness and Management Feedback</td><td>14</td></tr>
+          <tr><td>D11</td><td>Enterprise-Wide Risk Assessment (EWRA)</td><td>16</td></tr>
+          <tr><td></td><td><b>Total</b></td><td><b>218</b> (115 QA-tested, 40 critical)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>QA populations and sampling rules</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Population</th><th>Domain</th><th>Rule</th><th>Frequency</th></tr></thead>
+        <tbody>
+          <tr><td>STRs filed</td><td>D8</td><td>Full coverage</td><td>Quarterly</td></tr>
+          <tr><td>Closed cases above the threshold with no STR filed</td><td>D8</td><td>15% · minimum 25</td><td>Quarterly</td></tr>
+          <tr><td>Freezing and asset restriction decisions</td><td>D8</td><td>Full coverage</td><td>Quarterly</td></tr>
+          <tr><td>Sanctions true match cases</td><td>D6</td><td>Full coverage</td><td>Quarterly</td></tr>
+          <tr><td>Closed sanctions alerts</td><td>D6</td><td>10% · minimum 30</td><td>Quarterly</td></tr>
+          <tr><td>PEP customer files</td><td>D5</td><td>Full coverage</td><td>Semi-annual</td></tr>
+          <tr><td>Customer exit decisions</td><td>D8</td><td>Full coverage</td><td>Semi-annual</td></tr>
+          <tr><td>Law enforcement and judicial information requests</td><td>D9</td><td>Full coverage</td><td>Quarterly</td></tr>
+          <tr><td>EDD files</td><td>D5</td><td>10% · minimum 25</td><td>Quarterly</td></tr>
+          <tr><td>Closed monitoring alerts</td><td>D7</td><td>5% · minimum 30</td><td>Quarterly</td></tr>
+          <tr><td>High-risk new customer account openings</td><td>D5</td><td>10% · minimum 25</td><td>Quarterly</td></tr>
+          <tr><td>Correspondent banking relationships</td><td>D2</td><td>Full coverage</td><td>Annual</td></tr>
+          <tr><td>Trade finance files</td><td>D6</td><td>10% · minimum 20</td><td>Semi-annual</td></tr>
+          <tr><td>Customers with an overridden risk score</td><td>D5</td><td>15% · minimum 20</td><td>Semi-annual</td></tr>
+          <tr><td>Overdue periodic KYC files</td><td>D5</td><td>10% · minimum 20</td><td>Quarterly</td></tr>
+          <tr><td>Remotely opened accounts</td><td>D3</td><td>5% · minimum 25</td><td>Semi-annual</td></tr>
+          <tr><td>Wire transfers with missing information</td><td>D4</td><td>10% · minimum 20</td><td>Quarterly</td></tr>
+          <tr><td>Virtual asset transfers</td><td>D3</td><td>10% · minimum 20</td><td>Quarterly</td></tr>
+          <tr><td>Standard new customer account openings</td><td>D5</td><td>2% · minimum 30</td><td>Semi-annual</td></tr>
+          <tr><td>Cash transactions above the threshold</td><td>D3</td><td>2% · minimum 25</td><td>Semi-annual</td></tr>
+          <tr><td>Rejected customer applications</td><td>D8</td><td>10% · minimum 15</td><td>Annual</td></tr>
+          <tr><td>Training completion records</td><td>D10</td><td>5% · minimum 15</td><td>Annual</td></tr>
+          <tr><td>Closed audit and validation findings</td><td>D9</td><td>Full coverage</td><td>Semi-annual</td></tr>
+          <tr><td>Data reconciliation and feed error records</td><td>D4</td><td>10% · minimum 20</td><td>Quarterly</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Export options</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Export</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td>JSON</td><td>The complete working file; restorable, mergeable, usable as a comparison baseline</td></tr>
+          <tr><td>CSV · Questions</td><td>218 questions plus the extra set questions: answer, evidence, note, QA result, weight, criticality</td></tr>
+          <tr><td>CSV · Domain scores</td><td>Effectiveness, test-adjusted effectiveness, assurance, maturity, residual risk</td></tr>
+          <tr><td>CSV · Portfolio</td><td>Customer distribution, segments, countries, units</td></tr>
+          <tr><td>CSV · Operations</td><td>101 metrics and 16 derived ratios</td></tr>
+          <tr><td>CSV · Countries</td><td>Country risk flags and institution decisions</td></tr>
+          <tr><td>CSV · Inherent risk</td><td>Factor scores, weights (with defaults), rationales</td></tr>
+          <tr><td>CSV · QA plan</td><td>Population, volume, sample, sample per test</td></tr>
+          <tr><td>CSV · Action plan</td><td>Findings and all their fields</td></tr>
+          <tr><td>CSV · Change log</td><td>The audit trail</td></tr>
+          <tr><td>Print / PDF</td><td>The executive report</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      CSV files are produced with a semicolon separator and a BOM, so columns
+      split correctly in a Turkish Excel locale.
+    </p>
+
+    <h3>Scope in numbers</h3>
+    <div class="tablo-sar">
+      <table>
+        <tbody>
+          <tr><td>Screens</td><td>17</td></tr>
+          <tr><td>Questionnaire questions</td><td>218 (11 domains) + 44 extra control questions (8 sets)</td></tr>
+          <tr><td>Questions requiring a QA test</td><td>115</td></tr>
+          <tr><td>Critical questions</td><td>40</td></tr>
+          <tr><td>Inherent risk factors</td><td>25 (5 dimensions) + 5 PF factors</td></tr>
+          <tr><td>Business lines</td><td>12 × 5 dimensions</td></tr>
+          <tr><td>Profile fields</td><td>26 (5 mandatory, 6 groups)</td></tr>
+          <tr><td>Operational metrics</td><td>101 (8 groups) · 16 derived ratios</td></tr>
+          <tr><td>Portfolio</td><td>7 customer types × 4 risk bands · 12 segments · 7 unit types</td></tr>
+          <tr><td>Countries</td><td>211 defined · 137 pre-flagged · 6 risk flags</td></tr>
+          <tr><td>QA populations</td><td>24</td></tr>
+          <tr><td>KPIs</td><td>15 (3 fully automatic, 12 from the Transactions screen)</td></tr>
+          <tr><td>Glossary</td><td>26 terms (on the How to Read screen)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="altbilgi">
+      <p>
+        This guide describes version 2.9.0 of the application and reference data
+        pack 2026.1. The formulas in the methodology section match the scoring
+        engine exactly. Regulatory citations are indicative and must be verified
+        against the legislation in force. The tool supports detection,
+        prioritisation and remediation tracking; it does not replace an
+        independent audit.
+      </p>
+    </div>
+
+  </main>
+</div>
+<script src="js/kilavuz.js?v=2.9.0"></script>
+</body>
+</html>

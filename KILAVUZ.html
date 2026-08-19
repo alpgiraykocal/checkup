@@ -1,321 +1,105 @@
-<title>Uyum Check-up Kılavuzu</title>
-<style>
-  /* ---- Belirteçler: açık tema tam set, karanlık yalnızca üzerine yazar ---- */
-  :root {
-    --kagit: #F7F8FA;
-    --yuzey: #FFFFFF;
-    --yuzey-2: #EFF2F6;
-    --murekkep: #131A26;
-    --murekkep-yumusak: #414C5F;
-    --murekkep-silik: #5A6579;
-    --cizgi: #E1E6ED;
-    --cizgi-koyu: #C7D0DC;
-    --vurgu: #1E40AF;
-    --vurgu-yumusak: #E9EEFB;
-    --uyari: #9A5B08;
-    --uyari-zemin: #FDF6E9;
-    --tehlike: #C81E1E;
-    --tehlike-zemin: #FDF0F0;
-    --tamam: #15703C;
-    --tamam-zemin: #EEF8F1;
-
-    --serif: Georgia, "Iowan Old Style", "Times New Roman", "Noto Serif", serif;
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-
-    --olcu: 68ch;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --kagit: #0D131F;
-      --yuzey: #161E2C;
-      --yuzey-2: #1D2738;
-      --murekkep: #E7EDF7;
-      --murekkep-yumusak: #B3C0D4;
-      --murekkep-silik: #8B99AE;
-      --cizgi: #26324A;
-      --cizgi-koyu: #35435E;
-      --vurgu: #7CADFB;
-      --vurgu-yumusak: #16233A;
-      --uyari: #EFB552;
-      --uyari-zemin: #2A2113;
-      --tehlike: #F98080;
-      --tehlike-zemin: #2B1618;
-      --tamam: #5FD08B;
-      --tamam-zemin: #12261C;
-    }
-  }
-  :root[data-theme="dark"] {
-    --kagit: #0D131F;
-    --yuzey: #161E2C;
-    --yuzey-2: #1D2738;
-    --murekkep: #E7EDF7;
-    --murekkep-yumusak: #B3C0D4;
-    --murekkep-silik: #8B99AE;
-    --cizgi: #26324A;
-    --cizgi-koyu: #35435E;
-    --vurgu: #7CADFB;
-    --vurgu-yumusak: #16233A;
-    --uyari: #EFB552;
-    --uyari-zemin: #2A2113;
-    --tehlike: #F98080;
-    --tehlike-zemin: #2B1618;
-    --tamam: #5FD08B;
-    --tamam-zemin: #12261C;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: var(--kagit);
-    color: var(--murekkep);
-    font-family: var(--sans);
-    font-size: 16.5px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .sayfa {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 0 24px 96px;
-  }
-
-  @media (min-width: 1100px) {
-    .sayfa { grid-template-columns: 232px minmax(0, 1fr); gap: 56px; padding-right: 40px; }
-  }
-
-  /* ---- Başlık bloğu ---- */
-  .ustbilgi {
-    grid-column: 1 / -1;
-    padding: 72px 0 40px;
-    border-bottom: 1px solid var(--cizgi);
-    margin-bottom: 48px;
-  }
-  .etiket {
-    font-size: 12px; font-weight: 650; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--vurgu); margin-bottom: 18px;
-  }
-  h1 {
-    font-family: var(--serif);
-    font-size: clamp(34px, 5.5vw, 52px);
-    line-height: 1.08;
-    letter-spacing: -.02em;
-    font-weight: 400;
-    margin: 0 0 20px;
-    text-wrap: balance;
-    max-width: 20ch;
-  }
-  .girizgah {
-    font-size: 19px; line-height: 1.6; color: var(--murekkep-yumusak);
-    max-width: 62ch; margin: 0;
-  }
-  .ustbilgi-kunye {
-    display: flex; flex-wrap: wrap; gap: 8px 28px;
-    margin-top: 28px; font-size: 13.5px; color: var(--murekkep-silik);
-  }
-  .ustbilgi-kunye b { color: var(--murekkep-yumusak); font-weight: 600; }
-
-  /* ---- İçindekiler ---- */
-  .icindekiler { display: none; }
-  @media (min-width: 1100px) {
-    .icindekiler {
-      display: block; position: sticky; top: 32px; align-self: start;
-      max-height: calc(100vh - 64px); overflow-y: auto;
-      font-size: 13.5px; line-height: 1.5;
-      padding-bottom: 24px;
-    }
-    .icindekiler h2 {
-      font-family: var(--sans); font-size: 11px; font-weight: 650;
-      letter-spacing: .1em; text-transform: uppercase;
-      color: var(--murekkep-silik); margin: 0 0 14px; padding: 0; border: 0;
-    }
-    .icindekiler ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
-    .icindekiler a {
-      display: block; padding: 5px 10px; border-radius: 5px;
-      color: var(--murekkep-yumusak); text-decoration: none;
-      border-left: 2px solid transparent;
-    }
-    .icindekiler a:hover { background: var(--yuzey-2); color: var(--murekkep); }
-    .icindekiler a:focus-visible { outline: 2px solid var(--vurgu); outline-offset: 1px; }
-  }
-
-  main { min-width: 0; }
-
-  /* ---- Tipografi ---- */
-  h2 {
-    font-family: var(--serif); font-weight: 400;
-    font-size: 30px; line-height: 1.2; letter-spacing: -.015em;
-    margin: 72px 0 6px; padding-top: 4px;
-    text-wrap: balance;
-  }
-  h2:first-of-type { margin-top: 0; }
-  .h2-alt {
-    color: var(--murekkep-silik); font-size: 15px; margin: 0 0 26px;
-    max-width: var(--olcu);
-  }
-  h3 {
-    font-size: 17px; font-weight: 650; letter-spacing: -.005em;
-    margin: 40px 0 10px; color: var(--murekkep);
-  }
-  h4 {
-    font-size: 14.5px; font-weight: 650; margin: 26px 0 6px;
-    color: var(--murekkep-yumusak);
-  }
-  p { margin: 0 0 18px; max-width: var(--olcu); }
-  ul, ol { margin: 0 0 18px; padding-left: 22px; max-width: var(--olcu); }
-  li { margin-bottom: 7px; }
-  li > ul, li > ol { margin-top: 7px; margin-bottom: 4px; }
-  strong { font-weight: 650; }
-  a { color: var(--vurgu); text-underline-offset: 2px; }
-
-  code {
-    font-family: var(--mono); font-size: .875em;
-    background: var(--yuzey-2); color: var(--murekkep);
-    padding: 1px 5px; border-radius: 4px;
-    border: 1px solid var(--cizgi);
-  }
-
-  /* Ekran adı — uygulamada tıklanacak yeri işaret eder */
-  .ekran {
-    font-weight: 650; color: var(--vurgu);
-    white-space: nowrap;
-  }
-
-  /* ---- Adım listesi: gerçekten sıra olduğu için numaralı ---- */
-  .adimlar { list-style: none; padding: 0; margin: 0; max-width: none; counter-reset: adim; }
-  .adim {
-    display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 20px;
-    padding: 28px 0; border-top: 1px solid var(--cizgi); margin: 0;
-  }
-  .adim:last-child { border-bottom: 1px solid var(--cizgi); }
-  .adim-no {
-    counter-increment: adim;
-    font-family: var(--serif); font-size: 26px; line-height: 1.1;
-    color: var(--vurgu); font-variant-numeric: tabular-nums;
-  }
-  .adim-no::before { content: counter(adim, decimal-leading-zero); }
-  .adim-govde { min-width: 0; }
-  .adim-govde h3 { margin-top: 0; }
-  .adim-govde > *:last-child { margin-bottom: 0; }
-  .adim-sure {
-    display: inline-block; font-size: 12px; font-weight: 600;
-    color: var(--murekkep-silik); background: var(--yuzey-2);
-    border: 1px solid var(--cizgi); border-radius: 999px;
-    padding: 2px 10px; margin-left: 10px; vertical-align: 2px;
-  }
-
-  /* ---- Uyarı kutuları: uygulamadaki banner diliyle aynı ---- */
-  .kutu {
-    border: 1px solid var(--cizgi); border-left: 3px solid var(--vurgu);
-    background: var(--yuzey); border-radius: 6px;
-    padding: 16px 20px; margin: 24px 0; max-width: var(--olcu);
-  }
-  .kutu > *:first-child { margin-top: 0; }
-  .kutu > *:last-child { margin-bottom: 0; }
-  .kutu-baslik {
-    font-weight: 650; font-size: 14.5px; margin-bottom: 6px;
-    display: flex; align-items: baseline; gap: 8px;
-  }
-  .kutu.dikkat { border-left-color: var(--uyari); background: var(--uyari-zemin); }
-  .kutu.dikkat .kutu-baslik { color: var(--uyari); }
-  .kutu.kritik { border-left-color: var(--tehlike); background: var(--tehlike-zemin); }
-  .kutu.kritik .kutu-baslik { color: var(--tehlike); }
-  .kutu.ipucu { border-left-color: var(--tamam); background: var(--tamam-zemin); }
-  .kutu.ipucu .kutu-baslik { color: var(--tamam); }
-
-  /* ---- Tablolar ---- */
-  .tablo-sar { overflow-x: auto; margin: 22px 0; max-width: 100%; }
-  table {
-    border-collapse: collapse; width: 100%; font-size: 14.5px;
-    font-variant-numeric: tabular-nums;
-  }
-  th, td {
-    text-align: left; padding: 10px 14px;
-    border-bottom: 1px solid var(--cizgi); vertical-align: top;
-  }
-  thead th {
-    font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
-    font-weight: 650; color: var(--murekkep-silik);
-    border-bottom: 1px solid var(--cizgi-koyu); white-space: nowrap;
-  }
-  tbody tr:last-child td { border-bottom: 0; }
-  td code { white-space: nowrap; }
-
-  /* ---- Kontrol listesi ---- */
-  .liste-kontrol { list-style: none; padding: 0; max-width: var(--olcu); }
-  .liste-kontrol li {
-    display: grid; grid-template-columns: 22px 1fr; gap: 10px;
-    padding: 9px 0; border-bottom: 1px solid var(--cizgi); margin: 0;
-  }
-  .liste-kontrol li::before {
-    content: ""; width: 15px; height: 15px; margin-top: 5px;
-    border: 1.5px solid var(--cizgi-koyu); border-radius: 3px;
-  }
-  .liste-kontrol li:last-child { border-bottom: 0; }
-
-  /* ---- Tuş göstergesi ---- */
-  kbd {
-    font-family: var(--mono); font-size: 12px; font-weight: 650;
-    background: var(--yuzey); color: var(--murekkep);
-    border: 1px solid var(--cizgi-koyu); border-bottom-width: 2px;
-    border-radius: 4px; padding: 1px 6px; min-width: 20px;
-    display: inline-block; text-align: center;
-  }
-
-  /* ---- Bölüm ayracı ---- */
-  .ayrac {
-    border: 0; border-top: 1px solid var(--cizgi);
-    margin: 64px 0 0; max-width: none;
-  }
-
-  .altbilgi {
-    margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--cizgi);
-    font-size: 13.5px; color: var(--murekkep-silik); max-width: var(--olcu);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-  }
-</style>
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Metodoloji ve Kılavuz · AML/CFT Uyum Check-up</title>
+<meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
+<link rel="alternate" hreflang="tr" href="KILAVUZ.html">
+<link rel="alternate" hreflang="en" href="GUIDE.html">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.9.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
+</head>
+<body>
+<div class="ilerleme" id="ilerleme" role="presentation"></div>
 
 <div class="sayfa">
 
   <header class="ustbilgi">
-    <div class="etiket">Kullanım kılavuzu</div>
+    <div class="ust-arac no-print">
+      <a class="geri-link" href="index.html">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Uygulamaya dön
+      </a>
+      <div class="sag">
+        <div class="dil-switch" role="group" aria-label="Change language / Dili değiştir">
+          <a class="dil-btn" href="KILAVUZ.html" data-dil="tr" aria-current="page" lang="tr">TR</a>
+          <a class="dil-btn" href="GUIDE.html" data-dil="en" lang="en">EN</a>
+        </div>
+        <button type="button" class="tema-btn" id="tema-btn" aria-label="Koyu temaya geç">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <span id="tema-etiket">Koyu</span>
+        </button>
+      </div>
+    </div>
+    <div class="etiket">Metodoloji ve kullanım kılavuzu</div>
     <h1>AML/CFT Uyum Check-up</h1>
     <p class="girizgah">
-      Bu kılavuz, uygulamayı ilk kez açan bir uyum görevlisinin dönem sonunda
-      imzalı bir yönetici raporu çıkarana kadar izleyeceği yolu anlatır.
-      Bilgisayar bilgisi gerekmez; AML bilginiz yeter.
+      Bu belge iki işi birden görür: uygulamanın dayandığı değerlendirme
+      metodolojisini formül düzeyinde açıklar ve on yedi ekranın her özelliğini
+      tek tek anlatır. Bilgisayar bilgisi gerekmez; AML bilginiz yeter.
     </p>
     <div class="ustbilgi-kunye">
-      <span><b>Uygulama:</b> checkup.alpgiraykocal.com</span>
-      <span><b>Kapsam:</b> 17 ekran · 218 soru · 25 risk faktörü</span>
-      <span><b>Gereken süre:</b> ilk dönem 3–5 iş günü</span>
+      <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
+      <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
+      <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.9.0</span></div>
     </div>
   </header>
 
-  <nav class="icindekiler" aria-label="İçindekiler">
+  <nav class="icindekiler" id="icindekiler" aria-label="İçindekiler">
     <h2>İçindekiler</h2>
     <ol>
-      <li><a href="#nedir">Bu araç ne yapar</a></li>
-      <li><a href="#hazirlik">Başlamadan önce</a></li>
-      <li><a href="#veri">Veriniz nerede duruyor</a></li>
-      <li><a href="#akis">On adımda değerlendirme</a></li>
-      <li><a href="#anket-detay">Anketi doldurmanın püf noktaları</a></li>
-      <li><a href="#okuma">Skorları okumak</a></li>
-      <li><a href="#ekip">Ekip olarak çalışmak</a></li>
-      <li><a href="#rapor">Rapor ve imza</a></li>
-      <li><a href="#kapanis">Dönem sonu kontrol listesi</a></li>
-      <li><a href="#sonraki">Bir sonraki dönem</a></li>
-      <li><a href="#sorun">Bir şeyler ters gittiğinde</a></li>
-      <li><a href="#sozluk">Terimler nerede</a></li>
+      <li class="ic-ust"><a href="#nedir">Bu araç ne yapar</a></li>
+      <li class="ic-ust"><a href="#metodoloji">Metodoloji</a>
+        <ol class="ic-alt">
+          <li><a href="#m-kapsam">Kapsam belirleme</a></li>
+          <li><a href="#m-dogustan">Doğuştan risk</a></li>
+          <li><a href="#m-kontrol">Kontrol beyanı</a></li>
+          <li><a href="#m-test">Bağımsız test</a></li>
+          <li><a href="#m-artik">Artık risk ve tavan</a></li>
+          <li><a href="#m-istah">Risk iştahı</a></li>
+          <li><a href="#m-pf">PF ayrı satırı</a></li>
+          <li><a href="#m-iskolu">İş kolu yöntemi</a></li>
+          <li><a href="#m-ek">Ek kontrol setleri</a></li>
+          <li><a href="#m-orneklem">Örneklem</a></li>
+          <li><a href="#m-bulgu">Bulgu ve SLA</a></li>
+          <li><a href="#m-referans">Referans paketi</a></li>
+          <li><a href="#m-ozet">Formül özeti</a></li>
+          <li><a href="#m-sinir">Sınırlar</a></li>
+        </ol>
+      </li>
+      <li class="ic-ust"><a href="#hazirlik">Başlamadan önce</a></li>
+      <li class="ic-ust"><a href="#veri">Veriniz nerede duruyor</a></li>
+      <li class="ic-ust"><a href="#kabuk">Ortak kabuk ve gezinme</a></li>
+      <li class="ic-ust"><a href="#ekranlar">Ekran ekran tam referans</a>
+        <ol class="ic-alt">
+          <li><a href="#e-pano">1 Pano</a></li>
+          <li><a href="#e-nasil">2 Nasıl Okunur</a></li>
+          <li><a href="#e-kunye">3 Künye</a></li>
+          <li><a href="#e-portfoy">4 Portföy</a></li>
+          <li><a href="#e-islem">5 İşlem Detayı</a></li>
+          <li><a href="#e-dogustan">6 Doğuştan Risk</a></li>
+          <li><a href="#e-anket">7 Anket</a></li>
+          <li><a href="#e-ek">8 Ek Kontroller</a></li>
+          <li><a href="#e-qa">9 QA Planı</a></li>
+          <li><a href="#e-skorlar">10 Kontrol Skorları</a></li>
+          <li><a href="#e-artik">11 Artık Risk</a></li>
+          <li><a href="#e-aksiyon">12 Aksiyon Planı</a></li>
+          <li><a href="#e-karsilastir">13 Dönem Karşılaştırma</a></li>
+          <li><a href="#e-ekip">14 Ekip ve Birleştirme</a></li>
+          <li><a href="#e-gunluk">15 Değişiklik Günlüğü</a></li>
+          <li><a href="#e-rapor">16 Yönetici Raporu</a></li>
+          <li><a href="#e-ayarlar">17 Ayarlar</a></li>
+        </ol>
+      </li>
+      <li class="ic-ust"><a href="#anket-detay">Anketi doldurma</a></li>
+      <li class="ic-ust"><a href="#ekip">Ekip olarak çalışmak</a></li>
+      <li class="ic-ust"><a href="#kapanis">Dönem sonu kontrol listesi</a></li>
+      <li class="ic-ust"><a href="#sonraki">Bir sonraki dönem</a></li>
+      <li class="ic-ust"><a href="#sorun">Bir şeyler ters gittiğinde</a></li>
+      <li class="ic-ust"><a href="#ekler">Ekler ve tablolar</a></li>
     </ol>
   </nav>
 
@@ -332,553 +116,1211 @@
     </p>
     <p>
       Sonuçta elinize üç şey geçer: yazdırılabilir bir yönetici raporu, kanıt
-      referanslarıyla eşleşmiş 218 soruluk bir kontrol envanteri, ve sahibi ile
+      referanslarıyla eşleşmiş 218 soruluk bir kontrol envanteri ve sahibi ile
       termini belli bir aksiyon planı. Denetimde sorulan “bunu nereden
       biliyorsunuz” sorusunun cevabı bu üçünde durur.
     </p>
 
     <div class="kutu">
-      <div class="kutu-baslik">Yapmadığı şey</div>
+      <div class="kutu-baslik">Neyin yerine geçmez</div>
       <p>
-        Uygulama sizin yerinize karar vermez. Skorları siz verirsiniz, kanıtı siz
-        gösterirsiniz. Uygulamanın yaptığı, verdiğiniz skorları tutarlı biçimde
-        toplamak, çelişkileri yüzünüze çıkarmak ve sonucu savunulabilir bir
-        biçimde raporlamak.
+        Bu bir öz değerlendirme aracıdır. Bağımsız denetimin, teftişin ya da
+        düzenleyici incelemenin yerine geçmez. Ürettiği skorlar sizin girdiğiniz
+        yanıtlara ve kanıtlara dayanır; yanlış beyan girilirse yanlış skor çıkar.
+        Aracın katkısı, beyanı yazılı kanıda bağlaması, örneklemle sınaması ve
+        sonucu tekrarlanabilir bir formüle oturtmasıdır.
       </p>
     </div>
 
+    <h3>Neye dayanıyor</h3>
     <p>
-      Bir şeyi baştan bilin: uygulama sunucuya bağlanmaz. Hiçbir veri kurum
-      dışına çıkmaz, hiçbir yere kaydolmazsınız, internetsiz de çalışır. Bunun
-      bedeli, verinizin sorumluluğunun sizde olması — birazdan buna geleceğiz.
+      Soru bankası, risk faktörleri, örneklem oranları ve eşikler bir kaynak
+      çalışma kitabından üretildi; skorlama motoru o kitabın formülleriyle birebir
+      eşleşir. Metodolojik çerçeve FATF Tavsiye 1 ve 7, EBA ML/TF risk faktörleri
+      kılavuzu, Basel’in AML/CFT risk yönetimi yaklaşımı, Wolfsberg etkinlik
+      beyanı ve IIA üç savunma hattı modeliyle hizalanmıştır. Mevzuat atıfları yön
+      göstericidir; madde numaraları yürürlükteki metinle doğrulanmalıdır.
     </p>
 
     <hr class="ayrac">
 
-    <h2 id="hazirlik">Başlamadan önce</h2>
-    <p class="h2-alt">Yarım saatlik toplama işi, üç günlük aramayı önler.</p>
+    <h2 id="metodoloji">Metodoloji</h2>
+    <p class="h2-alt">Zincir, formüller ve her adımın neden orada olduğu.</p>
 
     <p>
-      Uygulamayı açmadan önce şunları masanıza toplayın. Hepsini bulamazsanız da
-      başlayabilirsiniz — boş bırakılan alan sonucu bozmaz, sadece o alandan gelen
-      hesap yapılmaz.
+      Değerlendirme yedi halkalı bir zincirdir. Her halka bir öncekinin çıktısını
+      girdi olarak alır; hiçbir halka atlanamaz, atlanırsa sonraki halka “ölçülmedi”
+      der ve boş kalır.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Halka</th><th>Ne üretir</th><th>Ekran</th></tr></thead>
+        <tbody>
+          <tr><td><b>1 · Kapsam</b></td><td>Hangi soru, faktör ve iş kolu değerlendirmeye girer</td><td>Künye</td></tr>
+          <tr><td><b>2 · Maruziyet</b></td><td>Müşteri, ülke, kanal ve işlem hacimleri; skor önerileri</td><td>Portföy · İşlem Detayı</td></tr>
+          <tr><td><b>3 · Doğuştan risk</b></td><td>5 boyut + PF için 1–5 skor</td><td>Doğuştan Risk</td></tr>
+          <tr><td><b>4 · Kontrol beyanı</b></td><td>Domain bazında beyan edilen kontrol etkinliği</td><td>Anket · Ek Kontroller</td></tr>
+          <tr><td><b>5 · Bağımsız test</b></td><td>Dosya testiyle düzeltilmiş etkinlik ve güvence örtüsü</td><td>QA Planı · Anket</td></tr>
+          <tr><td><b>6 · Artık risk</b></td><td>Kalan risk ve iştah aşımı</td><td>Kontrol Skorları · Artık Risk</td></tr>
+          <tr><td><b>7 · Aksiyon</b></td><td>Bulgu, kök neden, sahip, termin, doğrulama</td><td>Aksiyon Planı</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="m-kapsam">Kapsam belirleme</h3>
+    <p>
+      Yapmadığınız bir işin kontrolünü “yok” diye puanlamak skoru haksız yere
+      düşürür; “var” demek ise yanlış beyandır. Bu yüzden kapsam en başta ve
+      yazılı olarak belirlenir. Künyedeki altı faaliyet sorusuna verilen “Hayır”
+      yanıtı ilgili soru bölümlerini, doğuştan risk faktörlerini, iş kollarını ve
+      ek kontrol setlerini otomatik olarak kapsam dışına alır.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Künye alanı “Hayır”</th><th>Kapsam dışı soru bölümü</th><th>Kapsam dışı doğuştan risk faktörü</th></tr></thead>
+        <tbody>
+          <tr><td>Trade finance faaliyeti</td><td>D6 · Trade Finance</td><td>Trade finance ürün hacmi</td></tr>
+          <tr><td>Muhabir bankacılık</td><td>D2 · Muhabir Bankacılık</td><td>Muhabir bankacılık ağının coğrafi riski</td></tr>
+          <tr><td>Sanal varlık faaliyeti</td><td>D3 · Sanal Varlık</td><td>Sanal varlık ürün ve hizmetleri</td></tr>
+          <tr><td>Uzaktan müşteri kabulü</td><td>D3 · Dijital Kanal</td><td>Uzaktan müşteri kabul oranı</td></tr>
+          <tr><td>Acente / temsilci ağı</td><td>D3 · Aracılı Kanal · D1 · Dış Hizmet ve Acente</td><td>Acente ve temsilci kanalı payı</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Kapsam dışı bırakılan bir soru “Uygulanamaz” sayılır: ne payda ne de paya
+      girer, skoru ne yukarı ne aşağı çeker. Kural yalnızca <b>elle
+      doldurulmamış</b> kayıtları bağlar — bir soruyu ya da faktörü siz elle
+      yanıtladıysanız otomatik kapsam kuralı o kayıt için geçersiz olur. Böylece
+      “genelde yapmıyoruz ama şu tek ilişki var” durumu kaybolmaz.
+    </p>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Kapsam kararı denetlenir</div>
+      <p>
+        “Hayır” demek bir beyandır ve raporda görünür. Faaliyet dönem içinde
+        başladıysa künyeyi güncelleyin: kapsam dışı bıraktığınız bölüm anında geri
+        açılır ve o bölümün soruları yanıtsız kalır, ilerleme rozeti düşer.
+      </p>
+    </div>
+
+    <h3 id="m-dogustan">Doğuştan risk</h3>
+    <p>
+      Doğuştan risk, hiç kontrol yokmuş gibi düşünüldüğünde işin taşıdığı risktir.
+      Beş boyutta, toplam 25 faktörle ölçülür: <b>Müşteri</b>, <b>Coğrafya ve
+      Yaptırım</b>, <b>Ürün</b>, <b>Kanal</b>, <b>İşlem</b>. Her faktör 1–5
+      arasında skorlanır ve her faktörün kendi ağırlığı vardır.
+    </p>
+
+    <div class="formul"><b>Boyut skoru</b> = Σ(faktör skoru × ağırlık) ÷ Σ(skorlanan faktörlerin ağırlığı)</div>
+    <div class="formul"><b>GENEL</b> = ölçülmüş boyut skorlarının düz ortalaması</div>
+
+    <ul>
+      <li><b>Uygulanamaz</b> işaretli faktör paydaya girmez.</li>
+      <li>Henüz skorlanmamış faktör de paydaya girmez — yarım doldurulmuş bir boyut
+        yanlış bir ortalama üretmez, ama eksik faktör sayısı ekranda ve rozette
+        görünür.</li>
+      <li>Hiçbir faktörü skorlanmamış boyut <b>“ölçülmedi”</b> sayılır. O boyuttan
+        beslenen domainlerin artık riski hesaplanmaz; sıfır göstermek yanıltıcı
+        olurdu.</li>
+      <li>Tüm faktörler skorlandığında sonuç kaynak çalışma kitabıyla birebir aynıdır.</li>
+    </ul>
+
+    <h4>Skor çapaları</h4>
+    <p>
+      25 faktörün her birinde 1’den 5’e kadar her skorun ne anlama geldiğini
+      tanımlayan yazılı bir rubrik vardır (örneğin “yüksek riskli müşteri payı
+      %3–7 → 3”). Rubrik, skorlamayı kişiden bağımsız ve denetimde savunulabilir
+      kılar. Rubriği okumadan skor vermeyin.
+    </p>
+
+    <h4>Gerekçe zorunluluğu</h4>
+    <p>
+      4 ve 5 skorlarında gerekçe/kanıt alanı zorunlu sayılır. Denetimde ilk sorulan
+      budur: “bu skoru neye dayandırdınız?” Gerekçesiz yüksek skorlar panoda uyarı
+      olarak sayılır.
+    </p>
+
+    <h4>Ağırlık değiştirme</h4>
+    <p>
+      Faktör ağırlıkları düzenlenebilir. Değiştirilen ağırlık “ağırlık
+      değiştirildi” etiketiyle işaretlenir, CSV çıktısına varsayılanla birlikte
+      yazılır ve tek tıkla geri alınır. Ağırlık değişikliği kurumun metodoloji
+      kararıdır ve yazılı olarak onaylanmalıdır.
+    </p>
+
+    <h4>Skor önerileri</h4>
+    <p>
+      Portföy ve İşlem Detayı ekranlarına girilen sayılardan 16 faktör için skor
+      önerisi üretilir (12’si portföyden, 4’ü operasyondan). Öneri, hesaplanan
+      oranın rubrik bantlarına düşürülmesiyle bulunur ve tek tıkla uygulanır.
+      Öneri bağlayıcı değildir; gerekçeyi yine siz yazarsınız. Portföy verisi
+      yoksa künyedeki sayılar devreye girer.
+    </p>
+
+    <h3 id="m-kontrol">Kontrol beyanı</h3>
+    <p>
+      Kontrol tarafı 11 domainde toplam 218 soruyla ölçülür. Her sorunun bir
+      ağırlığı ve bir kritiklik derecesi vardır; 40 soru “Kritik” sayılır.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Yanıt</th><th>Katsayı</th><th>Anlamı</th></tr></thead>
+        <tbody>
+          <tr><td><b>Evet</b></td><td>1,00</td><td>Kontrol tanımlı, uygulanıyor ve kanıtı var</td></tr>
+          <tr><td><b>Kısmen</b></td><td>0,50</td><td>Var ama eksik: kapsam dar, süreç yazılı değil ya da düzensiz işliyor</td></tr>
+          <tr><td><b>Hayır</b></td><td>0,00</td><td>Kontrol yok ya da işlemiyor</td></tr>
+          <tr><td><b>Uygulanamaz</b></td><td>—</td><td>Skorlamadan tamamen çıkar; paya da paydaya da girmez</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="formul"><b>Kontrol etkinliği</b> = kazanılan ağırlık ÷ uygulanabilir toplam ağırlık (domain bazında)</div>
+
+    <p>
+      Bu değer <b>beyan edilen etkinliktir</b>: kurumun kendi ifadesidir, tek
+      başına kanıt sayılmaz. Tanınmayan bir yanıt değeri (elle düzenlenmiş dosya,
+      başka sürüm) yanıtlanmamış kabul edilir; sessizce bozuk bir skor üretilmez.
+    </p>
+
+    <h4>Olgunluk bantları</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Etkinlik</th><th>Olgunluk</th></tr></thead>
+        <tbody>
+          <tr><td>≥ %90</td><td>Gelişmiş</td></tr>
+          <tr><td>≥ %75</td><td>Yeterli</td></tr>
+          <tr><td>≥ %60</td><td>Gelişime Açık</td></tr>
+          <tr><td>≥ %40</td><td>Zayıf</td></tr>
+          <tr><td>&lt; %40</td><td>Kritik Zayıf</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Olgunluk etiketi <b>test ile düzeltilmiş</b> etkinlikten üretilir; panoda,
+      ısı haritasında, skor tablosunda ve raporda gösterilen yüzdeyle her zaman
+      aynı kaynaktan gelir.
+    </p>
+
+    <h4>Açık kritik kontrol</h4>
+    <p>
+      Kritikliği “Kritik” olup yanıtı “Evet” olmayan her soru açık kritik sayılır.
+      Kritiklik yazılı bir kurala göre verilmiştir: bir kontrol ancak yokluğu tek
+      başına doğrudan yasal ihlal ya da telafisiz bir maruziyet doğuruyorsa
+      kritiktir. Önemli ama telafi edilebilir olan — yönetişim, metodoloji, onay
+      basamağı, ölçüm — “Yüksek” sayılır. Açık kritikler genel skor iyi olsa bile
+      ayrı listelenir ve raporda kendi bölümünde görünür.
+    </p>
+
+    <h3 id="m-test">Bağımsız test: beyanın sınanması</h3>
+    <p>
+      Metodolojinin belkemiği burasıdır: <b>anket beyanı tek başına kontrol
+      etkinliği sayılmaz.</b> 218 sorunun 115’i dosya testi gerektirir. Test
+      sonucu beyana bir tavan uygular.
+    </p>
+
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>QA dosya testi sonucu</th><th>Beyana uygulanan tavan</th><th>Sonuç</th></tr></thead>
+        <tbody>
+          <tr><td>Doğrulandı</td><td>—</td><td>Beyan aynen geçerli</td></tr>
+          <tr><td>Kısmen doğrulandı</td><td>0,50</td><td>“Evet” beyanı en çok yarım puan alır</td></tr>
+          <tr><td>Çelişkili</td><td>0,00</td><td>Beyan ne olursa olsun kontrol etkin sayılmaz</td></tr>
+          <tr><td>Test edilmedi</td><td>—</td><td>Beyan geçerli, ama güvence örtüsüne girmez</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Böylece her domain için üç ayrı sayı raporlanır ve hiçbiri diğerinin yerine
+      geçmez:
+    </p>
+    <ul>
+      <li><b>Beyan edilen etkinlik</b> — yalnızca anket yanıtlarından.</li>
+      <li><b>Test ile düzeltilmiş etkinlik</b> — QA tavanları uygulandıktan sonra.
+        Artık risk bu değerden hesaplanır.</li>
+      <li><b>Güvence örtüsü</b> — test gerektiren sorulardan kaçının gerçekten test
+        edildiği. Düşükse skorlarınızın ispat gücü zayıftır; skorun kendisi
+        değişmez, güveniniz değişir.</li>
+    </ul>
+
+    <div class="kutu kritik">
+      <div class="kutu-baslik">Çelişki, düzeltilmesi gereken bir durumdur</div>
+      <p>
+        Yanıt “Evet” ama dosya testi “Çelişkili” ise soru kartında kırmızı uyarı
+        çıkar, panoda ve anket özetinde çelişki sayısı görünür. Doğru davranış,
+        skoru olduğu gibi bırakmak değil, beyanı düzeltmektir: yanıt “Kısmen” ya
+        da “Hayır” olmalıdır. Çelişki kapatılmadan imzalanan rapor savunulamaz.
+      </p>
+    </div>
+
+    <p>
+      Dayanak: Wolfsberg etkinlik beyanı (beyan ile gösterilen etkinliğin
+      ayrılması), IIA üç savunma hattı (ikinci hattın beyanının üçüncü hat
+      tarafından sınanması), BSA/AML programlarındaki bağımsız test sütunu.
+    </p>
+
+    <h3 id="m-artik">Artık risk ve %95 tavanı</h3>
+
+    <div class="formul"><b>Artık risk</b> = doğuştan risk × (1 − uygulanan kontrol etkinliği)</div>
+    <div class="formul"><b>Uygulanan etkinlik</b> = MİN(test ile düzeltilmiş etkinlik, %95)</div>
+
+    <p>
+      Kontroller riski azaltır, sıfırlamaz. FATF Tavsiye 1, EBA ML/TF risk
+      faktörleri kılavuzu ve Basel yaklaşımı bu konuda açıktır. Tavan olmasaydı tam
+      puan alan bir domain 0,00 artık risk gösterirdi; bu hiçbir denetimde
+      savunulamaz. Tavan yalnızca artık risk hesabına uygulanır, etkinlik skorunun
+      kendisine değil — Kontrol Skorları ekranında %98 görürsünüz, Artık Risk
+      ekranında o satırda “%95 ile sınırlandı” notu çıkar.
+    </p>
+
+    <h4>Her domainin doğuştan risk kaynağı</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Domain</th><th>Doğuştan risk kaynağı</th></tr></thead>
+        <tbody>
+          <tr><td>D1 · Yönetişim ve Uyum Programı</td><td>GENEL</td></tr>
+          <tr><td>D2 · Müşteri Profili ve Coğrafi Risk</td><td>Müşteri + Coğrafya ve Yaptırım</td></tr>
+          <tr><td>D3 · Ürün ve Kanal Riski</td><td>Ürün + Kanal</td></tr>
+          <tr><td>D4 · İşlem Evreni ve Veri Bütünlüğü</td><td>İşlem</td></tr>
+          <tr><td>D5 · Müşteri Yaşam Döngüsü (CDD/EDD)</td><td>Müşteri</td></tr>
+          <tr><td>D6 · Finansal Yaptırımlar ve Tarama</td><td>Coğrafya ve Yaptırım</td></tr>
+          <tr><td>D7 · AML İzleme (Monitoring)</td><td>İşlem + Ürün</td></tr>
+          <tr><td>D8 · ŞİB, Dondurma ve Müşteri Çıkışı</td><td>Müşteri + İşlem</td></tr>
+          <tr><td>D9 · Düzenleyici Olaylar ve Kolluk Talepleri</td><td>GENEL</td></tr>
+          <tr><td>D10 · Eğitim, Farkındalık ve Geri Bildirim</td><td>GENEL</td></tr>
+          <tr><td>D11 · Kurumsal Risk Değerlendirmesi (EWRA)</td><td>GENEL</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      İki kaynaklı domainlerde doğuştan risk iki boyutun ortalamasıdır. Kaynak
+      boyutlardan biri bile ölçülmemişse o domainin artık riski hesaplanmaz.
+    </p>
+
+    <h4>Artık risk bantları</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Artık risk (0–5)</th><th>Seviye</th></tr></thead>
+        <tbody>
+          <tr><td>≥ 3,50</td><td>Çok Yüksek</td></tr>
+          <tr><td>≥ 2,50</td><td>Yüksek</td></tr>
+          <tr><td>≥ 1,50</td><td>Orta</td></tr>
+          <tr><td>&lt; 1,50</td><td>Düşük</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Kurum geneli tek başına okunmaz</h4>
+    <p>
+      Genel artık risk, kaynak çalışma kitabındaki formülle hesaplanır: genel
+      doğuştan risk × (1 − MİN(genel test edilmiş etkinlik, %95)). Bu formül
+      yoğunlaşmış bir zafiyeti ortalamayla seyreltebilir. Bu yüzden panoda ayrıca
+      <b>en yüksek domain artık riski</b> gösterilir ve genel skor bir domain
+      aşımını gizlediğinde ayrı bir uyarı çıkar. Kurumsal risk değerlendirmesinde
+      domain düzeyindeki aşım, genel ortalamayla kapatılamaz.
+    </p>
+
+    <h3 id="m-istah">Risk iştahı</h3>
+    <p>
+      Varsayılan iştah limiti her domain ve PF için <b>1,50</b>’dir; bu sektör
+      uygulamasına dayalı bir başlangıç değeridir, kurumunuzun kararı değildir.
+      Artık Risk ekranında her satırda limit değiştirilebilir; değiştirilen limit
+      “kurum kararı” olarak işaretlenir ve raporda öyle görünür. Varsayılana eşit
+      bir değer girerseniz geçersiz kılma saklanmaz.
+    </p>
+    <p>
+      Artık risk limiti aşarsa satır <b>AŞIM</b> olarak işaretlenir, kenar
+      çubuğundaki rozet aşım sayısını gösterir ve rapor aşımları kendi bölümünde
+      listeler. Aşım, aksiyon planına bulgu girilmesini gerektirir.
+    </p>
+
+    <h3 id="m-pf">Yayılmanın finansmanı (PF) neden ayrı</h3>
+    <p>
+      FATF Tavsiye 1’in 2020 revizyonu ve Tavsiye 7, PF riskinin aklama ve terörün
+      finansmanı riskinden <b>ayrı</b> değerlendirilmesini ister. Uygulama bu
+      ayrımı korur:
+    </p>
+    <ul>
+      <li>Beş PF faktörü ayrı bir blokta skorlanır: BM yayılma rejimi ülkeleriyle
+        temas, çift kullanımlı mal ticareti, denizcilik ve lojistik müşteri
+        maruziyeti, paravan ve tedarik ağı yapıları, yaptırım kaçınma
+        tipolojilerine maruziyet.</li>
+      <li>PF skoru ML/TF genel ortalamasına <b>karıştırılmaz</b>.</li>
+      <li>Kontrol tarafında D6 yaptırım tarama etkinliğiyle eşleştirilir.</li>
+      <li>Artık Risk ekranında kendi satırında, kendi iştah limitiyle raporlanır.</li>
+      <li>4–5 skorlarında gerekçe zorunluluğu PF faktörleri için de geçerlidir.</li>
+    </ul>
+
+    <h3 id="m-iskolu">İş kolu bazlı değerlendirme ve yöntem seçimi</h3>
+    <p>
+      EBA ML/TF risk faktörleri kılavuzu ve Basel yaklaşımı, riskin iş kolu ve ürün
+      düzeyinde değerlendirilip iş hacmiyle ağırlıklandırılarak kurum geneline
+      toplanmasını bekler. Doğuştan Risk ekranındaki matriste 12 iş kolu
+      etkinleştirilir; her biri için iş payı (%) ve beş boyutta 1–5 skor girilir.
+    </p>
+    <ul>
+      <li>Uygulama iş hacmiyle ağırlıklı kurum doğuştan riskini hesaplar ve en
+        riskli iş kolunu işaretler.</li>
+      <li>Payların toplamı 100’den 0,5 puandan fazla saparsa uyarı çıkar.</li>
+      <li>İş kolu ağırlıklı sonuç ile boyut ortalaması arasındaki fark 0,50 puanı
+        aşarsa uyarı çıkar: boyut ortalaması tek bir iş kolunda yoğunlaşan riski
+        gizliyor olabilir.</li>
+      <li>Künyede “yok” denen faaliyetlerin iş kolları otomatik kapsam dışıdır.</li>
+    </ul>
+
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Maruziyet ağırlıklandırma seçeneği — varsayılan kapalı</div>
+      <p>
+        Doğuştan Risk ekranındaki seçenek açıldığında boyut skorları faktör
+        ağırlıklarından değil, iş kolu düzeyinden iş hacmiyle ağırlıklandırılarak
+        hesaplanır. Açıkken sonuç kaynak çalışma kitabıyla eşleşmez ve önceki dönem
+        dosyalarıyla karşılaştırma ancak iki dönem aynı yöntemi kullanıyorsa
+        anlamlıdır. Seçenek yalnızca skorlanmış ve paylı iş kolu varsa fiilen
+        uygulanır; hangi yöntemin kullanıldığı yönetici raporuna yazılır ve dönem
+        karşılaştırmasında yöntem farkı uyarı üretir.
+      </p>
+    </div>
+
+    <h3 id="m-ek">Ek kontrol setleri neden ayrı skorlanır</h3>
+    <p>
+      Ana soru bankasının dışında sekiz tamamlayıcı set, 44 soru vardır: terör
+      finansmanı ve KAGK, personel ve dahili bildirim, yaptırım lookback ve model
+      yönetişimi, ve beş sektöre özgü set (sigorta/emeklilik, e-para ve ödeme,
+      VASP, yetkili müessese, aracı kurum ve portföy).
+    </p>
+    <p>
+      Setler künyedeki <b>yükümlü tipine</b> ve faaliyet sorularına göre otomatik
+      açılıp kapanır. Kapsam dışı kalan setin soruları, elle yanıtlanmadıysa
+      “Uygulanamaz” sayılır ve gerekçesi ekranda yazar.
+    </p>
+    <p>
+      Bu setler <b>ana skorun paydasına girmez</b>. Girseydi domain etkinlikleri
+      kayar, hem kaynak çalışma kitabıyla birebir eşleşme hem de önceki dönem
+      dosyalarıyla karşılaştırma kopardı. Set kendi kapsama ve etkinlik oranıyla
+      panoda bir kutucuk, yönetici raporunda ayrı bir tablo, soru CSV’sinde set
+      adıyla işaretlenmiş satırlar olarak görünür. Aynı QA tavanı ve aynı olgunluk
+      bantları bu sette de geçerlidir.
+    </p>
+
+    <h3 id="m-orneklem">QA örneklem metodolojisi</h3>
+    <p>
+      24 popülasyon tanımlıdır. Her popülasyonun bir domaini, bir risk derecesi, bir
+      örneklem kuralı ve bir test frekansı vardır.
+    </p>
+    <ul>
+      <li><b>Tam kapsam</b> işaretli popülasyonlarda tüm evren test edilir
+        (verilen ŞİB dosyaları, dondurma kararları, yaptırım gerçek eşleşmeleri,
+        PEP dosyaları, exit kararları, kolluk talepleri, muhabir ilişkileri,
+        kapatılan denetim bulguları).</li>
+      <li>Diğerlerinde: <b>yıllık örneklem = MİN(hacim, MAK(hacim × oran, asgari
+        sayı))</b>. Oranlar %2 ile %15 arasında, asgari sayılar 15 ile 30 arasında
+        değişir.</li>
+      <li><b>Test başına örneklem = yıllık örneklem ÷ test sayısı</b>, yukarı
+        yuvarlanır. Çeyreklik 4, Altı Aylık 2, Yıllık 1 test demektir.</li>
+    </ul>
+    <p>
+      Örneklem tabakalıdır: yüksek riskli popülasyonlarda oran ve asgari sayı
+      yüksektir. Örneklem planı hangi dosyaların test edileceğini değil, kaç
+      dosyanın test edileceğini söyler; dosya seçimi rastgele ya da riske göre
+      tabakalı yapılmalı ve seçim yöntemi kayda geçmelidir.
+    </p>
+
+    <h3 id="m-bulgu">Bulgu, kritiklik ve termin</h3>
+    <p>
+      Denetimde savunulabilir bir bulgu satırında beş alan doludur: kök neden,
+      aksiyon, sahip, termin ve doğrulama yöntemi. Uygulama eksik alanı olan bulgu
+      sayısını ayrı bir kutucukta sayar.
+    </p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Kritiklik</th><th>Kapanış süresi (önerilen termin)</th><th>Hata sınıfı tanımı</th></tr></thead>
+        <tbody>
+          <tr><td>Kritik</td><td>5 iş günü</td><td>Yasal ihlal ya da telafisiz maruziyet doğuran eksiklik</td></tr>
+          <tr><td>Yüksek</td><td>30 gün</td><td>Kontrolün amacını boşa çıkaran, telafi edilebilir eksiklik</td></tr>
+          <tr><td>Orta</td><td>90 gün</td><td>Süreç ya da belge eksikliği; etkisi sınırlı</td></tr>
+          <tr><td>Düşük</td><td>180 gün (bir sonraki QA döngüsü)</td><td>İyileştirme fırsatı</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Yeni bulguda termin bu kurala göre otomatik önerilir; kritik bulgularda
+      hafta sonları atlanarak beş <b>iş günü</b> hesaplanır. Önerilen termin elle
+      değiştirilebilir. Termini geçmiş ve kapanmamış bulgu “GECİKMİŞ” sayılır.
+    </p>
+
+    <h3 id="m-referans">Referans verisinin tazeliği</h3>
+    <p>
+      Kodun değil, dayandığı dış gerçeklerin son kullanma tarihi vardır. Ülke risk
+      bayrakları, mevzuat atıfları ve soru bankası tarihli bir <b>referans veri
+      paketine</b> bağlıdır. Her bölüm kendi yayın döngüsüne göre ayrı eskir:
+      FATF listeleri her genel kurulda değişir, mevzuat atıfları yıllık, soru
+      bankası daha yavaş.
+    </p>
+    <p>
+      Paket sürümü Ayarlar ekranında ve yönetici raporunun altında görünür. Bir
+      bölüm kendi eşiğini aştığında uyarı çıkar; o zaman yapılacak iş, listeleri
+      birincil kaynaktan doğrulayıp Ayarlar ekranında güncellemektir. Kurumun
+      kendi değiştirdiği ülke işaretleri “kurum kararı” olarak korunur.
+    </p>
+
+    <h3 id="m-ozet">Formül özeti</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Büyüklük</th><th>Formül</th></tr></thead>
+        <tbody>
+          <tr><td>Yanıt katsayısı</td><td>Evet 1,00 · Kısmen 0,50 · Hayır 0,00 · Uygulanamaz hariç</td></tr>
+          <tr><td>Soru puanı</td><td>ağırlık × katsayı</td></tr>
+          <tr><td>Test edilmiş soru puanı</td><td>ağırlık × MİN(katsayı, QA tavanı)</td></tr>
+          <tr><td>Kontrol etkinliği</td><td>Σ kazanılan puan ÷ Σ uygulanabilir ağırlık</td></tr>
+          <tr><td>Güvence örtüsü</td><td>test edilen soru ÷ test gereken soru</td></tr>
+          <tr><td>Boyut doğuştan riski</td><td>Σ(skor × ağırlık) ÷ Σ(skorlanan ağırlık)</td></tr>
+          <tr><td>GENEL doğuştan risk</td><td>ölçülmüş boyutların düz ortalaması</td></tr>
+          <tr><td>Artık risk</td><td>doğuştan risk × (1 − MİN(test edilmiş etkinlik, 0,95))</td></tr>
+          <tr><td>İş kolu ağırlıklı doğuştan risk</td><td>Σ(iş kolu skoru × pay) ÷ Σ(pay)</td></tr>
+          <tr><td>Yıllık QA örneklemi</td><td>tam kapsam ise hacim; değilse MİN(hacim, MAK(hacim × oran, asgari))</td></tr>
+          <tr><td>Test başına örneklem</td><td>YUKARIYUVARLA(yıllık örneklem ÷ test sayısı)</td></tr>
+          <tr><td>Aksiyon kapanış oranı</td><td>kapalı bulgu ÷ toplam bulgu</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="m-sinir">Metodolojinin bilinen sınırları</h3>
+    <ul>
+      <li><b>Girdi kalitesi tavan koyar.</b> Araç beyanı doğrulamaz; QA testi
+        sonucunu da siz girersiniz. Güvence örtüsü düşükken yüksek etkinlik
+        skorunun ispat gücü zayıftır.</li>
+      <li><b>Ağırlıklar ve oranlar başlangıç değeridir.</b> Soru ağırlıkları,
+        faktör ağırlıkları, örneklem oranları ve asgari örneklem sayıları sektör
+        uygulamasına dayanır; kurumun onaylı metodolojisine göre kalibre
+        edilmelidir.</li>
+      <li><b>Varsayılan iştah tüm domainlerde aynıdır (1,50).</b> Yönetim kurulunun
+        onayladığı limitlerle değiştirilmelidir.</li>
+      <li><b>Mevzuat atıfları yön göstericidir.</b> Madde numaraları ve eşikler
+        yürürlükteki metinle doğrulanmalıdır.</li>
+      <li><b>Ortalama, yoğunlaşmayı gizleyebilir.</b> Bu yüzden en kötü domain, en
+        riskli iş kolu ve açık kritikler ayrı raporlanır; genel skora tek başına
+        bakmayın.</li>
+      <li><b>Araç bağımsız denetim değildir.</b> Tespit, önceliklendirme ve aksiyon
+        takibi üretir.</li>
+    </ul>
+
+    <hr class="ayrac">
+
+    <h2 id="hazirlik">Başlamadan önce</h2>
+    <p class="h2-alt">Yarım saatlik hazırlık, üç günlük aramayı önler.</p>
+
+    <p>
+      Uygulamayı açmadan önce şu üç kümeyi masaya toplayın. Hepsi elinizde
+      olmayabilir; olmayan alan boş kalabilir, ama neyin eksik olduğunu bilerek
+      başlamak sonradan aramaktan hızlıdır.
     </p>
 
     <h3>Kurum bilgileri</h3>
     <ul>
-      <li>Ticaret sicilindeki tam unvan, lisanslar, faaliyet gösterilen ülkeler</li>
-      <li>Değerlendirme dönemi (genellikle bir takvim yılı)</li>
-      <li>Uyum görevlisi ve vekilinin adı</li>
-      <li>Son bağımsız AML denetimi, son EWRA, son senaryo tuning ve son tarama
-        eşiği kalibrasyonu tarihleri</li>
+      <li>Kurum unvanı, yükümlü tipi, faaliyet gösterilen ülkeler.</li>
+      <li>Değerlendirme dönemi (başlangıç ve bitiş tarihi).</li>
+      <li>Uyum görevlisi ve değerlendirmeyi yapan kişinin adı.</li>
+      <li>Kullanılan izleme, tarama ve KYC sistemlerinin adları ve sürümleri.</li>
+      <li>Altı faaliyet sorusunun cevabı: trade finance, muhabir bankacılık, sanal
+        varlık, uzaktan müşteri kabulü, acente ağı ve ilgili diğer faaliyetler.</li>
     </ul>
 
     <h3>Sayılar</h3>
     <ul>
-      <li>Toplam müşteri, yüksek riskli müşteri ve PEP sayısı</li>
-      <li>Yıllık işlem adedi ve bunun içinde sınır ötesi işlem adedi</li>
-      <li>Uyum biriminin FTE kadrosu</li>
-      <li>Müşteri dağılımı: müşteri tipi × risk seviyesi tablosu</li>
-      <li>Operasyon rakamları: alert, vaka, ŞİB, dondurma, eğitim, QA sayıları</li>
+      <li>Dönem sonu toplam müşteri sayısı; yüksek riskli ve PEP müşteri adedi.</li>
+      <li>Yıllık işlem adedi ve sınır ötesi işlem adedi.</li>
+      <li>Uyum biriminin FTE cinsinden kadrosu.</li>
+      <li>Müşteri dağılımı: tip × risk seviyesi kırılımı.</li>
+      <li>Ülke bazında müşteri ve işlem adetleri.</li>
+      <li>Şube/birim listesi: ülke, müşteri sayısı, uyum FTE, son denetim tarihi.</li>
+      <li>Operasyon sayıları: alert, vaka, ŞİB, dondurma, tarama, RFI, QA hataları,
+        eğitim tamamlama.</li>
+      <li>QA popülasyonlarının dönem içi hacimleri.</li>
     </ul>
 
     <h3>Belgeler</h3>
-    <p>
-      Anketi doldururken her soruya kanıt referansı yazacaksınız. Bunlar dosyanın
-      kendisi değil, <em>nerede olduğu</em>: “Uyum Programı v6.1”, “YK kararı
-      2025/14”, “QA test raporu T-88” gibi. Politika seti, prosedürler, YK
-      kararları, denetim raporları ve QA test sonuçları elinizin altında olsun.
-    </p>
+    <ul>
+      <li>Yürürlükteki uyum politikası ve prosedürleri (kanıt referansı vermek için).</li>
+      <li>Son EWRA, son iç/dış denetim raporu, son senaryo tuning ve tarama eşiği
+        kalibrasyon tarihleri.</li>
+      <li>Yönetim kurulunun onayladığı risk iştahı limitleri (varsa).</li>
+      <li>Önceki dönemin çalışma dosyası (JSON) — dönem karşılaştırması için.</li>
+    </ul>
 
     <div class="kutu ipucu">
-      <div class="kutu-baslik">Önce demoyu açın</div>
+      <div class="kutu-baslik">Kanıt referansı alışkanlığı</div>
       <p>
-        Kendi verinizi girmeden önce demo dosyasını yükleyip on dakika dolaşmanızı
-        öneririm. Dolu ekranları bir kez görmek, boş ekranlarda ne yapacağınızı
-        çok daha net hale getirir. Demo dosyası
-        <code>demo-calisma-dosyasi.json</code> — sol menüden
-        <span class="ekran">Çalışma dosyası yükle</span> ile açılır. İncelemeniz
-        bitince <span class="ekran">Sıfırla</span> deyip kendi dönemimizle
-        başlarsınız.
+        Her “Evet” yanıtının yanına kanıtı nerede olduğunu yazın: politika adı ve
+        madde numarası, prosedür kodu, ekran görüntüsü dosya adı, rapor numarası.
+        Denetimde bu alan sizin ilk savunmanızdır ve sonradan hatırlanmaz.
       </p>
     </div>
 
     <hr class="ayrac">
 
     <h2 id="veri">Veriniz nerede duruyor</h2>
-    <p class="h2-alt">Kılavuzun en önemli bölümü burası.</p>
+    <p class="h2-alt">Sunucu yok. Bu bir güvenlik özelliği ve bir sorumluluk.</p>
 
     <p>
-      Çalışmanız yalnızca kullandığınız tarayıcıda durur. Sunucu yok, bulut yok,
-      otomatik senkronizasyon yok. Bu, verinizin kurum dışına çıkmaması demek —
-      ama aynı zamanda şu demek: <strong>tarayıcı verisini temizlerseniz
-      çalışmanız gider.</strong> Uygulamanın kendi otomatik yedekleri de aynı
-      yerde durduğu için onlar da birlikte gider.
+      Uygulama hiçbir ağ isteği yapmaz: harici font, CDN, analitik yoktur. Tüm
+      veriler yalnızca kullandığınız tarayıcının yerel deposunda (localStorage)
+      tutulur. Kurum verisi cihazdan çıkmaz.
+    </p>
+    <p>
+      Bunun bedeli şudur: <b>tarayıcı verisi temizlenirse çalışma kaybolur.</b>
+      Otomatik yedekler de aynı depoda durduğu için onlar da birlikte gider.
+      Kalıcı yedek tek yoldan alınır: <span class="ekran">Veri ve yedekleme →
+      JSON indir</span>.
     </p>
 
-    <div class="kutu kritik">
-      <div class="kutu-baslik">Tek kural</div>
-      <p>
-        Her çalışma seansının sonunda <span class="ekran">Veri ve yedekleme →
-        JSON indir</span> deyin ve dosyayı kurum arşivinize koyun. Otuz saniye
-        sürer. Yapmadığınızda kaybedeceğiniz şey üç günlük iş.
-      </p>
-    </div>
-
-    <p>Uygulama size bu konuda yardımcı olur, ama sizin yerinize yapmaz:</p>
+    <h3>Uygulama sizi nasıl koruyor</h3>
     <ul>
-      <li>Son yedekten sonra <strong>25 yeni kayıt</strong> girdiğinizde ya da
-        <strong>7 gün</strong> geçtiğinde panoda hatırlatma çıkar.</li>
-      <li>Sol menünün altında son yedek tarihi durur; gecikince sarıya döner.</li>
-      <li>Yedeklenmemiş iş varken sekmeyi kapatmaya çalışırsanız tarayıcı sorar.</li>
-      <li>Tarayıcı deposu dolarsa kayıt sessizce başarısız olmaz — uyarı çıkar.
-        Bunu görürseniz hemen JSON indirin.</li>
+      <li><b>Yedek hatırlatması</b> — son JSON yedeğinden bu yana 25 yeni kayıt
+        girildiğinde ya da 7 gün geçtiğinde panoda uyarı çıkar. Hiç yedek
+        alınmamışsa eşik 15 kayıttır. Kenar çubuğunda son yedek tarihi görünür.</li>
+      <li><b>Sekme kapatma uyarısı</b> — yedeklenmemiş iş varken sekmeyi kapatırken
+        tarayıcı onay sorar.</li>
+      <li><b>Kayıt hatası sessiz kalmaz</b> — depolama dolarsa bildirim ve kenar
+        çubuğunda kalıcı bir şerit çıkar.</li>
+      <li><b>Gecikmeli yazma güvenli</b> — kayıt 250 ms geciktirilerek yazılır;
+        sayfa gizlenirken, kapanırken ve terk edilirken bekleyen yazma tamamlanır.</li>
+      <li><b>Otomatik yedekler</b> — son beş sürüm tarayıcıda ayrıca saklanır;
+        sıfırlama, dosya yükleme, yedek geri yükleme ve birleştirme işlemlerinden
+        hemen önce zorunlu bir yedek alınır.</li>
     </ul>
 
     <h3>Aynı bilgisayarı paylaşıyorsanız</h3>
     <p>
-      Veri, tarayıcı profiline bağlıdır. Ortak kullanılan bir makinede aynı
-      profili açan herkes çalışmanızı görebilir. Kendi kullanıcı profilinizde
-      çalışın.
+      Veriler tarayıcı profiline bağlıdır. O profili açan herkes çalışmayı görür.
+      Paylaşılan makinelerde kendi kullanıcı profilinizle çalışın; dönem sonunda
+      JSON’u indirip <span class="ekran">Sıfırla</span> ile makineyi temizleyin.
     </p>
 
-    <h3>Otomatik yedekler</h3>
+    <h3>Cihaz değiştirmek</h3>
     <p>
-      Uygulama son beş sürümü kendi içinde saklar; sıfırlama veya yanlış dosya
-      yüklemesi gibi kazalardan sonra <span class="ekran">Veri ve yedekleme</span>
-      ekranından geri alabilirsiniz. Bunlar kaza kurtarma içindir, arşiv değil.
-      Arşiv, indirdiğiniz JSON dosyalarıdır.
+      Eski cihazda JSON indirin, yeni cihazda <span class="ekran">Çalışma dosyası
+      yükle</span> ile açın. Dosya tam çalışma dosyasıdır: yanıtlar, skorlar,
+      notlar, bulgular, ayarlar ve değişiklik günlüğü içindedir.
+    </p>
+
+    <hr class="ayrac">
+    <h2 id="kabuk">Ortak kabuk ve gezinme</h2>
+    <p class="h2-alt">Her ekranda aynı yerde duran şeyler.</p>
+
+    <h3>Sol kenar çubuğu</h3>
+    <p>
+      Ekranlar dört grupta listelenir: <b>Genel</b> (Pano, Nasıl Okunur),
+      <b>Girdi</b> (Künye, Portföy, İşlem Detayı, Doğuştan Risk, Anket, Ek
+      Kontroller, QA Planı), <b>Sonuç</b> (Kontrol Skorları, Artık Risk, Aksiyon
+      Planı, Dönem Karşılaştırma, Ekip ve Birleştirme, Değişiklik Günlüğü,
+      Yönetici Raporu) ve <b>Ayarlar</b>.
+    </p>
+
+    <h4>Menü rozetleri ne der</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Ekran</th><th>Rozet</th></tr></thead>
+        <tbody>
+          <tr><td>Anket</td><td>yanıtlanan / toplam soru; tamamlanmadıysa sarı</td></tr>
+          <tr><td>Doğuştan Risk</td><td>skorlanan / uygulanabilir faktör; eksikse sarı</td></tr>
+          <tr><td>İşlem Detayı</td><td>doldurulan / toplam ölçüt</td></tr>
+          <tr><td>Portföy</td><td>üretilen skor önerisi sayısı</td></tr>
+          <tr><td>Artık Risk</td><td>iştah aşımı sayısı (kırmızı)</td></tr>
+          <tr><td>Aksiyon Planı</td><td>açık bulgu sayısı; gecikmiş varsa kırmızı</td></tr>
+          <tr><td>Ayarlar</td><td>kurum kararıyla değiştirilen ülke sayısı</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Kenar çubuğunun alt bölümü</h4>
+    <ul>
+      <li><span class="ekran">Veri ve yedekleme</span> — JSON indirme, dosya
+        yükleme, dokuz CSV çıktısı, otomatik yedekler ve sıfırlama tek pencerede.</li>
+      <li><span class="ekran">Çalışma dosyası yükle</span> — kayıtlı JSON’u açar
+        (yüklemeden önce otomatik yedek alınır).</li>
+      <li><span class="ekran">Sıfırla</span> — her şeyi siler; onay ister, dil ve
+        tema tercihi korunur.</li>
+      <li>Altında: son kayıt saati, son JSON yedeği tarihi (gecikince sararır),
+        “veriler yalnızca bu tarayıcıda saklanır” notu ve kayıt hatası şeridi.</li>
+    </ul>
+
+    <h3>Üst bar</h3>
+    <ul>
+      <li><b>TR / EN</b> — arayüzün tamamını değiştirir: menüler, 218 sorunun
+        tamamı, beklenen kanıtlar, mevzuat atıfları, 25 faktörün rubrikleri, 24 QA
+        popülasyonu, künye alanları, KPI’lar, uyarılar, CSV başlıkları ve dosya
+        adları. Saklanan veri dilden bağımsızdır; dil değiştirmek hiçbir skoru
+        ya da kaydı bozmaz.</li>
+      <li><b>Yazdır</b> — açık ekranı yazdırır. Yönetici raporu için bu düğme
+        kullanılır; yazdırma stilleri araç çubuklarını gizler.</li>
+      <li><b>Tema</b> — açık/koyu geçiş; tercih saklanır.</li>
+    </ul>
+
+    <h3>Adres satırı ve paylaşılabilir bağlantılar</h3>
+    <p>
+      Ekran adresi <code>#/anket?d=D6&amp;st=gap</code> biçimindedir. Anket
+      filtreleri adres satırında taşınır: bir meslektaşınıza “D6’da eksik çıkan
+      sorular” bağlantısını doğrudan gönderebilirsiniz, sayfa yenilense de filtre
+      korunur.
     </p>
 
     <hr class="ayrac">
 
-    <h2 id="akis">On adımda değerlendirme</h2>
-    <p class="h2-alt">
-      Sıra önemli: her adım bir sonrakini besler. Künyeyi doldurmadan ankete
-      geçerseniz, kapsam dışı bırakılması gereken sorular karşınıza çıkar.
+    <h2 id="ekranlar">Ekran ekran tam referans</h2>
+    <p class="h2-alt">On yedi ekran, üzerindeki her özellik.</p>
+
+    <h3 id="e-pano">1 · Pano</h3>
+    <p>Değerlendirmenin tek sayfalık özeti. Girdi alınmaz, iki istisna dışında.</p>
+
+    <h4>Öne çıkan dört ölçüm</h4>
+    <ul>
+      <li><b>Kontrol etkinliği</b> — test ile düzeltilmiş değer; altında olgunluk
+        etiketi ve beyan farklıysa beyan edilen değer.</li>
+      <li><b>Doğuştan risk</b> — GENEL skor (0–5), seviye ve skorlanan/uygulanabilir
+        faktör sayısı.</li>
+      <li><b>Artık risk</b> — kurum geneli ve seviyesi.</li>
+      <li><b>En yüksek domain artık riski</b> — hangi domain, hangi seviye. Genel
+        skorun gizleyebileceği yoğunlaşmayı görünür kılar.</li>
+    </ul>
+
+    <h4>İkinci sıra ölçümler</h4>
+    <p>
+      İlerleme (yanıtlanan/toplam), açık kritik sayısı, iştah aşımı sayısı, açık
+      aksiyon (gecikmiş ve kritik sayısıyla), kapanış oranı ve ek kontrol setleri
+      doldurulduysa ek kontrol etkinliği.
     </p>
 
-    <ol class="adimlar">
+    <h4>Uyarı şeritleri</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Uyarı</th><th>Ne zaman çıkar</th></tr></thead>
+        <tbody>
+          <tr><td>Yedek hatırlatması</td><td>Hiç yedek yoksa 15 kayıtta; varsa 25 yeni kayıt ya da 7 gün sonra. Şeridin üstündeki düğme JSON’u hemen indirir.</td></tr>
+          <tr><td>Başlangıç</td><td>Hiç soru yanıtlanmamışsa</td></tr>
+          <tr><td>Eksik faktör</td><td>Doğuştan riskte skorlama başlamış ama bitmemişse</td></tr>
+          <tr><td>Gerekçesiz yüksek skor</td><td>4–5 skorlu faktörlerde gerekçe boşsa</td></tr>
+          <tr><td>Açık kritik</td><td>Kritik soruların yanıtı “Evet” değilse</td></tr>
+          <tr><td>Genel skor aşımı gizliyor</td><td>Kurum geneli iştah içinde ama bir domain aşımdaysa</td></tr>
+          <tr><td>QA çelişkisi</td><td>Beyan “Evet” iken dosya testi “Çelişkili” çıkmışsa</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Künye <span class="adim-sure">20 dakika</span></h3>
-          <p>
-            Kurum profili ve 26 alan. Her alanın altında ne yazacağınızı anlatan
-            bir açıklama ve örnek değer var; okumadan geçmeyin.
-          </p>
-          <p>
-            En kritik kısım altı faaliyet sorusu: trade finance, muhabir
-            bankacılık, sanal varlık, uzaktan müşteri kabulü, acente ağı, yurt dışı
-            şube. Bunlardan birine <strong>“Hayır”</strong> derseniz, ilgili soru
-            bölümleri otomatik olarak “Uygulanamaz” sayılır ve skorunuzu
-            düşürmez. Sanal varlık faaliyetiniz yoksa o soruların size sorulmaması
-            gerekir — bunu sağlayan tek şey buradaki yanıt.
-          </p>
-          <p>
-            Girdiğiniz sayılardan oranlar türer (yüksek riskli müşteri payı, PEP
-            payı, FTE başına müşteri) ve tarihlerden yaşlandırma uyarıları çıkar.
-            EWRA tarihiniz 12 ayı geçtiyse uygulama bunu söyler.
-          </p>
-        </div>
-      </li>
+    <h4>Başlangıç kartı</h4>
+    <p>
+      Çalışma boşken beş adımı sırayla anlatır ve her adım ilgili ekrana götürür.
+      İş başladıktan sonra yerini <b>“Son soru”</b> düğmesine bırakır: en son
+      çalıştığınız soruya döner.
+    </p>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Portföy <span class="adim-sure">30 dakika</span></h3>
-          <p>
-            Dört tablo: müşteri dağılımı (7 tip × 4 risk seviyesi), 12 risk
-            segmenti, ülke maruziyeti ve şube ağı. Dördü de isteğe bağlı —
-            girdiğiniz kadarı kullanılır.
-          </p>
-          <p>
-            Buranın asıl faydası şu: girdiğiniz sayılardan 12 doğuştan risk
-            faktörü için <strong>skor önerisi</strong> üretilir. Dördüncü adımda
-            “yüksek riskli müşteri payına kaç vereyim” diye düşünmek yerine,
-            hesaplanmış oranı ve önerilen skoru görürsünüz. Öneriyi tek tıkla
-            uygular ya da kendi skorunuzu verirsiniz.
-          </p>
-          <p>
-            Ülke tablosunda temas ettiğiniz her ülkeyi ekleyin. Risk işaretleri
-            (FATF gri/kara, yaptırım, offshore) hazır gelir. “Yurt içi” işareti
-            koyduğunuz ülkeler sınır ötesi payına girmez.
-          </p>
-        </div>
-      </li>
+    <h4>Isı haritası, boyut çubukları ve KPI tablosu</h4>
+    <ul>
+      <li><b>Isı haritası</b> — domain bazında doğuştan risk, etkinlik ve artık
+        risk; hücreye tıklayınca ilgili ekrana gider.</li>
+      <li><b>Boyut çubukları</b> — beş doğuştan risk boyutunun karşılaştırması.</li>
+      <li><b>KPI tablosu</b> — 15 KPI için hedef ve dönem ölçümü girilir; durum
+        (“Hedefte / Hedef dışı”) yönüne göre otomatik üretilir. Üçü otomatik
+        hesaplanır (aksiyon kapanış oranı, son senaryo tuning ve son tarama
+        kalibrasyonundan geçen ay); İşlem Detayı doldurulduysa 12 KPI daha oradan
+        dolar. Elle girdiğiniz değer otomatik değerin yerine geçer.</li>
+    </ul>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>İşlem Detayı <span class="adim-sure">45 dakika</span></h3>
-          <p>
-            Sekiz grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması,
-            trade finance, muhabir bankacılık, izleme, ŞİB ve dondurma, müşteri
-            kabul, kalite güvence. Adet, tutar, gün veya saat cinsinden girersiniz.
-          </p>
-          <p>
-            Bu ekran en çok emek isteyen ama en çok geri veren yer. Girdiğiniz
-            rakamlardan 16 oran hesaplanır (alert–vaka dönüşümü, izleme kapsama
-            oranı, QA hata oranı) ve <strong>12 KPI kendiliğinden dolar</strong>.
-            Ayrıca tutarsızlıkları yakalar: izlenen işlem sayısı toplamı aşarsa,
-            vaka sayısı alert sayısını geçerse uyarır.
-          </p>
-          <p>
-            Rakamı bulamadığınız ölçütü boş bırakın. Yanlış rakam girmek boş
-            bırakmaktan kötüdür.
-          </p>
-        </div>
-      </li>
+    <h3 id="e-nasil">2 · Nasıl Okunur</h3>
+    <p>
+      Metodolojinin uygulama içindeki özeti. Ekran sırasının neden böyle olduğunu
+      gösteren zincir, sekiz temel kavramın tanımı ve nerede göründüğü, dört
+      formül, ölçek eşikleri (doğuştan 1–5, artık 0–5, olgunluk bantları) ve
+      kalibrasyon notları burada.
+    </p>
+    <p>
+      Aynı ekranda <b>soru metinlerinde açıklamasız geçen 26 sektör terimi</b>
+      tanımlanır: CBDDQ, nested ilişki, payable-through hesap, SoF/SoW, BTL/ATL,
+      %50 kuralı, Travel Rule, unhosted cüzdan, dual-use, ayna işlem, FOP, KAGK
+      ve diğerleri. Anketi dolduran ekip üyesine önce bu ekranı okutun.
+    </p>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Doğuştan Risk <span class="adim-sure">1 saat</span></h3>
-          <p>
-            Beş boyutta 25 faktör, her biri 1–5 arası skorlanır. Ayrıca beş
-            faktörlü bir PF (yayılmanın finansmanı) bloğu ve 12 iş kolluk bir
-            matris var.
-          </p>
-          <p>
-            Her faktörün altında <strong>beş seviyenin ne anlama geldiğini
-            anlatan bir rubrik</strong> var. “3 mü 4 mü” diye düşünürken tahmin
-            yürütmeyin, rubriği açın: her seviyenin karşılığı somut olarak yazılı.
-          </p>
-          <p>
-            4 veya 5 verdiğiniz her faktörde gerekçe zorunlu. Bunu keyfi bir
-            zorlama olarak görmeyin — denetimde ilk sorulan şey budur. Gerekçesiz
-            yüksek skor bırakırsanız panoda kırmızı uyarı çıkar.
-          </p>
-          <p>
-            Bir faktör size hiç uymuyorsa <strong>“Uygulanamaz”</strong> deyin;
-            paydadan çıkar, ortalamanızı bozmaz. Ağırlığın kurumunuza uymadığını
-            düşünüyorsanız değiştirebilirsiniz — değiştirdiğiniz yerler işaretli
-            kalır.
-          </p>
-        </div>
-      </li>
+    <h3 id="e-kunye">3 · Künye</h3>
+    <p>
+      Kurum profili: altı grupta 26 alan, beşi zorunlu. Her alanda ne yazılacağını
+      anlatan açıklama ve örnek değer vardır; sayı alanlarında girdiğiniz değer
+      binlik ayraçlı olarak geri okunur.
+    </p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Grup</th><th>İçerik</th></tr></thead>
+        <tbody>
+          <tr><td>Kurum kimliği</td><td>Unvan, yükümlü tipi, faaliyet coğrafyası</td></tr>
+          <tr><td>Değerlendirme</td><td>Dönem başlangıç/bitiş, değerlendirmeyi yapan, uyum görevlisi</td></tr>
+          <tr><td>Ölçek ve maruziyet</td><td>Müşteri, yüksek riskli ve PEP adedi, işlem ve sınır ötesi işlem adedi, uyum kadrosu (FTE)</td></tr>
+          <tr><td>Sistemler</td><td>İzleme, tarama, KYC sistem adları ve sürümleri</td></tr>
+          <tr><td>Faaliyet kapsamı</td><td>Altı Evet/Hayır sorusu — kapsamı belirler</td></tr>
+          <tr><td>Denetim ve model geçmişi</td><td>Son denetim, EWRA, senaryo tuning, tarama eşiği kalibrasyon tarihleri</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Anket <span class="adim-sure">2–3 gün</span></h3>
-          <p>
-            218 soru, 11 domain. İşin ağırlık merkezi burası; bir oturuşta
-            bitmez, bitmemeli de. Bir sonraki bölümde bu ekranı ayrıntılı
-            anlatıyorum.
-          </p>
-        </div>
-      </li>
+    <h4>Ekranın ürettikleri</h4>
+    <ul>
+      <li><b>Dört oran</b> — yüksek riskli müşteri payı, PEP payı, sınır ötesi işlem
+        payı ve uyum personeli başına müşteri yükü.</li>
+      <li><b>Kapsam etkisi tablosu</b> — “Hayır” yanıtlarının hangi bölümü neden
+        kapsam dışı bıraktığı ve kaç soruyu etkilediği.</li>
+      <li><b>Tarih yaşlandırma tablosu</b> — her tarih alanı için geçen ay sayısı ve
+        beklenen aralığın aşılıp aşılmadığı.</li>
+      <li><b>Tutarlılık uyarıları</b> — yüksek riskli veya PEP sayısı toplamı
+        aşarsa, sınır ötesi işlem toplam işlemi aşarsa, dönem bitişi başlangıçtan
+        önceyse kırmızı şerit çıkar.</li>
+      <li><b>Skor önerileri</b> — künyedeki sayılar, portföy verisi yoksa doğuştan
+        risk faktörlerine öneri üretir.</li>
+    </ul>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Ek Kontroller <span class="adim-sure">45 dakika</span></h3>
-          <p>
-            Ana soru bankasının kapsamadığı dört alan için sekiz set, 44 soru:
-            terör finansmanının kontrol tarafı, personel taraması ve dahili
-            bildirim hattı, yaptırım lookback ile model yönetişimi, ve banka dışı
-            yükümlü tiplerine özgü kontroller.
-          </p>
-          <p>
-            Setler künyenizdeki yükümlü tipine göre kendiliğinden açılıp kapanır.
-            Bankaysanız üç evrensel set görürsünüz; sigorta şirketiyseniz bir de
-            sigorta seti eklenir.
-          </p>
-          <p>
-            Bu setin skoru <strong>ana skorunuza karışmaz</strong>, kendi oranıyla
-            raporlanır. Sebebi teknik ama sonucu sizi ilgilendiriyor: ana bankanın
-            skoru kaynak çalışma kitabıyla ve geçmiş dönemlerinizle
-            karşılaştırılabilir kalıyor.
-          </p>
-        </div>
-      </li>
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Yükümlü tipi ek setleri açar</div>
+      <p>
+        Künyedeki yükümlü tipi, Ek Kontroller ekranındaki sektöre özgü setlerin
+        hangisinin geçerli olacağını belirler. Banka için üç evrensel set, sigorta
+        şirketi için ayrıca sigorta seti açılır. Tipi doğru seçin.
+      </p>
+    </div>
 
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>QA Planı <span class="adim-sure">20 dakika</span></h3>
-          <p>
-            24 popülasyon için dönem içi hacmi girersiniz; örneklem büyüklüğü ve
-            test başına düşen dosya sayısı hesaplanır.
-          </p>
-          <p>
-            Oranlar risk katmanına göre sabit: ŞİB dosyaları, dondurma kararları,
-            gerçek yaptırım eşleşmeleri ve PEP dosyaları %100 incelenir; EDD ve
-            override dosyalarında %10–15; standart hesap açılışlarında %2–5.
-            Bunlar denetim pratiğine göre belirlenmiş oranlardır, istatistiksel
-            güven düzeyine göre değil — belirli bir güven düzeyi iddia edecekseniz
-            örneklem büyüklüğünü ayrıca hesaplamanız gerekir.
-          </p>
-        </div>
-      </li>
-
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Kontrol Skorları <span class="adim-sure">okuma</span></h3>
-          <p>
-            Girdi yok. Domain bazında kontrol etkinliğiniz, olgunluk seviyeniz ve
-            güvence örtünüz burada. Üç sütunu ayrı okuyun: beyan edilen etkinlik,
-            test ile düzeltilmiş etkinlik, ve testi gereken soruların kaçının
-            gerçekten test edildiği.
-          </p>
-        </div>
-      </li>
-
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Artık Risk <span class="adim-sure">30 dakika</span></h3>
-          <p>
-            Doğuştan risk ile kontrol etkinliğinin buluştuğu yer. Her domain için
-            kalan risk hesaplanır ve iştah limitinizle karşılaştırılır.
-          </p>
-          <p>
-            Varsayılan limit 1,50. Kurumunuzun yönetim kurulu farklı bir sınır
-            onayladıysa, ilgili satırdaki kutuya kendi limitinizi yazın —
-            değiştirdiğiniz satır işaretli kalır.
-          </p>
-          <p>
-            Aşım gördüğünüz satırda “aşımı besleyen eksik kontrolleri gör”
-            bağlantısı var; tıklayınca o domainin eksik kontrolleri filtreli
-            olarak açılır. Aşımdan bulguya giden en kısa yol bu.
-          </p>
-        </div>
-      </li>
-
-      <li class="adim">
-        <div class="adim-no" aria-hidden="true"></div>
-        <div class="adim-govde">
-          <h3>Aksiyon Planı <span class="adim-sure">1 gün</span></h3>
-          <p>
-            Bulgularınız burada toplanır. <span class="ekran">Eksiklerden
-            üret</span> düğmesi, “Evet” dışında yanıtladığınız her sorudan taslak
-            bir bulgu çıkarır — sonra bunları tek tek düzenlersiniz.
-          </p>
-          <p>
-            Denetimde savunulabilir bir bulgu satırında beş alan bulunmalı: kök
-            neden, aksiyon, sahip, termin, doğrulama yöntemi. Eksik alanı olan
-            satırlar listede işaretli görünür.
-          </p>
-          <p>
-            Termin, kritikliğe göre otomatik önerilir: Kritik için 5 iş günü,
-            Yüksek için 30 gün, Orta için 90, Düşük için 180. Gerçekçi değilse
-            değiştirin — ama değiştirdiğinizi bilerek yapın.
-          </p>
-        </div>
-      </li>
-
+    <h3 id="e-portfoy">4 · Portföy</h3>
+    <p>Dört tablo; hepsi isteğe bağlı, girdiğiniz kadarı kullanılır.</p>
+    <ol>
+      <li><b>Müşteri dağılımı</b> — 7 müşteri tipi × 4 risk seviyesi. Toplam, yüksek
+        riskli pay ve tüzel kişi payı buradan çıkar; künyedeki müşteri sayısıyla
+        %1’den fazla sapma varsa uyarı verir.</li>
+      <li><b>Risk segmentleri</b> — 12 segment (PEP ve yakın çevre, yerleşik
+        olmayan, karmaşık sahiplik, nakit yoğun, offshore, VASP, özel bankacılık,
+        KAGK, yeni müşteri, reddedilen başvuru, exit, atıl hesap). Her segment için
+        müşteri ve yüksek riskli sayısı girilir; segment tabanını aşan değerler
+        uyarı üretir.</li>
+      <li><b>Ülke maruziyeti</b> — temas ettiğiniz her ülke için ilişki tipi (6
+        seçenek), müşteri sayısı ve gelen/giden işlem adedi. Risk işaretleri
+        Ayarlar ekranından okunur ve burada yalnızca gösterilir. “Yurt içi”
+        işaretli ülkeler sınır ötesi payına girmez.</li>
+      <li><b>Şube ve birim ağı</b> — 7 birim tipi; her birim için ülke, müşteri
+        sayısı, yüksek riskli müşteri, uyum FTE ve son denetim tarihi. FTE başına
+        müşteri yükü ve 24 ayı aşan denetim yaşı işaretlenir.</li>
     </ol>
 
+    <h4>Üst kutucuklar</h4>
+    <p>
+      Toplam müşteri, yüksek riskli pay, temas edilen ülke sayısı, FATF listeli
+      ülkelerle işlem payı, sınır ötesi işlem payı, birim sayısı, denetimi gecikmiş
+      birim sayısı ve üretilen skor önerisi sayısı.
+    </p>
+
+    <h4>Beslenen 12 faktör</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Kaynak</th><th>Beslediği doğuştan risk faktörü</th></tr></thead>
+        <tbody>
+          <tr><td>Yüksek riskli müşteri payı</td><td>Müşteri — yüksek riskli segment payı</td></tr>
+          <tr><td>PEP segmenti</td><td>Müşteri — PEP maruziyeti</td></tr>
+          <tr><td>Yerleşik olmayan segmenti</td><td>Müşteri — non-resident oranı</td></tr>
+          <tr><td>Karmaşık sahiplik segmenti</td><td>Müşteri — karmaşık sahiplik oranı</td></tr>
+          <tr><td>Nakit yoğun segmenti</td><td>Müşteri — nakit yoğun sektör payı</td></tr>
+          <tr><td>Offshore segmenti</td><td>Coğrafya — offshore bağlantılı hacim</td></tr>
+          <tr><td>Özel bankacılık segmenti</td><td>Ürün — servet yönetimi hacmi</td></tr>
+          <tr><td>FATF listeli ülke işlem payı</td><td>Coğrafya — FATF gri/kara liste iş hacmi</td></tr>
+          <tr><td>Yaptırım rejimi işlem payı</td><td>Coğrafya — yaptırım altındaki ülkelerle ticaret</td></tr>
+          <tr><td>İşaretli muhabir ülke payı</td><td>Coğrafya — muhabir ağının coğrafi riski</td></tr>
+          <tr><td>Sınır ötesi işlem payı</td><td>Coğrafya — sınır ötesi transfer payı · İşlem — sınır ötesi yoğunluk</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="e-islem">5 · İşlem Detayı</h3>
+    <p>
+      Sekiz grupta 101 operasyon ölçütü. Her ölçüt adet, tutar, gün ya da saat
+      cinsinden girilir; hangi alanların açık olduğu ölçüte göre değişir.
+    </p>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Grup</th><th>Ölçüt</th><th>Kapsam</th></tr></thead>
+        <tbody>
+          <tr><td>İşlem evreni</td><td>13</td><td>Toplam ve izlenen işlem, nakit, eşik üstü/altı, sınır ötesi giden-gelen, eksik bilgili transfer, askıya alınan, gözetimsiz kanal, acente, sanal varlık, unhosted cüzdan</td></tr>
+          <tr><td>Yaptırım taraması ve blokaj</td><td>14</td><td>Taranan müşteri ve işlem, alertler, true match, bloke ve reddedilen işlem, serbest bırakılan, alert kapanış süresi, liste yansıma süresi, rescreening, %50 kuralı tespiti</td></tr>
+          <tr><td>Trade finance</td><td>17</td><td>Akreditif, vesaik, teminat mektubu, kabul-aval, mal/gemi/liman/son kullanıcı taraması, dual-use, yüksek riskli koridor, fiyat makullüğü, transit-serbest bölge, kırmızı bayrak, reddedilen dosya</td></tr>
+          <tr><td>Muhabir bankacılık</td><td>14</td><td>Aktif/yeni/kapanan ilişki, muhabirin sonlandırdığı ilişki, CBDDQ, nested tespit, gelen-giden RFI ve yanıt süresi, iade edilen işlem, payable-through hesap</td></tr>
+          <tr><td>İzleme</td><td>10</td><td>Aktif ve değişen senaryo, üretilen/kapatılan alert, vakaya dönüşen, toplu kapatma, backlog, kapanış süresi, dahili şüphe bildirimi</td></tr>
+          <tr><td>ŞİB, dondurma, kolluk</td><td>15</td><td>ŞİB adedi ve tutarı, bildirim süresi, gecikmiş bildirim, ŞİB verilmeyen vaka, dondurma kararı ve tutarı, kolluk talebi ve yanıt süresi, exit, reddedilen başvuru, tipping-off ihlali</td></tr>
+          <tr><td>Müşteri kabul ve gözden geçirme</td><td>11</td><td>Yeni hesap, uzaktan hesap, canlılık başarısız, EDD dosyası, üst yönetim onayı, GF tespit edilemeyen, risk override, periyodik gözden geçirme, gecikmiş KYC, adverse media</td></tr>
+          <tr><td>Kalite güvence</td><td>7</td><td>Test edilen dosya, kritik/majör/minör hata, re-test, eğitim yükümlüsü ve tamamlayan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Türetilenler</h4>
+    <ul>
+      <li><b>16 oran</b> pay, payda ve sonuçla birlikte ayrı bir tabloda gösterilir:
+        izleme kapsama, nakit payı, sınır ötesi payı, alert→vaka, vaka→ŞİB, toplu
+        kapatma payı, tarama isabet oranı, RFI yanıtlama, muhabirden iade, trade
+        tarama örtüsü, QA kritik ve majör hata oranı, eğitim tamamlanma, uzaktan
+        kabul payı, acente payı, gözetimsiz kanal payı.</li>
+      <li><b>12 KPI</b> panoya otomatik taşınır.</li>
+      <li><b>4 doğuştan risk faktörüne</b> skor önerisi üretilir.</li>
+      <li><b>Tutarlılık uyarıları</b> — izlenen işlem toplamı, vaka alert’i, ŞİB
+        vakayı, yanıtlanan RFI geleni aşarsa uyarı çıkar.</li>
+      <li>Trade finance faaliyeti yoksa o grup künyeye göre kapsam dışına alınır.</li>
+    </ul>
+
+    <h3 id="e-dogustan">6 · Doğuştan Risk</h3>
+    <p>Üç blok: beş ML/TF boyutu, PF bloğu ve iş kolu matrisi.</p>
+
+    <h4>Boyut kartları (25 faktör)</h4>
+    <p>Her faktör satırında:</p>
+    <ul>
+      <li><b>1–5 skor</b> ve yanında o skorun rubrik karşılığı.</li>
+      <li><b>Gerekçe / kanıt</b> alanı — 4 ve 5 skorlarında zorunlu sayılır.</li>
+      <li><b>Uygulanamaz</b> işareti — faktörü paydadan çıkarır.</li>
+      <li><b>Ağırlık</b> — düzenlenebilir; değiştirilirse etiketlenir, tek tıkla geri
+        alınır.</li>
+      <li><b>Skor önerisi</b> — portföy ya da operasyon verisinden geliyorsa hangi
+        orana dayandığı yazar ve tek tıkla uygulanır.</li>
+      <li>Künye nedeniyle kapsam dışıysa gerekçesi satırda görünür.</li>
+    </ul>
+    <p>
+      Kart başlığında boyut skoru, seviyesi ve skorlanan/uygulanabilir faktör sayısı
+      durur. Ayrı bir kartta <b>baskın risk sürücüleri</b> listelenir: ağırlıklı
+      katkısı en yüksek faktörler. Yönetim “neden yüksek?” diye sorduğunda cevap
+      bu listedir.
+    </p>
+
+    <h4>PF bloğu</h4>
+    <p>
+      Beş faktör, ayrı skor, ayrı ortalama. Boyut ortalamalarına karışmaz; kontrol
+      tarafı D6’dır. Gerekçe zorunluluğu burada da geçerlidir.
+    </p>
+
+    <h4>İş kolu matrisi</h4>
+    <p>
+      12 iş kolu satır, beş boyut sütun. Her iş kolu için etkin işareti, iş payı (%)
+      ve boyut skorları girilir. Kart; iş hacmiyle ağırlıklı kurum doğuştan riskini,
+      en riskli iş kolunu, payların toplamını ve boyut ortalamasıyla farkı gösterir.
+      Fark 0,50 puanı aşarsa uyarı çıkar.
+    </p>
+
+    <h4>Yöntem seçeneği</h4>
+    <p>
+      Aynı ekranda “boyutları iş hacmiyle ağırlıklandır” seçeneği vardır. Varsayılan
+      kapalıdır. Açıldığında ve yeterli iş kolu verisi varsa tüm boyut skorları iş
+      kolu düzeyinden toplanır; seçilen yöntem raporda ve dönem karşılaştırmasında
+      görünür.
+    </p>
+
+    <h3 id="e-anket">7 · Anket</h3>
+    <p>218 soru, 11 domain. Değerlendirmenin en uzun ekranı.</p>
+
+    <h4>Filtre çubuğu</h4>
+    <p>
+      Serbest metin arama (soru metni, kanıt, kaynak ve bölümde arar), domain,
+      bölüm, kritiklik, durum ve QA gerekliliği. Durum filtresi seçenekleri:
+      yanıtlanmamış, yanıtlanmış, <b>eksik çıkanlar</b>, açık kritik, kanıt
+      referansı girilmemiş, <b>QA testi bekliyor</b>, <b>QA ile çelişkili</b>.
+      Filtreler adres satırında taşınır ve paylaşılabilir.
+    </p>
+
+    <h4>Seçim özeti</h4>
+    <p>
+      Filtre uygulandığında beş kutucuk: seçili soru sayısı, yanıtlanan, seçimin
+      etkinliği, aksiyon gerektiren sayısı (açık kritik dahil) ve QA örtüsü
+      (çelişki sayısıyla).
+    </p>
+
+    <h4>Soru kartı</h4>
+    <ul>
+      <li><b>Yanıt düğmeleri</b> — Evet / Kısmen / Hayır / Uygulanamaz. Kapsam dışı
+        sorularda düğmeler kilitli ve gerekçe rozetli görünür.</li>
+      <li><b>Beklenen kanıt</b>, <b>kaynak/mevzuat atfı</b> ve varsa <b>örneklem
+        popülasyonu</b> kartta yazar.</li>
+      <li><b>Kanıt referansı</b> ve <b>bulgu notu</b> alanları. Yanıtlanmış ama kanıt
+        referansı boş sorular rozetle işaretlenir ve filtreden bulunur.</li>
+      <li><b>QA dosya testi bloğu</b> (115 soruda) — sonuç, test edilen dosya sayısı,
+        hatalı dosya sayısı ve not. Hata oranı otomatik hesaplanır. Beyan “Evet”
+        iken sonuç “Çelişkili” ise kırmızı uyarı çıkar.</li>
+      <li><b>Aksiyon oluştur</b> — eksik çıkan sorularda, kart üzerinden ön
+        doldurulmuş bulgu formu açılır.</li>
+      <li>Kritiklik rozeti, ağırlık ve “öncelikli aksiyon” işareti kartın üstündedir.</li>
+    </ul>
+
+    <h4>Gezinme</h4>
+    <p>
+      Liste bölüm başlıklarıyla ayrılır; her başlıkta o bölümün ilerlemesi görünür ve
+      başlık kaydırırken ekranda kalır. Filtre çubuğu ekrandan çıkınca sabit bir
+      “sonraki yanıtlanmamış” düğmesi belirir ve kalan soru sayısını gösterir.
+      Klavye kısayolları için <a href="#anket-detay">Anketi doldurma</a> bölümüne bakın.
+    </p>
+
+    <h3 id="e-ek">8 · Ek Kontroller</h3>
+    <p>
+      Sekiz set, 44 soru. Üst kutucuklar: kaç setin geçerli olduğu, kapsama, test
+      ile düzeltilmiş etkinlik ve açık kritik sayısı. Her set kendi kartında; kart
+      başlığında setin neden eklendiği yazar.
+    </p>
+    <ul>
+      <li>Kapsam dışı setler soluk gösterilir ve gerekçesi yazar (“yükümlü tipiniz
+        … değil” ya da “bu faaliyet yok”).</li>
+      <li>Soru satırları ana anketle aynı yapıdadır: yanıt, kanıt, not, gerekiyorsa
+        QA sonucu.</li>
+      <li>Bu setin skoru ana skorun paydasına girmez; ayrı raporlanır.</li>
+    </ul>
+
+    <h3 id="e-qa">9 · QA Planı</h3>
+    <p>
+      24 popülasyon listelenir: popülasyon adı ve odağı, domaini, risk derecesi,
+      örneklem kuralı, frekansı. Siz yalnızca <b>dönem içi hacmi</b> girersiniz;
+      yıllık örneklem ve test başına örneklem otomatik hesaplanır.
+    </p>
+    <p>
+      Üstte dört kutucuk: popülasyon sayısı ve kaçına hacim girildiği, toplam hacim,
+      yıllık toplam örneklem, test başına toplam örneklem. Altta hata sınıfları
+      tablosu (Kritik / Yüksek / Orta / Düşük) ve tanımları, kapanış süreleriyle
+      birlikte.
+    </p>
+
+    <h3 id="e-skorlar">10 · Kontrol Skorları</h3>
+    <p>Türetilmiş ekran; girdi yoktur. Domain başına sütunlar:</p>
+    <ul>
+      <li>Soru sayısı, yanıtlanan, N/A</li>
+      <li>Uygulanabilir ağırlık ve kazanılan puan</li>
+      <li><b>Beyan edilen etkinlik</b> ve <b>test ile düzeltilmiş etkinlik</b>
+        (kaç sorunun testle düzeltildiği not olarak)</li>
+      <li><b>Güvence örtüsü</b> (test edilen / test gereken)</li>
+      <li>Olgunluk etiketi, açık kritik sayısı, aksiyon gereken soru sayısı</li>
+    </ul>
+    <p>
+      Alt satırda kurum toplamı, altında olgunluk bantları hatırlatması. Domain adına
+      tıklamak anketi o domaine filtreli açar.
+    </p>
+
+    <h3 id="e-artik">11 · Artık Risk</h3>
+    <p>
+      Domain başına: doğuştan risk, test ile düzeltilmiş etkinlik (%95 ile
+      sınırlandıysa notu), artık risk, seviye, <b>iştah limiti girişi</b> ve durum
+      (AŞIM / iştah içinde). Aşan satırlarda “eksik çıkan soruları gör” bağlantısı
+      doğrudan filtreli ankete götürür.
+    </p>
+    <p>
+      Altında PF kendi tablosunda, kendi iştah limitiyle. Sonra artık risk bantları
+      ve kullanılan yöntemin açıklandığı metodoloji kartı. Aşım varsa üstte kırmızı
+      şerit; genel skor bir aşımı gizliyorsa ayrıca sarı şerit çıkar.
+    </p>
+
+    <h3 id="e-aksiyon">12 · Aksiyon Planı</h3>
+    <p>Bulgu → kök neden → aksiyon → sahip → termin → doğrulama.</p>
+    <h4>Üst kutucuklar</h4>
+    <p>
+      Toplam bulgu, açık, gecikmiş, <b>eksik alanı olan bulgu sayısı</b> ve kapanış
+      oranı.
+    </p>
+    <h4>Filtreler ve toplu üretim</h4>
+    <ul>
+      <li>Duruma, kritikliğe, domaine ve görünüme (yalnızca açık / yalnızca
+        gecikmiş) göre süzme.</li>
+      <li><span class="ekran">Eksiklerden üret</span> — anket ve ek kontrollerde
+        eksik çıkan sorulardan toplu bulgu taslağı oluşturur; kaynak soru kimliği,
+        domain, kritiklik ve QA doğrulama önerisi ön doldurulur.</li>
+    </ul>
+    <h4>Bulgu formu</h4>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Alan</th><th>Not</th></tr></thead>
+        <tbody>
+          <tr><td>Kimlik</td><td>Otomatik verilir; benzersiz olmalı</td></tr>
+          <tr><td>Domain · Soru kimliği</td><td>Soru kimliği girilirse soru metni altında yankılanır</td></tr>
+          <tr><td>Bulgu <b>(zorunlu)</b></td><td>Ne eksik, hangi kanıt gösteriyor</td></tr>
+          <tr><td>Kaynak</td><td>Anket sorusu, QA testi, denetim raporu…</td></tr>
+          <tr><td>Kök neden <b>(zorunlu)</b></td><td>Listeden seçilir</td></tr>
+          <tr><td>Kritiklik</td><td>Termini belirler</td></tr>
+          <tr><td>Aksiyon</td><td>Ne yapılacak</td></tr>
+          <tr><td>Sahip <b>(zorunlu)</b></td><td>Kişi ya da birim</td></tr>
+          <tr><td>Termin <b>(zorunlu)</b></td><td>Kritikliğe göre önerilir</td></tr>
+          <tr><td>Durum</td><td>Açık / Devam / Kapalı vb.</td></tr>
+          <tr><td>Doğrulama</td><td>Kapanışın nasıl sınanacağı</td></tr>
+          <tr><td>Kapanış tarihi · Kapanış sonrası artık risk</td><td>Kapatırken doldurulur</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Kaydetmeden önce form zorunlu alanları denetler ve eksik alanı olan satır
+      listede işaretlenir. Bulgu ekleme, düzenleme ve silme değişiklik günlüğüne
+      yazılır.
+    </p>
+
+    <h3 id="e-karsilastir">13 · Dönem Karşılaştırma</h3>
+    <p>
+      Önceki dönemin çalışma dosyası (JSON) yüklenir ve özet olarak saklanır. Altı
+      kutucukta iki dönem yan yana okunur: test edilmiş etkinlik, doğuştan risk,
+      artık risk, iştah aşımı, açık kritik ve güvence örtüsü — her birinde fark ve
+      yön oku.
+    </p>
+    <ul>
+      <li><b>Domain tablosu</b> — etkinlik ve artık risk için “önce / şimdi / fark”
+        sütunları, açık kritik değişimi ve durum: yeni aşım, düzeldi, hâlâ aşımda.</li>
+      <li><b>Bulgu kapanışı</b> — önceki dönemde açık olup kapananlar, hâlâ açık
+        olanlar (listelenir) ve bu dönem açılan yeni bulgular.</li>
+      <li><b>Yöntem uyarısı</b> — iki dönem farklı skorlama yöntemi kullanıyorsa
+        karşılaştırmanın sınırlı olduğu belirtilir.</li>
+      <li>Karşılaştırma tabanı değiştirilebilir ya da silinebilir.</li>
+    </ul>
+
+    <h3 id="e-ekip">14 · Ekip ve Birleştirme</h3>
+    <p>
+      Uygulamanın sunucusu yoktur; paralel çalışma dosya üzerinden yürür.
+    </p>
+    <ul>
+      <li><b>Atama tablosu</b> — 11 domainin her birine sorumlu yazılır; yanında o
+        domainin ilerlemesi görünür.</li>
+      <li><b>Birleştirme</b> — gelen JSON alan bazında karşılaştırılır. Parçalar:
+        domain başına anket yanıtları, ek kontrol setleri, boyut başına doğuştan
+        risk (skor, N/A, gerekçe, ağırlık), künye, QA hacimleri, operasyon, KPI, PF,
+        iş kolları, iştah limitleri, ülke ayarları, portföy ve bulgular.</li>
+      <li>Her parçada sizdeki ve gelendeki dolu kayıt sayısı ile <b>çakışma
+        sayısı</b> (iki tarafta da dolu ve farklı) gösterilir; birkaç örnek
+        “sizdeki → gelen” biçiminde listelenir.</li>
+      <li>Parça bazında “benimki” ya da “gelen” seçilir. “Gelen” seçilen parçada
+        yalnızca gelen dosyada dolu olan alanlar aktarılır; sessiz üzerine yazma
+        yoktur.</li>
+      <li>Birleştirmeden önce otomatik yedek alınır, işlem değişiklik günlüğüne
+        yazılır.</li>
+    </ul>
+
+    <h3 id="e-gunluk">15 · Değişiklik Günlüğü</h3>
+    <p>
+      Yalnızca eklenir, düzenlenmez. Kaydedilen olaylar: anket yanıtı, doğuştan risk
+      skoru, bulgu ekleme/düzenleme/silme, birleştirme ve dosya yükleme. Her satırda
+      tarih-saat, kim, ne, hangi kayıt, eski değer ve yeni değer vardır.
+    </p>
+    <ul>
+      <li><b>“Kim”</b> alanı künyedeki uyum görevlisi ya da değerlendirmeyi yapan
+        kişiden okunur — beyan niteliğindedir, kimlik doğrulaması yapılmaz.</li>
+      <li>Serbest metin arama ve olay türüne göre süzme; CSV çıktısı alınabilir.</li>
+      <li>Ekranda en yeni 500 kayıt gösterilir; depoda en fazla 4.000 kayıt tutulur,
+        sınıra gelince en eskiler düşer.</li>
+      <li>Değer değişmediyse kayıt oluşmaz.</li>
+    </ul>
+
+    <h3 id="e-rapor">16 · Yönetici Raporu</h3>
+    <p>Yazdırılabilir tek sayfa akış. Bölümler sırayla:</p>
+    <ol>
+      <li>Kurum ve dönem künyesi, değerlendirmeyi yapan</li>
+      <li>Portföy ve maruziyet özeti</li>
+      <li>Doğuştan risk profili (boyutlar, PF)</li>
+      <li>Kullanılan risk modeli ve yöntem</li>
+      <li>Domain sonuçları: etkinlik, güvence, olgunluk, artık risk</li>
+      <li>İştah aşımları</li>
+      <li>Açık kritik kontroller</li>
+      <li>Aksiyon planı özeti</li>
+      <li>Ek kontrol setleri (ayrı tablo)</li>
+      <li>Hazırlayan / gözden geçiren / onaylayan imza bloğu</li>
+      <li>Altta referans veri paketi sürümü ve bayat bölümler</li>
+    </ol>
+    <p>
+      Üst bardaki yazdır düğmesiyle kâğıda ya da PDF’e çıkarılır. İmza bloğundaki
+      adlar künyeden gelir; boşsa el yazısı için boş bırakılır.
+    </p>
+
+    <h3 id="e-ayarlar">17 · Ayarlar</h3>
+    <p><b>Ülke risk ayarları</b> ve <b>referans veri paketi</b> künyesi burada.</p>
+    <ul>
+      <li>211 ülke ve bölge tanımlıdır; 137’si risk işaretiyle ön dolu gelir.</li>
+      <li>Her ülke için altı işaret açılıp kapatılır: FATF kara liste, FATF gri
+        liste, kapsamlı yaptırım rejimi, AB yüksek riskli üçüncü ülke, offshore
+        merkez, zayıf AML denetimi.</li>
+      <li>Değiştirdiğiniz ülke “kurum kararı” olarak etiketlenir; tek tıkla
+        varsayılana, tek düğmeyle tüm değişiklikler varsayılana döner.</li>
+      <li>Arama ve süzme: işaretli, işaretsiz, değiştirilmiş ya da tek tek işaret
+        türüne göre.</li>
+      <li>Değişiklik anında tüm maruziyet hesaplarına yansır; ülke seçimlerinde en
+        ağır işaret seçenekte görünür (“İran (IR) — FATF kara”).</li>
+      <li><b>Referans paketi kartı</b> — sürüm, derlenme tarihi ve üç bölümün
+        (ülke bayrakları, mevzuat atıfları, soru bankası) yaşı; eşiği aşan bölüm
+        uyarı üretir.</li>
+    </ul>
+
     <hr class="ayrac">
 
-    <h2 id="anket-detay">Anketi doldurmanın püf noktaları</h2>
-    <p class="h2-alt">218 soru, doğru yaklaşımla iki güne iner.</p>
+    <h2 id="anket-detay">Anketi doldurma</h2>
+    <p class="h2-alt">218 soru tek tek tıklanmak zorunda değil.</p>
 
     <h3>Dört yanıt ne demek</h3>
     <div class="tablo-sar">
       <table>
-        <thead>
-          <tr><th>Yanıt</th><th>Ne zaman</th><th>Skora etkisi</th></tr>
-        </thead>
+        <thead><tr><th>Yanıt</th><th>Ne zaman</th><th>Sık yapılan hata</th></tr></thead>
         <tbody>
-          <tr><td><strong>Evet</strong></td><td>Kontrol var, çalışıyor ve kanıtlanabilir</td><td>Tam puan</td></tr>
-          <tr><td><strong>Kısmen</strong></td><td>Kontrol var ama kapsamı dar, düzensiz ya da belgesiz</td><td>Yarım puan</td></tr>
-          <tr><td><strong>Hayır</strong></td><td>Kontrol yok ya da çalışmıyor</td><td>Sıfır</td></tr>
-          <tr><td><strong>Uygulanamaz</strong></td><td>Bu kontrol kurumunuz için anlamsız</td><td>Paydadan çıkar</td></tr>
+          <tr><td><b>Evet</b></td><td>Kontrol tanımlı, uygulanıyor ve gösterebileceğiniz kanıtı var</td><td>Prosedürde yazıyor diye “Evet” demek. Yazılı olması uygulanıyor demek değil.</td></tr>
+          <tr><td><b>Kısmen</b></td><td>Var ama eksik: kapsamı dar, düzensiz işliyor ya da yazılı değil</td><td>“Neredeyse tam” diye “Evet” demek. Kısmen dürüst cevaptır ve aksiyon üretir.</td></tr>
+          <tr><td><b>Hayır</b></td><td>Kontrol yok ya da işlemiyor</td><td>Utanıp boş bırakmak. Boş soru skoru düşürmez ama denetimde eksik görünür.</td></tr>
+          <tr><td><b>Uygulanamaz</b></td><td>Kontrolün konusu olan faaliyet kurumda hiç yok</td><td>Zor soruyu N/A ile geçmek. N/A kapsam beyanıdır ve raporda görünür.</td></tr>
         </tbody>
       </table>
     </div>
 
-    <p>
-      “Uygulanamaz” ile “Hayır” arasındaki farka dikkat edin. Trade finance
-      yapmıyorsanız trade finance taraması “Uygulanamaz”. Yapıyorsanız ama tarama
-      kurmadıysanız “Hayır”. Birincisi skorunuzu etkilemez, ikincisi bulgudur.
-    </p>
-
-    <h3>Kanıt referansı</h3>
-    <p>
-      Her sorunun altında “beklenen kanıt” yazar — ne aramanız gerektiğini söyler.
-      Yan tarafındaki kutuya o kanıtın <em>nerede</em> olduğunu yazın. Belgenin
-      adı, karar numarası, rapor kodu. Denetçi bu satır üzerinden arar.
-    </p>
-    <p>
-      Yanıtladığınız ama kanıt referansı yazmadığınız sorularda uyarı işareti
-      çıkar. Anket ekranının üstündeki durum filtresinden “kanıtsız” diyerek
-      hepsini toplu görebilirsiniz.
-    </p>
-
-    <h3>QA dosya testi sonucu</h3>
-    <p>
-      218 sorunun 115'i bağımsız dosya testi gerektirir. Bu sorularda yanıtın
-      altında katlanır bir bölüm var: test sonucu, incelenen dosya sayısı, hatalı
-      dosya sayısı ve not.
-    </p>
-    <p>
-      Bu bölüm işin kalbi. Anket yanıtı sizin <strong>beyanınız</strong>; QA testi
-      o beyanın doğrulanması. Testte “Çelişkili” çıkan bir kontrol, siz “Evet”
-      demiş olsanız bile etkin sayılmaz — katsayısı sıfırlanır. “Kısmen
-      doğrulandı” çıkarsa en çok yarım puan alır.
-    </p>
-
-    <div class="kutu dikkat">
-      <div class="kutu-baslik">Beyanla test çelişirse</div>
-      <p>
-        Panoda kırmızı bir uyarı çıkar. Doğru davranış, testi görmezden gelmek
-        değil: ya yanıtı “Kısmen” veya “Hayır” olarak düzeltin, ya da testin neden
-        yanıltıcı olduğunu QA notuna yazın. Çelişkiyi açıkta bırakmak, denetimde
-        en zor savunulacak durumdur.
-      </p>
-    </div>
-
-    <h3>218 soruda kaybolmamak</h3>
-    <ul>
-      <li>Bölüm başlığı kaydırırken ekranın üstünde asılı kalır — hangi domainde
-        olduğunuzu hep görürsünüz.</li>
-      <li>Sağ altta sabit duran <span class="ekran">Sonraki yanıtlanmamış</span>
-        düğmesi kalan soru sayısını gösterir ve sizi bir sonraki boş soruya
-        götürür.</li>
-      <li>Filtreler adres satırında taşınır. Yani “D6 domaininde eksik
-        kontroller” görünümünü bir ekip arkadaşınıza bağlantı olarak
-        gönderebilirsiniz; sayfayı yenilediğinizde de kaybolmaz.</li>
-      <li>Klavyeyle çok daha hızlı: <kbd>1</kbd>–<kbd>4</kbd> yanıtı işaretler,
-        <kbd>J</kbd> ve <kbd>K</kbd> sorular arasında gezer, <kbd>N</kbd> sonraki
-        boş soruya atlar, <kbd>E</kbd> kanıt alanına gider, <kbd>?</kbd> listeyi
-        açar.</li>
-    </ul>
-
-    <div class="kutu ipucu">
-      <div class="kutu-baslik">Nasıl bölmeli</div>
-      <p>
-        Domain domain ilerleyin, karışık atlamayın. Bir domaini bitirdiğinizde
-        yanıtlarınız arasında tutarlılık kurmuş olursunuz. Günde üç domain makul
-        bir hız; dördüncü domainde dikkat düşer ve “Evet” demeye başlarsınız.
-      </p>
-    </div>
-
-    <hr class="ayrac">
-
-    <h2 id="okuma">Skorları okumak</h2>
-    <p class="h2-alt">Panoda gördüğünüz sayıların her biri neyi söylüyor.</p>
-
-    <h3>Beyan ile test edilmiş etkinlik</h3>
-    <p>
-      İki ayrı sayı görürsünüz ve ikisi farklıysa bu iyi bir işarettir — testin
-      çalıştığı anlamına gelir. Beyan, anket yanıtlarınızın toplamı. Test ile
-      düzeltilmiş etkinlik ise QA sonuçlarıyla aşağı çekilmiş hali. Artık risk
-      hesabı, panodaki kutular ve rapor <strong>hep test ile düzeltilmiş
-      değeri</strong> kullanır.
-    </p>
-
-    <h3>%95 tavanı</h3>
-    <p>
-      Kontrol etkinliğiniz %100 olsa bile artık risk hesabında en çok %95
-      uygulanır. Sebebi basit: hiçbir kontrol seti riski sıfırlamaz. Tavan
-      olmasaydı tam puan alan bir domain “0,00 artık risk” gösterirdi ve bunu
-      hiçbir denetimde savunamazdınız. Tavan yalnızca artık risk hesabına
-      uygulanır; etkinlik skorunuz olduğu gibi kalır.
-    </p>
-
-    <h3>Eşikler</h3>
+    <h3>Klavye kısayolları</h3>
+    <p>Anket ekranı açıkken, yazı alanı dışındayken:</p>
     <div class="tablo-sar">
       <table>
-        <thead>
-          <tr><th>Doğuştan risk (1–5)</th><th>Artık risk (0–5)</th><th>Olgunluk (etkinliğe göre)</th></tr>
-        </thead>
+        <thead><tr><th>Tuş</th><th>İşlev</th></tr></thead>
         <tbody>
-          <tr><td>≥ 4,00 Çok Yüksek</td><td>≥ 3,50 Çok Yüksek</td><td>≥ %90 Gelişmiş</td></tr>
-          <tr><td>≥ 3,00 Yüksek</td><td>≥ 2,50 Yüksek</td><td>≥ %75 Yeterli</td></tr>
-          <tr><td>≥ 2,00 Orta</td><td>≥ 1,50 Orta</td><td>≥ %60 Gelişime Açık</td></tr>
-          <tr><td>&lt; 2,00 Düşük</td><td>&lt; 1,50 Düşük</td><td>≥ %40 Zayıf</td></tr>
-          <tr><td></td><td></td><td>&lt; %40 Kritik Zayıf</td></tr>
+          <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Evet / Kısmen / Hayır / Uygulanamaz</td></tr>
+          <tr><td><kbd>J</kbd> / <kbd>K</kbd></td><td>Sonraki / önceki soru</td></tr>
+          <tr><td><kbd>N</kbd></td><td>Sonraki yanıtlanmamış soru</td></tr>
+          <tr><td><kbd>E</kbd></td><td>Kanıt referansı alanına geç</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Yazı alanından çık</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Kısayol listesini aç</td></tr>
         </tbody>
       </table>
     </div>
-
-    <h3>Genel skora tek başına bakmayın</h3>
     <p>
-      Genel artık risk bir ortalamadır ve ortalama, tek bir domainde yoğunlaşmış
-      bir zafiyeti seyreltebilir. Bu yüzden panoda ayrıca <strong>en yüksek domain
-      artık riski</strong> gösterilir. Genel skorunuz iştahın altındayken bir
-      domain aşımdaysa uygulama sizi uyarır. Kurumsal risk değerlendirmesinde
-      domain düzeyindeki bir aşım genel ortalamayla kapatılamaz.
+      Etkin soru ekranın üstündeki karttır ve ince bir çerçeveyle işaretlenir.
+      Panodaki “Son soru” düğmesi en son çalıştığınız soruya döner.
     </p>
 
-    <h3>Açık kritik kontrol</h3>
-    <p>
-      Kritiklik derecesi “Kritik” olan ve “Evet” dışında yanıtlanan sorular. 218
-      sorunun 40'ı kritik; bu derece yazılı bir kurala göre veriliyor — bir kontrol
-      ancak yokluğu tek başına doğrudan yasal ihlal ya da başka hiçbir kontrolün
-      telafi edemeyeceği bir maruziyet doğuruyorsa kritik sayılıyor. Yani açık
-      kritik listesi, önceliklendirebileceğiniz bir listedir.
-    </p>
+    <h3>Verimli sıra</h3>
+    <ol>
+      <li>Domain filtresiyle tek domaine odaklanın; bir oturumda bir domain bitirin.</li>
+      <li>Önce kritik soruları süzüp yanıtlayın — açık kritikler aksiyon planının
+        omurgasıdır.</li>
+      <li>Ardından “kanıt referansı girilmemiş” filtresiyle geri dönüp kanıtları
+        tamamlayın.</li>
+      <li>QA testleri bitince “QA testi bekliyor” filtresiyle sonuçları girin.</li>
+      <li>Son olarak “QA ile çelişkili” filtresini boşaltın: her çelişki ya beyanın
+        düzeltilmesiyle ya da testin yeniden yapılmasıyla kapanır.</li>
+    </ol>
 
     <hr class="ayrac">
 
     <h2 id="ekip">Ekip olarak çalışmak</h2>
-    <p class="h2-alt">Gerçekte bu işi tek kişi yapmaz.</p>
+    <p class="h2-alt">Aynı anda aynı dosyada çalışılmaz; paralel çalışılıp birleştirilir.</p>
 
-    <p>
-      Uygulamanın sunucusu olmadığı için paralel çalışma dosya üzerinden yürür.
-      Yol şu:
-    </p>
     <ol>
-      <li><span class="ekran">Ekip ve Birleştirme</span> ekranında her domaine bir
-        sorumlu yazın. Bu atama çalışma dosyasında saklanır.</li>
-      <li>Herkese kendi payını doldurması için dosyayı gönderin — ya da herkes
-        boş dosyayla başlayıp yalnızca kendi domainini doldursun.</li>
-      <li>Herkes bitirince JSON dosyasını size göndersin.</li>
-      <li>Aynı ekrandan gelen dosyayı yükleyin. Uygulama size <strong>alan bazında
-        bir karşılaştırma</strong> gösterir: hangi domainde kaç yanıt sizde var,
-        kaçı gelen dosyada, kaç tanesi çakışıyor.</li>
-      <li>Her parça için “bendeki” mi “gelen” mi kalacağını seçin, sonra
-        birleştirin.</li>
+      <li><b>Atama.</b> Ekip ve Birleştirme ekranında her domaine sorumlu yazın.
+        Künyeyi, portföyü ve doğuştan riski tek kişi doldursun.</li>
+      <li><b>Dağıtım.</b> Bu ilk dosyanın JSON’unu indirip herkese gönderin. Herkes
+        kendi tarayıcısında yükleyip yalnızca kendi domainini doldursun.</li>
+      <li><b>Toplama.</b> Herkes bitince JSON’unu birleştirene göndersin.</li>
+      <li><b>Birleştirme.</b> Birleştiren kişi dosyaları tek tek yükler, her parça
+        için “benimki / gelen” seçer, çakışmaları tek tek gözden geçirir ve uygular.
+        Her birleştirmeden önce otomatik yedek alınır.</li>
+      <li><b>Doğrulama.</b> Birleştirme sonrası Kontrol Skorları ekranında yanıt
+        sayılarının beklenen toplama ulaştığını kontrol edin; Değişiklik
+        Günlüğü’nde birleştirme kaydı görünür.</li>
     </ol>
-    <p>
-      Sessiz üzerine yazma yok. “Gelen” seçtiğiniz bir parçada bile, gelen dosyada
-      boş olan alanlar sizdeki değerini korur. Birleştirmeden önce otomatik yedek
-      alınır ve işlem değişiklik günlüğüne yazılır.
-    </p>
 
-    <h3>Değişiklik günlüğü</h3>
-    <p>
-      <span class="ekran">Değişiklik Günlüğü</span> ekranı, hangi yanıtın ne zaman
-      ve kim tarafından değiştirildiğini tutar. Kayıtlar yalnızca eklenir, hiç
-      düzenlenmez. “Kim” alanı künyedeki uyum görevlisidir — uygulama kimlik
-      doğrulaması yapmadığı için bu bir beyandır, ama dosya bir denetim kaydına
-      dönüşmesi için yeterlidir.
-    </p>
-
-    <hr class="ayrac">
-
-    <h2 id="rapor">Rapor ve imza</h2>
-
-    <p>
-      <span class="ekran">Yönetici Raporu</span> ekranı, dosyaya konacak çıktıdır.
-      Kurum künyesi, genel skorlar, doğuştan risk profili, domain sonuçları, iştah
-      aşımları, açık kritik kontroller ve aksiyon özeti tek sayfada toplanır.
-      Yazdır düğmesiyle PDF alırsınız.
-    </p>
-    <p>
-      Raporun altında üç satırlık imza bloğu var: hazırlayan, gözden geçiren,
-      onaylayan. Doldurduğunuz satırlar isim ve tarihle basılır; boş bıraktığınız
-      satır çıktıda imza yeri olarak görünür.
-    </p>
-    <p>
-      Raporun en altında iki bilgi daha yazar: kullanılan skorlama yöntemi ve
-      referans veri paketinin sürümü. İkisi de denetimde “bu sayıyı hangi kurallarla
-      ürettiniz” sorusunun cevabıdır.
-    </p>
-
-    <h3>CSV çıktıları</h3>
-    <p>
-      <span class="ekran">Veri ve yedekleme</span> ekranından sekiz ayrı CSV
-      alabilirsiniz: sorular, domainler, portföy, işlem detayı, ülkeler, doğuştan
-      risk, QA planı, aksiyonlar ve değişiklik günlüğü. Excel'de Türkçe yerelde
-      düzgün açılacak biçimde üretilirler.
-    </p>
+    <div class="kutu dikkat">
+      <div class="kutu-baslik">Sürüm karışıklığını önleyin</div>
+      <p>
+        Dosya adlarına tarih ve sahip adı ekleyin. Birleştirme yönü tek olsun:
+        herkes birleştirene gönderir, birleştiren kimseye geri göndermez —
+        yalnızca birleşik dosyayı yayınlar.
+      </p>
+    </div>
 
     <hr class="ayrac">
 
@@ -886,46 +1328,45 @@
     <p class="h2-alt">Raporu imzaya göndermeden önce.</p>
 
     <ul class="liste-kontrol">
-      <li>218 sorunun tamamı yanıtlandı; yanıtsız soru kalmadı</li>
-      <li>Yanıtlanan her soruda kanıt referansı var</li>
-      <li>QA testi gereken 115 sorunun test sonucu girildi</li>
-      <li>Beyan ile testin çeliştiği sorular ya düzeltildi ya gerekçelendirildi</li>
-      <li>25 faktörün tamamı skorlandı; 4–5 verilen her faktörde gerekçe var</li>
-      <li>İştahı aşan her alan için en az bir bulgu açıldı</li>
-      <li>Açık kritik kontrollerin tamamı aksiyon planında karşılığını buldu</li>
-      <li>Her bulguda kök neden, aksiyon, sahip, termin ve doğrulama dolu</li>
-      <li>Künyedeki tarihler güncel; yaşlandırma uyarısı kalmadı ya da açıklandı</li>
-      <li>Ayarlar ekranındaki ülke risk işaretleri güncel listelerle karşılaştırıldı</li>
-      <li>İmza bloğu dolduruldu</li>
-      <li>JSON yedeği indirildi ve kurum arşivine kondu</li>
+      <li>Künyede zorunlu alanlar dolu, dönem tarihleri doğru, tutarlılık uyarısı yok.</li>
+      <li>Faaliyet kapsamı soruları dönemin gerçeğini yansıtıyor.</li>
+      <li>218 sorunun tamamı yanıtlanmış ya da gerekçeli olarak kapsam dışı.</li>
+      <li>Yanıtlanmış soruların kanıt referansı dolu (“kanıt girilmemiş” filtresi boş).</li>
+      <li>QA testi gereken 115 sorunun sonucu girilmiş; güvence örtüsü kabul
+        edilebilir düzeyde.</li>
+      <li>“QA ile çelişkili” filtresi boş — her çelişki kapatıldı.</li>
+      <li>25 doğuştan risk faktörü skorlandı; 4–5 skorlarının gerekçesi yazıldı.</li>
+      <li>PF bloğu ve kullanılıyorsa iş kolu matrisi dolduruldu; paylar %100.</li>
+      <li>QA popülasyonlarının hacimleri girildi, örneklem planı çıkarıldı.</li>
+      <li>İştah limitleri yönetim kurulunun onayladığı değerlerle güncellendi.</li>
+      <li>Her iştah aşımı ve her açık kritik için aksiyon planında bir bulgu var.</li>
+      <li>Bulguların beş alanı dolu: kök neden, aksiyon, sahip, termin, doğrulama.</li>
+      <li>Önceki dönem dosyası yüklendi, karşılaştırma okundu, yöntem uyarısı yok.</li>
+      <li>Referans paketinde bayat bölüm uyarısı yoksa ya da güncellendi.</li>
+      <li>Yönetici raporu yazdırıldı, imza bloğu dolduruldu.</li>
+      <li>JSON yedeği indirildi ve kurum arşivine kaldırıldı; CSV çıktıları alındı.</li>
     </ul>
 
     <hr class="ayrac">
 
     <h2 id="sonraki">Bir sonraki dönem</h2>
+    <p class="h2-alt">Sıfırdan başlamayın.</p>
 
-    <p>
-      Check-up yılda bir tekrarlanır ve asıl değeri ikinci dönemde ortaya çıkar:
-      “geçen yıla göre ne düzeldi”.
-    </p>
-    <p>
-      Yeni dönemde <span class="ekran">Dönem Karşılaştırma</span> ekranından geçen
-      dönemin JSON dosyasını yükleyin. Etkinlik, artık risk, iştah aşımları ve
-      bulgu kapanışı iki dönem yan yana gelir. Her domain satırında “aşım
-      giderildi”, “yeni aşım” ya da “aşım sürüyor” yazar. Geçen dönem açık olup bu
-      dönem kapanan bulgular ayrı sayılır — yönetim kuruluna götüreceğiniz tablo
-      budur.
-    </p>
-
-    <div class="kutu dikkat">
-      <div class="kutu-baslik">Karşılaştırmanın anlamlı olması için</div>
-      <p>
-        İki dönemin aynı skorlama yöntemiyle hesaplanmış olması gerekir. Yöntemi
-        değiştirdiyseniz uygulama uyarır. Soru bankasına soru eklediyseniz de
-        karşılaştırma kopar — bu yüzden yeni kontroller ana bankaya değil, Ek
-        Kontroller setine eklenir.
-      </p>
-    </div>
+    <ol>
+      <li>Yeni dönemi <b>bu dönemin JSON’uyla</b> açın: yanıtlar, kanıt referansları
+        ve ayarlar yerinde kalır.</li>
+      <li>Aynı dosyayı <span class="ekran">Dönem Karşılaştırma</span> ekranına taban
+        olarak yükleyin — böylece “önce” fotoğrafı sabitlenir.</li>
+      <li>Künyedeki dönem tarihlerini, sayıları ve denetim tarihlerini güncelleyin.</li>
+      <li>Kapanan bulguları kapatın; kapanış tarihi ve kapanış sonrası artık riski
+        yazın. Açık kalanlar karşılaştırmada “hâlâ açık” olarak görünür.</li>
+      <li>QA sonuçlarını sıfırlayıp yeni dönemin testlerini girin — geçen dönemin
+        testi bu dönemin güvencesi değildir.</li>
+      <li>Doğuştan risk skorlarını gözden geçirin: portföy değiştiyse öneriler de
+        değişmiştir.</li>
+      <li>Yöntem seçeneğini değiştirmeyin; değiştirecekseniz karşılaştırmanın
+        sınırlı olacağını rapora yazın.</li>
+    </ol>
 
     <hr class="ayrac">
 
@@ -933,66 +1374,162 @@
 
     <h3>“Çalışmam kayboldu”</h3>
     <p>
-      Önce <span class="ekran">Veri ve yedekleme</span> ekranını açın: uygulama son
-      beş sürümü saklar, tarihine bakıp geri yükleyebilirsiniz. Orada da yoksa,
-      indirdiğiniz son JSON dosyasını yükleyin. İkisi de yoksa maalesef
-      kurtarılamaz — bu yüzden yedek disiplinini kılavuzun başına koydum.
+      Önce aynı tarayıcı ve aynı profilde olduğunuzdan emin olun; veriler profile
+      bağlıdır. Sonra <span class="ekran">Veri ve yedekleme</span> penceresinde
+      otomatik yedekler listesine bakın: son beş sürüm tarihiyle durur, biri geri
+      yüklenebilir. Elinizde JSON varsa <span class="ekran">Çalışma dosyası
+      yükle</span> ile açın.
     </p>
 
     <h3>“Kayıt başarısız” uyarısı çıkıyor</h3>
     <p>
-      Tarayıcı deposu dolmuş demektir. Hemen JSON indirin, sonra tarayıcının
-      site verilerini temizleyip indirdiğiniz dosyayı geri yükleyin.
+      Tarayıcı deposu dolmuş demektir. Hemen JSON indirin. Sonra aynı tarayıcıda
+      gereksiz site verilerini temizleyin ya da başka bir profille devam edip
+      dosyayı oraya yükleyin.
     </p>
 
     <h3>Dosya yüklenmiyor</h3>
     <p>
-      “Bu dosya bir AML Check-up çalışma dosyası değil” diyorsa, yanlış dosyayı
-      seçmiş olabilirsiniz — uzantısı <code>.json</code> olmalı ve bu uygulamadan
-      çıkmış olmalı. Elle düzenlenmiş bir dosyaysa bozulmuş olabilir; uygulama
-      bozuk dosyayı yükleyip çökmek yerine reddeder.
+      Dosya bu uygulamanın ürettiği JSON olmalı. Elle düzenlenmiş dosyalarda
+      tanınmayan yanıt değerleri yanıtlanmamış sayılır; skor sessizce bozulmaz ama
+      kayıt da görünmez. Bozuk dosyada uygulama çökmez, uyarı verir.
     </p>
 
     <h3>Skorlar beklediğim gibi değil</h3>
-    <p>
-      Üç yaygın sebep: künyedeki faaliyet sorularını doldurmadığınız için kapsam
-      dışı olması gereken sorular skora giriyordur; “Uygulanamaz” demeniz gereken
-      yerde “Hayır” demişsinizdir; ya da QA testleri beyanınızı aşağı çekmiştir.
-      <span class="ekran">Kontrol Skorları</span> ekranında beyan ve test
-      sütunlarını karşılaştırarak üçüncüyü hemen görürsünüz.
-    </p>
+    <ul>
+      <li>Bir domainin artık riski boşsa, kaynak boyutlarından biri hiç
+        skorlanmamıştır.</li>
+      <li>Etkinlik beklenenden düşükse QA tavanına bakın: “Çelişkili” sonuç
+        katsayıyı sıfırlar.</li>
+      <li>Genel iyi ama uyarı çıkıyorsa bir domain aşımdadır — en kötü domain
+        kutucuğuna bakın.</li>
+      <li>Yüzdeler kaynak çalışma kitabıyla uyuşmuyorsa maruziyet ağırlıklandırma
+        seçeneği açık olabilir.</li>
+      <li>Bir soru kilitliyse künyedeki faaliyet yanıtı onu kapsam dışına almıştır.</li>
+    </ul>
 
     <h3>Ekranı büyütmek istiyorum</h3>
     <p>
-      Tarayıcının kendi yakınlaştırması çalışır (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> ve
-      <kbd>+</kbd>). Sağ üstteki ay simgesi koyu temaya geçirir; uzun okuma
-      seanslarında gözü yormaz.
+      Tarayıcının yakınlaştırması (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> ve <kbd>+</kbd>)
+      tüm ölçekleri birlikte büyütür; düzen bozulmaz. Koyu tema üst bardaki
+      düğmededir.
     </p>
 
     <hr class="ayrac">
 
-    <h2 id="sozluk">Terimler nerede</h2>
+    <h2 id="ekler">Ekler ve tablolar</h2>
 
+    <h3>Domain ve soru dağılımı</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Kod</th><th>Domain</th><th class="num">Soru</th></tr></thead>
+        <tbody>
+          <tr><td>D1</td><td>Yönetişim ve Uyum Programı</td><td>20</td></tr>
+          <tr><td>D2</td><td>Müşteri Profili ve Coğrafi Risk</td><td>20</td></tr>
+          <tr><td>D3</td><td>Ürün ve Kanal Riski</td><td>18</td></tr>
+          <tr><td>D4</td><td>İşlem Evreni ve Veri Bütünlüğü</td><td>18</td></tr>
+          <tr><td>D5</td><td>Müşteri Yaşam Döngüsü (CDD/EDD)</td><td>26</td></tr>
+          <tr><td>D6</td><td>Finansal Yaptırımlar ve Tarama</td><td>26</td></tr>
+          <tr><td>D7</td><td>AML İzleme (Monitoring)</td><td>24</td></tr>
+          <tr><td>D8</td><td>ŞİB, Dondurma ve Müşteri Çıkışı</td><td>22</td></tr>
+          <tr><td>D9</td><td>Düzenleyici Olaylar ve Kolluk Talepleri</td><td>14</td></tr>
+          <tr><td>D10</td><td>Eğitim, Farkındalık ve Yönetim Geri Bildirimi</td><td>14</td></tr>
+          <tr><td>D11</td><td>Kurumsal Risk Değerlendirmesi (EWRA)</td><td>16</td></tr>
+          <tr><td></td><td><b>Toplam</b></td><td><b>218</b> (115’i QA testli, 40’ı kritik)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>QA popülasyonları ve örneklem kuralları</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Popülasyon</th><th>Domain</th><th>Kural</th><th>Frekans</th></tr></thead>
+        <tbody>
+          <tr><td>Verilen ŞİB dosyaları</td><td>D8</td><td>Tam kapsam</td><td>Çeyreklik</td></tr>
+          <tr><td>ŞİB verilmeyen ancak eşiği geçen kapatılmış vakalar</td><td>D8</td><td>%15 · asgari 25</td><td>Çeyreklik</td></tr>
+          <tr><td>Dondurma ve varlık kısıtlama kararları</td><td>D8</td><td>Tam kapsam</td><td>Çeyreklik</td></tr>
+          <tr><td>Yaptırım gerçek eşleşme (true match) vakaları</td><td>D6</td><td>Tam kapsam</td><td>Çeyreklik</td></tr>
+          <tr><td>Kapatılan yaptırım alertleri</td><td>D6</td><td>%10 · asgari 30</td><td>Çeyreklik</td></tr>
+          <tr><td>PEP müşteri dosyaları</td><td>D5</td><td>Tam kapsam</td><td>Altı Aylık</td></tr>
+          <tr><td>Müşteri çıkış (exit) kararları</td><td>D8</td><td>Tam kapsam</td><td>Altı Aylık</td></tr>
+          <tr><td>Kolluk ve yargı bilgi talepleri</td><td>D9</td><td>Tam kapsam</td><td>Çeyreklik</td></tr>
+          <tr><td>EDD dosyaları</td><td>D5</td><td>%10 · asgari 25</td><td>Çeyreklik</td></tr>
+          <tr><td>Kapatılan izleme alertleri</td><td>D7</td><td>%5 · asgari 30</td><td>Çeyreklik</td></tr>
+          <tr><td>Yüksek riskli yeni müşteri hesap açılışları</td><td>D5</td><td>%10 · asgari 25</td><td>Çeyreklik</td></tr>
+          <tr><td>Muhabir banka ilişkileri</td><td>D2</td><td>Tam kapsam</td><td>Yıllık</td></tr>
+          <tr><td>Trade finance dosyaları</td><td>D6</td><td>%10 · asgari 20</td><td>Altı Aylık</td></tr>
+          <tr><td>Risk skoru override edilen müşteriler</td><td>D5</td><td>%15 · asgari 20</td><td>Altı Aylık</td></tr>
+          <tr><td>Gecikmiş periyodik KYC dosyaları</td><td>D5</td><td>%10 · asgari 20</td><td>Çeyreklik</td></tr>
+          <tr><td>Uzaktan açılan hesaplar</td><td>D3</td><td>%5 · asgari 25</td><td>Altı Aylık</td></tr>
+          <tr><td>Eksik bilgili elektronik transferler</td><td>D4</td><td>%10 · asgari 20</td><td>Çeyreklik</td></tr>
+          <tr><td>Sanal varlık transferleri</td><td>D3</td><td>%10 · asgari 20</td><td>Çeyreklik</td></tr>
+          <tr><td>Standart yeni müşteri hesap açılışları</td><td>D5</td><td>%2 · asgari 30</td><td>Altı Aylık</td></tr>
+          <tr><td>Eşik üstü nakit işlemler</td><td>D3</td><td>%2 · asgari 25</td><td>Altı Aylık</td></tr>
+          <tr><td>Reddedilen müşteri başvuruları</td><td>D8</td><td>%10 · asgari 15</td><td>Yıllık</td></tr>
+          <tr><td>Eğitim tamamlama kayıtları</td><td>D10</td><td>%5 · asgari 15</td><td>Yıllık</td></tr>
+          <tr><td>Kapatılan denetim ve validasyon bulguları</td><td>D9</td><td>Tam kapsam</td><td>Altı Aylık</td></tr>
+          <tr><td>Veri mutabakatı ve besleme hatası kayıtları</td><td>D4</td><td>%10 · asgari 20</td><td>Çeyreklik</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Dışa aktarım seçenekleri</h3>
+    <div class="tablo-sar">
+      <table>
+        <thead><tr><th>Çıktı</th><th>İçerik</th></tr></thead>
+        <tbody>
+          <tr><td>JSON</td><td>Tam çalışma dosyası; geri yüklenebilir, birleştirilebilir, karşılaştırma tabanı olur</td></tr>
+          <tr><td>CSV · Sorular</td><td>218 soru + ek set soruları: yanıt, kanıt, not, QA sonucu, ağırlık, kritiklik</td></tr>
+          <tr><td>CSV · Domain skorları</td><td>Etkinlik, test edilmiş etkinlik, güvence, olgunluk, artık risk</td></tr>
+          <tr><td>CSV · Portföy</td><td>Müşteri dağılımı, segmentler, ülkeler, birimler</td></tr>
+          <tr><td>CSV · Operasyon</td><td>101 ölçüt ve 16 türetilen oran</td></tr>
+          <tr><td>CSV · Ülkeler</td><td>Ülke risk işaretleri ve kurum kararları</td></tr>
+          <tr><td>CSV · Doğuştan risk</td><td>Faktör skorları, ağırlıklar (varsayılanla birlikte), gerekçeler</td></tr>
+          <tr><td>CSV · QA planı</td><td>Popülasyon, hacim, örneklem, test başına örneklem</td></tr>
+          <tr><td>CSV · Aksiyon planı</td><td>Bulgular ve tüm alanları</td></tr>
+          <tr><td>CSV · Değişiklik günlüğü</td><td>Denetim izi</td></tr>
+          <tr><td>Yazdır / PDF</td><td>Yönetici raporu</td></tr>
+        </tbody>
+      </table>
+    </div>
     <p>
-      Soru metinlerinde açıklamasız geçen sektör kısaltmaları için ayrı bir sayfa
-      var: <span class="ekran">Nasıl Okunur</span>. CBDDQ, nested ilişki,
-      payable-through, SoF ve SoW farkı, BTL/ATL testi, %50 kuralı, Travel Rule,
-      unhosted cüzdan, dual-use, ayna işlem, FOP, KAGK — 26 terim tanımlı.
+      CSV dosyaları noktalı virgül ayracı ve BOM ile üretilir; Türkçe Excel
+      yerelinde sütunlar doğru ayrışır.
     </p>
-    <p>
-      Aynı sayfada skorlama kavramları da tek yerde toplanmış: doğuştan risk,
-      beyan ile test edilmiş etkinlik farkı, güvence örtüsü, artık risk, iştah,
-      %95 tavanı ve ölçek eşikleri. Her tanım ilgili ekrana bağlanıyor.
-    </p>
+
+    <h3>Sayılarla kapsam</h3>
+    <div class="tablo-sar">
+      <table>
+        <tbody>
+          <tr><td>Ekran</td><td>17</td></tr>
+          <tr><td>Anket sorusu</td><td>218 (11 domain) + 44 ek kontrol sorusu (8 set)</td></tr>
+          <tr><td>QA testi gereken soru</td><td>115</td></tr>
+          <tr><td>Kritik soru</td><td>40</td></tr>
+          <tr><td>Doğuştan risk faktörü</td><td>25 (5 boyut) + 5 PF faktörü</td></tr>
+          <tr><td>İş kolu</td><td>12 × 5 boyut</td></tr>
+          <tr><td>Künye alanı</td><td>26 (5 zorunlu, 6 grup)</td></tr>
+          <tr><td>Operasyon ölçütü</td><td>101 (8 grup) · 16 türetilen oran</td></tr>
+          <tr><td>Portföy</td><td>7 müşteri tipi × 4 risk seviyesi · 12 segment · 7 birim tipi</td></tr>
+          <tr><td>Ülke</td><td>211 tanımlı · 137 ön işaretli · 6 risk işareti</td></tr>
+          <tr><td>QA popülasyonu</td><td>24</td></tr>
+          <tr><td>KPI</td><td>15 (3’ü doğrudan otomatik, 12’si İşlem Detayı’ndan)</td></tr>
+          <tr><td>Terim sözlüğü</td><td>26 terim (Nasıl Okunur ekranında)</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.9.0 sürümüne göre yazıldı. Ekran adları ve
-        sayılar o sürümdeki hâlleriyle verilmiştir. Kılavuzda bulamadığınız bir
-        şey varsa uygulamanın kendi <span class="ekran">Nasıl Okunur</span>
-        ekranına bakın; orada bulamazsanız muhtemelen henüz yazılmamıştır.
+        Bu kılavuz uygulamanın 2.9.0 sürümünü ve 2026.1 referans veri paketini
+        anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
+        birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
+        doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
+        bağımsız denetim yerine geçmez.
       </p>
     </div>
 
   </main>
 </div>
+<script src="js/kilavuz.js?v=2.9.0"></script>
+</body>
+</html>

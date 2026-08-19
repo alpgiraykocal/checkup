@@ -149,6 +149,15 @@ const App = (() => {
     UI.el('#skip-link').textContent = t('skipToContent');
     UI.el('#nav').setAttribute('aria-label', t('navMain'));
     UI.el('#local-only').textContent = t('localOnly');
+
+    // Kılavuz iki dilde ayrı belge; bağlantı ve etiket dile göre değişir.
+    const guide = UI.el('#guide-link');
+    if (guide) {
+      guide.setAttribute('href', t('guideDocFile'));
+      const label = guide.querySelector('.btn-label');
+      if (label) label.textContent = t('guideDoc');
+      guide.setAttribute('aria-label', t('guideDoc'));
+    }
     UI.el('#print-btn').setAttribute('aria-label', t('print'));
     UI.els('[data-act]').forEach(b => {
       const map = { export: 'dataBackup', import: 'importBtn', reset: 'resetBtn' };
