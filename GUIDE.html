@@ -8,7 +8,7 @@
 <meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.9.0">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.9.1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -45,7 +45,7 @@
       <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
       <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
-      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.9.0</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.9.1</span></div>
     </div>
   </header>
 
@@ -1123,8 +1123,10 @@
     <ul>
       <li>Out-of-scope sets are dimmed with the reason written out (“your obliged
         entity type is not …” or “this activity does not exist”).</li>
-      <li>Question rows have the same structure as the main questionnaire: answer,
-        evidence, note, and a QA result where required.</li>
+      <li>A question row holds the answer, the evidence reference and, where
+        required, the QA test result. The finding note and the QA file/error
+        count fields of the main questionnaire are not present in this set;
+        record that detail in the action plan finding instead.</li>
       <li>This set's score does not enter the denominator of the main score; it is
         reported separately.</li>
     </ul>
@@ -1184,9 +1186,11 @@
       <li>Filter by status, criticality, domain and view (open only / overdue
         only).</li>
       <li><span class="ekran">Generate from control gaps</span> — creates draft
-        findings in bulk from questions that came out as gaps in the questionnaire
-        and the extra controls; the source question id, domain, criticality and a
-        QA verification suggestion are pre-filled.</li>
+        findings in bulk from questions that came out as gaps in the <b>main
+        questionnaire</b>; the source question id, domain, criticality and a QA
+        verification suggestion are pre-filled, and questions that already have a
+        finding are skipped. Gaps in the extra control sets are not included in
+        this bulk generation; open those findings manually.</li>
     </ul>
     <h4>The finding form</h4>
     <div class="tablo-sar">
@@ -1596,7 +1600,7 @@
 
     <div class="altbilgi">
       <p>
-        This guide describes version 2.9.0 of the application and reference data
+        This guide describes version 2.9.1 of the application and reference data
         pack 2026.1. The formulas in the methodology section match the scoring
         engine exactly. Regulatory citations are indicative and must be verified
         against the legislation in force. The tool supports detection,
@@ -1607,6 +1611,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.9.0"></script>
+<script src="js/kilavuz.js?v=2.9.1"></script>
 </body>
 </html>

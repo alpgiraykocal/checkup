@@ -130,6 +130,31 @@ const Store = (() => {
     return s;
   }
 
+  /* QA hacimleri bir dönem popülasyonun görünen adıyla saklandı; İngilizce
+     arayüzde girilen hacim ayrı bir kayda düşüyor ve hesap onu hiç görmüyordu.
+     Anahtar artık her zaman DATA.qaPopulations[].key (Türkçe sabit); eski
+     İngilizce adlı kayıtlar okunurken taşınır. */
+  function migrateQaKeys(s) {
+    if (!s.qaVolumes || typeof DATA === 'undefined') return s;
+    const valid = new Set(DATA.qaPopulations.map(p => p.key));
+    const byEnName = {};
+    if (typeof DATA_EN !== 'undefined' && DATA_EN.qa) {
+      Object.keys(DATA_EN.qa).forEach(key => {
+        const n = DATA_EN.qa[key] && DATA_EN.qa[key].pop;
+        if (n) byEnName[n] = key;
+      });
+    }
+    Object.keys(s.qaVolumes).forEach(k => {
+      if (valid.has(k)) return;
+      const target = byEnName[k];
+      if (!target) return;                       // tanınmayan anahtar olduğu gibi bırakılır
+      // Türkçe anahtarda değer varsa ona dokunulmaz; yalnızca boşluk doldurulur.
+      if (s.qaVolumes[target] === undefined) s.qaVolumes[target] = s.qaVolumes[k];
+      delete s.qaVolumes[k];
+    });
+    return s;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -137,6 +162,7 @@ const Store = (() => {
         const parsed = JSON.parse(raw);
         state = normalize(Object.assign(blank(), parsed));
         migrateKpiKeys(state);
+        migrateQaKeys(state);
       }
     } catch (e) {
       console.warn('Kayıtlı veri okunamadı, boş çalışma alanı açıldı.', e);
@@ -239,6 +265,7 @@ const Store = (() => {
       snap('before-load', true);
       state = normalize(Object.assign(blank(), next));
       migrateKpiKeys(state);
+      migrateQaKeys(state);
       persist();
       emit();
     },
@@ -292,6 +319,7 @@ const Store = (() => {
       snap('before-restore', true);
       state = normalize(Object.assign(blank(), rec.data));
       migrateKpiKeys(state);
+      migrateQaKeys(state);
       persist();
       emit();
       return true;

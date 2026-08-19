@@ -48,9 +48,13 @@ const Exporter = (() => {
         });
         if (!ok) return;
       }
-      const oncekiOzet = `${Object.keys(Store.state.answers).length} yanıt / ${(Store.state.actions || []).length} bulgu`;
+      const ozet = () => t('impSummary', {
+        a: Object.keys(Store.state.answers).length,
+        b: (Store.state.actions || []).length
+      });
+      const oncekiOzet = ozet();
       Store.replace(parsed);
-      const sonrakiOzet = `${Object.keys(Store.state.answers).length} yanıt / ${(Store.state.actions || []).length} bulgu`;
+      const sonrakiOzet = ozet();
       Store.log('import', file.name || '', oncekiOzet, sonrakiOzet);
       UI.toast(t('loadedJson'), 'ok');
     };
@@ -58,9 +62,16 @@ const Exporter = (() => {
   }
 
   /* ---------- CSV ---------- */
+  /* Elektronik tablo formül enjeksiyonu: "=", "+", "-", "@", sekme ve satır
+     başı ile başlayan metin Excel/LibreOffice tarafından formül olarak
+     yorumlanır. Serbest metin alanları (bulgu, kanıt, not) kullanıcıdan gelir
+     ve CSV başka birinin bilgisayarında açılır; bu yüzden metin hücrelerinin
+     başına tek tırnak konur. Sayılar bu kuralın dışındadır: "-5" sayı kalır. */
+  const SAYI = /^[+-]?(\d+([.,]\d+)?|[.,]\d+)$/;
   function csvCell(v) {
-    const s = v === null || v === undefined ? '' : String(v);
-    return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    let s = v === null || v === undefined ? '' : String(v);
+    if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s) && !SAYI.test(s.trim())) s = "'" + s;
+    return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
   function toCSV(rows) {
     // Noktalı virgül + BOM: Türkçe Excel yerelinde sütunlar doğru ayrışır.

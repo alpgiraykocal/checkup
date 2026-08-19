@@ -15,6 +15,7 @@ const PAKETLER = [
   ['lint.js', 'Dil sızıntısı denetimi'],
   ['merge.js', 'Birleştirme ve atama'],
   ['fuzz.js', 'Dayanıklılık — bozuk ve düşmanca veri'],
+  ['render.js', 'Görünüm — kaçırma, anahtar ve etiket'],
   ['tz.js', 'Saat dilimi matrisi']
 ];
 

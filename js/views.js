@@ -350,9 +350,15 @@ const Views = (() => {
         : target === null ? `<span class="subtle">${t('kpiNoTarget')}</span>`
         : `<span class="subtle">${t('kpiNoValue')}</span>`;
 
+      // Otomatik satırda değer kutusu çizilmez; sahipsiz bir <label for> kalmasın.
+      const kpiAd = esc(k.name.replace(/\s*\((gün|saat|ay|days?|hours?|months?)\)/i, ''));
+      const adHtml = (isAuto && manual === null)
+        ? `<span style="font-weight:500">${kpiAd}</span>`
+        : `<label for="kpi-v-${i}" style="font-weight:500;color:inherit;margin:0">${kpiAd}</label>`;
+
       return `<tr>
         <td>
-          <label for="kpi-v-${i}" style="font-weight:500;color:inherit;margin:0">${esc(k.name.replace(/\s*\((gün|saat|ay)\)/, ''))}</label>
+          ${adHtml}
           <div class="subtle">${esc(k.help)}</div>
           <div class="subtle">${t('source')}: ${esc(
              fromOps ? t('kpiFromOps') : k.auto ? t('kpiAutoSource') : k.source)} · ${dirHint}</div>
@@ -836,7 +842,7 @@ const Views = (() => {
         <td style="width:140px">
           <div class="input-unit">
             <input type="number" min="0" max="100" step="0.1" inputmode="decimal" id="ls-${s.key}"
-              data-line="${s.key}" data-field="share" value="${rec.share ?? ''}" placeholder="0"
+              data-line="${s.key}" data-field="share" value="${esc(rec.share ?? '')}" placeholder="0"
               ${l.active ? '' : 'disabled'} aria-label="${esc(I18n.isEn ? s.en : s.tr)} — ${t('blShare')}">
             <span class="unit-tag">%</span>
           </div>
@@ -1828,7 +1834,7 @@ const Views = (() => {
         <td>${r.level ? `<span class="chip ${levelClass(r.level)}">${esc(I18n.ref('riskLevel', r.level))}</span>` : '—'}</td>
         <td style="width:92px">
           <input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-${r.code}"
-            data-appetite="${r.code}" value="${r.appetite}" aria-label="${esc(r.name)} — ${t('colAppetiteLimit')}">
+            data-appetite="${r.code}" value="${esc(r.appetite)}" aria-label="${esc(r.name)} — ${t('colAppetiteLimit')}">
           ${r.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}
         </td>
         <td>${r.breach === null ? '—' : r.breach
@@ -1877,7 +1883,7 @@ const Views = (() => {
               <td class="num"><span class="heat-cell score-pill ${levelClass(calc.pfLine.level)}">${fmtNum2(calc.pfLine.residual)}</span></td>
               <td>${calc.pfLine.level ? `<span class="chip ${levelClass(calc.pfLine.level)}">${esc(I18n.ref('riskLevel', calc.pfLine.level))}</span>` : '—'}</td>
               <td style="width:92px"><input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-PF"
-                data-appetite="PF" value="${calc.pfLine.appetite}" aria-label="PF — ${t('colAppetiteLimit')}"></td>
+                data-appetite="PF" value="${esc(calc.pfLine.appetite)}" aria-label="PF — ${t('colAppetiteLimit')}"></td>
               <td>${calc.pfLine.breach === null ? '—' : calc.pfLine.breach
                 ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
                 : `<span class="chip chip-ok">${t('withinAppetiteFull')}</span>`}</td>
@@ -1929,8 +1935,8 @@ const Views = (() => {
         <td><span class="chip ${levelClass(p.riskKey)}">${esc(p.risk)}</span></td>
         <td style="width:150px">
           <div class="input-unit">
-            <input type="number" min="0" step="1" inputmode="numeric" id="qa-vol-${i}" data-vol="${esc(p.pop)}"
-              value="${p.volume === null ? '' : p.volume}" placeholder="0"
+            <input type="number" min="0" step="1" inputmode="numeric" id="qa-vol-${i}" data-vol="${esc(p.key)}"
+              value="${esc(p.volume === null ? '' : p.volume)}" placeholder="0"
               aria-label="${esc(p.pop)} — ${t('colPeriodVol')}">
             <span class="unit-tag">${t('items')}</span>
           </div>

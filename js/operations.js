@@ -210,7 +210,7 @@ const Operations = (() => {
           <div class="input-unit">
             <input type="number" min="0" step="${f === 'tutar' ? '0.01' : '1'}" inputmode="decimal"
               id="op-${m.key}-${f}" data-op="${m.key}" data-field="${f}"
-              value="${v ?? ''}" placeholder="0" aria-label="${esc(L(m))} — ${esc(L(OPERATIONS.units[f]))}">
+              value="${esc(v ?? '')}" placeholder="0" aria-label="${esc(L(m))} — ${esc(L(OPERATIONS.units[f]))}">
             <span class="unit-tag">${esc(L(OPERATIONS.units[f]))}</span>
           </div>
         </td>`;

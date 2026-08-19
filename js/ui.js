@@ -50,13 +50,16 @@ const UI = (() => {
   // Sayı ve tarih biçimi seçili dile göre çözülür.
   const nf = (min, max) => new Intl.NumberFormat(I18n.locale,
     { minimumFractionDigits: min, maximumFractionDigits: max });
-  const empty = v => (v === null || v === undefined || v === '');
+  /* Boş ya da sayıya çevrilemeyen değer "—" gösterilir. Bozuk bir çalışma
+     dosyasında sayısal alan metin taşıyabilir; ekrana "NaN" yazmak yerine
+     ölçülmedi denir. */
+  const empty = v => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)));
 
-  const fmtInt = v => empty(v) ? '—' : nf(0, 0).format(v);
-  const fmtPct = v => empty(v) ? '—' : nf(0, 0).format(v * 100) + '%';
-  const fmtPct1 = v => empty(v) ? '—' : nf(1, 1).format(v * 100) + '%';
-  const fmtNum1 = v => empty(v) ? '—' : nf(1, 1).format(v);
-  const fmtNum2 = v => empty(v) ? '—' : nf(2, 2).format(v);
+  const fmtInt = v => empty(v) ? '—' : nf(0, 0).format(Number(v));
+  const fmtPct = v => empty(v) ? '—' : nf(0, 0).format(Number(v) * 100) + '%';
+  const fmtPct1 = v => empty(v) ? '—' : nf(1, 1).format(Number(v) * 100) + '%';
+  const fmtNum1 = v => empty(v) ? '—' : nf(1, 1).format(Number(v));
+  const fmtNum2 = v => empty(v) ? '—' : nf(2, 2).format(Number(v));
   /* 'YYYY-MM-DD' yerel tarih olarak çözülür; UTC üzerinden geçirilirse
      UTC'nin gerisindeki saat dilimlerinde bir gün geri gösterilir. */
   const fmtDate = s => {
@@ -100,7 +103,7 @@ const UI = (() => {
 
   /* ---------- Modal ---------- */
   let modalCloser = null;
-  function modal({ title, body, footer, onMount, width }) {
+  function modal({ title, body, footer, onMount, width, onClose }) {
     closeModal();
     const scrim = document.createElement('div');
     scrim.className = 'scrim';
@@ -129,6 +132,8 @@ const UI = (() => {
       scrim.remove();
       modalCloser = null;
       if (prevFocus && prevFocus.focus) prevFocus.focus();
+      // Escape ve dışa tıklama da bir kapanıştır: bekleyen söz burada çözülür.
+      if (onClose) onClose();
     };
 
     const first = el('input, select, textarea, button:not([data-close])', scrim);
@@ -151,16 +156,20 @@ const UI = (() => {
   function confirmDialog({ title, message, confirmLabel, danger = false }) {
     const ok = confirmLabel || I18n.t('confirm');
     return new Promise(resolve => {
+      /* Söz tam bir kez çözülür. Onay dışındaki her kapanış — düğme, dışa
+         tıklama, Escape — "hayır" demektir; aksi hâlde çağıran taraf sonsuza
+         kadar bekler ve işlem sessizce yarıda kalır. */
+      let bitti = false;
+      const cevapla = v => { if (!bitti) { bitti = true; resolve(v); } };
       modal({
         title,
         body: `<p>${esc(message)}</p>`,
         footer: `<button class="btn" data-close>${esc(I18n.t('cancel'))}</button>
                  <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-confirm>${esc(ok)}</button>`,
         width: 460,
+        onClose: () => cevapla(false),
         onMount(scrim) {
-          el('[data-confirm]', scrim).addEventListener('click', () => { closeModal(); resolve(true); });
-          els('[data-close]', scrim).forEach(b => b.addEventListener('click', () => resolve(false)));
-          scrim.addEventListener('mousedown', e => { if (e.target === scrim) resolve(false); });
+          el('[data-confirm]', scrim).addEventListener('click', () => { cevapla(true); closeModal(); });
         }
       });
     });

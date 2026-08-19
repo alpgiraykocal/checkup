@@ -285,7 +285,7 @@ const Portfolio = (() => {
           <input type="number" min="0" step="1" inputmode="numeric"
             id="mx-${ct.key}-${b.key.replace(/\s/g, '')}"
             data-mx="${ct.key}" data-band="${esc(b.key)}"
-            value="${row[b.key] ?? ''}" placeholder="0"
+            value="${esc(row[b.key] ?? '')}" placeholder="0"
             aria-label="${esc(L(ct))} — ${esc(I18n.ref('riskLevel', b.key))}">
         </td>`).join('');
       const rowTotal = p.byType[ct.key];
@@ -343,12 +343,12 @@ const Portfolio = (() => {
         </td>
         <td style="width:140px">
           <input type="number" min="0" step="1" inputmode="numeric" id="sg-${s.key}"
-            data-seg="${s.key}" data-field="customers" value="${rec.customers ?? ''}" placeholder="0"
+            data-seg="${s.key}" data-field="customers" value="${esc(rec.customers ?? '')}" placeholder="0"
             aria-label="${esc(L(s))} — ${t('pfCustomers')}">
         </td>
         <td style="width:140px">
           <input type="number" min="0" step="1" inputmode="numeric" id="sgh-${s.key}"
-            data-seg="${s.key}" data-field="highRisk" value="${rec.highRisk ?? ''}" placeholder="0"
+            data-seg="${s.key}" data-field="highRisk" value="${esc(rec.highRisk ?? '')}" placeholder="0"
             aria-label="${esc(L(s))} — ${t('pfHighRisk')}">
         </td>
         <td class="num">${g.share === null ? '—' : fmtPct1(g.share)}</td>
@@ -407,11 +407,11 @@ const Portfolio = (() => {
           </div>
         </td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="cn-cus-${i}"
-          data-cn="${i}" data-field="customers" value="${c.customers || ''}" placeholder="0" aria-label="${t('pfCustomers')}"></td>
+          data-cn="${i}" data-field="customers" value="${esc(c.customers || '')}" placeholder="0" aria-label="${t('pfCustomers')}"></td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="cn-in-${i}"
-          data-cn="${i}" data-field="txIn" value="${c.txIn || ''}" placeholder="0" aria-label="${t('pfTxIn')}"></td>
+          data-cn="${i}" data-field="txIn" value="${esc(c.txIn || '')}" placeholder="0" aria-label="${t('pfTxIn')}"></td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="cn-out-${i}"
-          data-cn="${i}" data-field="txOut" value="${c.txOut || ''}" placeholder="0" aria-label="${t('pfTxOut')}"></td>
+          data-cn="${i}" data-field="txOut" value="${esc(c.txOut || '')}" placeholder="0" aria-label="${t('pfTxOut')}"></td>
         <td class="num">${c.tx ? fmtInt(c.tx) : '—'}${c.domestic && c.tx ? `<div class="subtle">${t('pfDomesticShort')}</div>` : ''}</td>
         <td class="no-print"><button class="btn btn-sm btn-icon btn-danger" data-cn-del="${i}"
           aria-label="${esc(CountryRisk.name(c.code))} — ${t('delete')}">${Icons.trash()}</button></td>
@@ -484,12 +484,12 @@ const Portfolio = (() => {
           </select>
         </td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="br-cus-${i}"
-          data-br="${i}" data-field="customers" value="${b.customers || ''}" placeholder="0" aria-label="${t('pfCustomers')}"></td>
+          data-br="${i}" data-field="customers" value="${esc(b.customers || '')}" placeholder="0" aria-label="${t('pfCustomers')}"></td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="br-hr-${i}"
-          data-br="${i}" data-field="highRiskCustomers" value="${b.highRiskCustomers || ''}" placeholder="0" aria-label="${t('pfHighRisk')}"></td>
+          data-br="${i}" data-field="highRiskCustomers" value="${esc(b.highRiskCustomers || '')}" placeholder="0" aria-label="${t('pfHighRisk')}"></td>
         <td class="num">${b.hrShare === null ? '—' : fmtPct1(b.hrShare)}</td>
         <td style="width:110px"><input type="number" min="0" step="0.5" inputmode="decimal" id="br-fte-${i}"
-          data-br="${i}" data-field="complianceFte" value="${b.complianceFte ?? ''}" placeholder="0" aria-label="${t('pfComplianceFte')}"></td>
+          data-br="${i}" data-field="complianceFte" value="${esc(b.complianceFte ?? '')}" placeholder="0" aria-label="${t('pfComplianceFte')}"></td>
         <td class="num">${b.load === null ? '—' : fmtInt(Math.round(b.load))}</td>
         <td style="width:150px"><input type="date" id="br-audit-${i}" data-br="${i}" data-field="lastAudit"
           value="${esc(b.lastAudit || '')}" aria-label="${t('pfLastAudit')}"></td>

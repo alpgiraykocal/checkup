@@ -20,6 +20,7 @@ const I18n = (() => {
     toLight:         ['Açık temaya geç', 'Switch to light theme'],
     dataBackup:      ['Veri ve yedekleme', 'Data and backup'],
     guideDoc:        ['Metodoloji ve kılavuz', 'Methodology and guide'],
+    impSummary:      ['{a} yanıt / {b} bulgu', '{a} answers / {b} findings'],
     guideDocFile:    ['KILAVUZ.html', 'GUIDE.html'],
     guideDocTtl:     ['Tam metodoloji ve kullanım kılavuzu',
                       'Full methodology and user guide'],

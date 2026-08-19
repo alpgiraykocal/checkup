@@ -117,10 +117,13 @@ const Extra = (() => {
       const b = e.target.closest('[data-ex-answer]');
       if (!b) return;
       const id = b.dataset.exAnswer, val = b.dataset.a;
+      // Ek kontroller de denetim izine girer: ana anketle aynı olay türü.
+      const onceki = (Store.state.answers[id] || {}).a || '';
+      const sonraki = onceki === val ? '' : val;
       Store.update(s => {
         s.answers[id] = s.answers[id] || {};
-        s.answers[id].a = s.answers[id].a === val ? '' : val;
-      });
+        s.answers[id].a = sonraki;
+      }, { log: { what: 'answer', ref: id, before: onceki, after: sonraki } });
     });
 
     host.addEventListener('input', e => {

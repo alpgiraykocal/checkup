@@ -8,7 +8,7 @@
 <meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.9.0">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.9.1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -44,7 +44,7 @@
       <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
       <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
-      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.9.0</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.9.1</span></div>
     </div>
   </header>
 
@@ -1066,8 +1066,9 @@
     <ul>
       <li>Kapsam dışı setler soluk gösterilir ve gerekçesi yazar (“yükümlü tipiniz
         … değil” ya da “bu faaliyet yok”).</li>
-      <li>Soru satırları ana anketle aynı yapıdadır: yanıt, kanıt, not, gerekiyorsa
-        QA sonucu.</li>
+      <li>Soru satırı yanıt, kanıt referansı ve gerekiyorsa QA test sonucundan
+        oluşur. Ana anketteki bulgu notu ile QA dosya/hata sayısı alanları bu
+        sette yoktur; ayrıntıyı aksiyon planındaki bulguya yazın.</li>
       <li>Bu setin skoru ana skorun paydasına girmez; ayrı raporlanır.</li>
     </ul>
 
@@ -1123,9 +1124,11 @@
     <ul>
       <li>Duruma, kritikliğe, domaine ve görünüme (yalnızca açık / yalnızca
         gecikmiş) göre süzme.</li>
-      <li><span class="ekran">Eksiklerden üret</span> — anket ve ek kontrollerde
-        eksik çıkan sorulardan toplu bulgu taslağı oluşturur; kaynak soru kimliği,
-        domain, kritiklik ve QA doğrulama önerisi ön doldurulur.</li>
+      <li><span class="ekran">Eksiklerden üret</span> — <b>ana ankette</b> eksik
+        çıkan sorulardan toplu bulgu taslağı oluşturur; kaynak soru kimliği,
+        domain, kritiklik ve QA doğrulama önerisi ön doldurulur. Daha önce bulgu
+        açılmış sorular atlanır. Ek kontrol setlerinin eksikleri bu üretime
+        girmez; onlar için bulguyu elle açın.</li>
     </ul>
     <h4>Bulgu formu</h4>
     <div class="tablo-sar">
@@ -1520,7 +1523,7 @@
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.9.0 sürümünü ve 2026.1 referans veri paketini
+        Bu kılavuz uygulamanın 2.9.1 sürümünü ve 2026.1 referans veri paketini
         anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
         birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
         doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
@@ -1530,6 +1533,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.9.0"></script>
+<script src="js/kilavuz.js?v=2.9.1"></script>
 </body>
 </html>
