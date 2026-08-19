@@ -92,22 +92,60 @@ const Extra = (() => {
           <div><b>${t('expectedEvidence')}:</b> ${esc(evidence)}</div>
           <div><b>${t('source')}:</b> ${esc(q.source)}</div>
         </div>
-        <div class="field" style="margin:0">
-          <label for="exev-${esc(q.id)}">${t('evidenceRef')}</label>
-          <input type="text" id="exev-${esc(q.id)}" data-ex-evidence="${esc(q.id)}"
-            value="${esc(rec.evidence || '')}" placeholder="${esc(evidence)} — ${t('evidencePhSuffix')}">
+        <div class="field-row">
+          <div class="field" style="margin:0">
+            <label for="exev-${esc(q.id)}">${t('evidenceRef')}</label>
+            <input type="text" id="exev-${esc(q.id)}" data-ex-evidence="${esc(q.id)}"
+              value="${esc(rec.evidence || '')}" placeholder="${esc(evidence)} — ${t('evidencePhSuffix')}"
+              aria-describedby="exev-${esc(q.id)}-h">
+            <div class="help" id="exev-${esc(q.id)}-h">${t('evidenceHelp')}</div>
+          </div>
+          <div class="field" style="margin:0">
+            <label for="exnt-${esc(q.id)}">${t('findingNote')}</label>
+            <input type="text" id="exnt-${esc(q.id)}" data-ex-note="${esc(q.id)}"
+              value="${esc(rec.note || '')}"
+              placeholder="${st.answer === 'Evet' ? t('findingPhYes') : t('findingPhNo')}"
+              aria-describedby="exnt-${esc(q.id)}-h">
+            <div class="help" id="exnt-${esc(q.id)}-h">${t('findingHelp')}</div>
+          </div>
         </div>
         ${q.qa ? `<details class="qa-block"${st.qaResult ? ' open' : ''}>
           <summary>${Icons.flask()} ${t('qaResultTitle')}${st.qaResult
             ? ` — <span class="chip ${st.qaResult === 'Çelişkili' ? 'chip-critical' : st.qaResult === 'Doğrulandı' ? 'chip-ok' : 'chip-high'}">${esc(I18n.ref('qaResult', st.qaResult))}</span>`
             : ` <span class="chip chip-na">${t('qaNotEntered')}</span>`}</summary>
-          <div class="field" style="margin-top:10px">
-            <label for="exqa-${esc(q.id)}">${t('qaResultLabel')}</label>
-            <select id="exqa-${esc(q.id)}" data-ex-qa="${esc(q.id)}" data-field="qaResult">
-              <option value="">${t('select')}</option>${refOptions('qaResult', st.qaResult)}
-            </select>
+          <div class="field-row" style="margin-top:10px">
+            <div class="field" style="margin:0">
+              <label for="exqa-${esc(q.id)}">${t('qaResultLabel')}</label>
+              <select id="exqa-${esc(q.id)}" data-ex-qa="${esc(q.id)}" data-field="qaResult">
+                <option value="">${t('select')}</option>${refOptions('qaResult', st.qaResult)}
+              </select>
+              <div class="help">${t('qaResultHelp')}</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label for="exqs-${esc(q.id)}">${t('qaSample')}</label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="exqs-${esc(q.id)}"
+                data-ex-qa="${esc(q.id)}" data-field="qaSample" value="${esc(st.qaSample)}" placeholder="25">
+              <div class="help">${t('exQaPopHelp')}</div>
+            </div>
+            <div class="field" style="margin:0">
+              <label for="exqe-${esc(q.id)}">${t('qaErrors')}</label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="exqe-${esc(q.id)}"
+                data-ex-qa="${esc(q.id)}" data-field="qaErrors" value="${esc(st.qaErrors)}" placeholder="0">
+              <div class="help">${st.qaSample && st.qaErrors !== '' && Number(st.qaSample) > 0
+                ? t('qaErrorRate', { p: fmtPct1(Number(st.qaErrors) / Number(st.qaSample)) }) : t('qaErrorsHelp')}</div>
+            </div>
           </div>
+          <div class="field" style="margin:0">
+            <label for="exqn-${esc(q.id)}">${t('qaNote')}</label>
+            <input type="text" id="exqn-${esc(q.id)}" data-ex-qa="${esc(q.id)}" data-field="qaNote"
+              value="${esc(st.qaNote)}" placeholder="${t('qaNotePh')}">
+          </div>
+          ${st.qaConflict ? `<div class="banner danger" style="margin:10px 0 0">${Icons.alert()}
+            <div><b>${t('qaConflictTitle')}</b><span>${t('qaConflictBody')}</span></div></div>` : ''}
         </details>` : ''}
+
+        ${st.actionNeeded && st.actionNeeded !== 'Hayır'
+          ? `<div><button class="btn btn-sm" data-ex-mkaction="${esc(q.id)}">${Icons.plus()} ${t('createAction')}</button></div>` : ''}
       </div>
     </article>`;
   }
@@ -128,23 +166,44 @@ const Extra = (() => {
 
     host.addEventListener('input', e => {
       const ev = e.target.closest('[data-ex-evidence]');
-      if (!ev) return;
-      Store.update(s => {
-        const id = ev.dataset.exEvidence;
-        s.answers[id] = s.answers[id] || { a: '' };
-        s.answers[id].evidence = ev.value;
-      }, { silent: true });
+      if (ev) {
+        Store.update(s => {
+          const id = ev.dataset.exEvidence;
+          s.answers[id] = s.answers[id] || { a: '' };
+          s.answers[id].evidence = ev.value;
+        }, { silent: true });
+        return;
+      }
+      const nt = e.target.closest('[data-ex-note]');
+      if (nt) {
+        Store.update(s => {
+          const id = nt.dataset.exNote;
+          s.answers[id] = s.answers[id] || { a: '' };
+          s.answers[id].note = nt.value;
+        }, { silent: true });
+      }
     });
 
     host.addEventListener('change', e => {
       const qa = e.target.closest('[data-ex-qa]');
       if (!qa) return;
+      const alan = qa.dataset.field || 'qaResult';
       Store.update(s => {
         const id = qa.dataset.exQa;
         s.answers[id] = s.answers[id] || { a: '' };
-        if (qa.value === '') delete s.answers[id].qaResult;
-        else s.answers[id].qaResult = qa.value;
+        if (qa.value === '') delete s.answers[id][alan];
+        else s.answers[id][alan] = qa.value;
       });
+    });
+
+    // Hata oranı yazma bitince tazelensin; sonuç değişimi kartı yeniden çizer.
+    host.addEventListener('blur', e => {
+      if (e.target.closest('[data-ex-qa]')) App.rerender();
+    }, true);
+
+    host.addEventListener('click', e => {
+      const mk = e.target.closest('[data-ex-mkaction]');
+      if (mk) Actions.openForm(null, { questionId: mk.dataset.exMkaction });
     });
   }
 

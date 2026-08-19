@@ -1123,10 +1123,13 @@
     <ul>
       <li>Out-of-scope sets are dimmed with the reason written out (“your obliged
         entity type is not …” or “this activity does not exist”).</li>
-      <li>A question row holds the answer, the evidence reference and, where
-        required, the QA test result. The finding note and the QA file/error
-        count fields of the main questionnaire are not present in this set;
-        record that detail in the action plan finding instead.</li>
+      <li>Question rows have the same structure as the main questionnaire: answer,
+        evidence reference, finding note and, where required, the QA file test
+        block (result, files tested, files in error, note). The error rate is
+        calculated automatically, and a red warning appears when a “Yes”
+        declaration meets a “Contradicted” result.</li>
+      <li>Rows that came out as gaps carry a <b>Create action</b> button; the
+        finding form is pre-filled with the question id, domain and criticality.</li>
       <li>This set's score does not enter the denominator of the main score; it is
         reported separately.</li>
     </ul>
@@ -1186,11 +1189,11 @@
       <li>Filter by status, criticality, domain and view (open only / overdue
         only).</li>
       <li><span class="ekran">Generate from control gaps</span> — creates draft
-        findings in bulk from questions that came out as gaps in the <b>main
-        questionnaire</b>; the source question id, domain, criticality and a QA
-        verification suggestion are pre-filled, and questions that already have a
-        finding are skipped. Gaps in the extra control sets are not included in
-        this bulk generation; open those findings manually.</li>
+        findings in bulk from questions that came out as gaps in the main
+        questionnaire <b>and in the extra control sets that are in scope</b>; the
+        source question id, domain, criticality and a QA verification suggestion
+        are pre-filled. Questions that already have a finding, and sets that are
+        out of scope, are skipped.</li>
     </ul>
     <h4>The finding form</h4>
     <div class="tablo-sar">
@@ -1198,7 +1201,7 @@
         <thead><tr><th>Field</th><th>Note</th></tr></thead>
         <tbody>
           <tr><td>Id</td><td>Assigned automatically; must be unique</td></tr>
-          <tr><td>Domain · Question id</td><td>If a question id is entered, the question text echoes below</td></tr>
+          <tr><td>Domain · Question id</td><td>If a question id is entered, the question text echoes below. Ids from both the main questionnaire and the extra control sets (e.g. <code>D6-04</code>, <code>EK-TF-01</code>) are recognised.</td></tr>
           <tr><td>Finding <b>(required)</b></td><td>What is missing, and which evidence shows it</td></tr>
           <tr><td>Source</td><td>Questionnaire question, QA test, audit report…</td></tr>
           <tr><td>Root cause <b>(required)</b></td><td>Chosen from a list</td></tr>

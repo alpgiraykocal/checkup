@@ -192,6 +192,8 @@ const I18n = (() => {
     exCoverage: ['Ek set kapsaması', 'Extra set coverage'],
     exEff:      ['Ek set etkinliği', 'Extra set effectiveness'],
     exNotInMain:['Ana skora dahil değil', 'Not included in the main score'],
+    exQaPopHelp:['Bu set için ayrı bir örneklem popülasyonu tanımlı değil; test edilen dosya sayısını yazın',
+                 'This set has no separate sampling population defined; enter the number of files tested'],
     exSetCol:   ['Kontrol seti', 'Control set'],
     exEmptyTtl: ['Ek kontroller henüz yanıtlanmadı', 'Extra controls not answered yet'],
     exEmptyBody:['Ana anketi bitirdikten sonra bu seti doldurmak, denetimde en sık sorulan ama soru bankasında bulunmayan alanları kapatır.',

@@ -15,7 +15,7 @@
 const H = require('./harness.js');
 const { check } = H;
 const A = H.load();
-const { Store, Views, Portfolio, Operations, Settings, Extra, ChangeLog, Actions, Exporter, Calc, DATA, DATA_EN, I18n, RISKMODEL, UI } = A;
+const { Store, Views, Portfolio, Operations, Settings, Extra, ChangeLog, Actions, Exporter, Calc, DATA, DATA_EN, EXTRA, I18n, RISKMODEL, UI } = A;
 
 const YUK = '"><img src=x onerror=alert(1)>';
 
@@ -155,6 +155,79 @@ function dusmancaDurum() {
   check(`biçimleyici ${i} — metin girdide NaN yazmaz`, f('abc') === '—', f('abc'));
   check(`biçimleyici ${i} — boşta tire`, f(null) === '—' && f('') === '—');
   check(`biçimleyici ${i} — sayı girdide biçimlendirir`, f(1) !== '—');
+});
+
+/* ---------- 5. Ek kontrol satırı ana anketle aynı alanlara sahip ---------- */
+
+['tr', 'en'].forEach(dil => {
+  I18n.apply(dil);
+  Store.reset();
+  const s = Store.state;
+  s.kunye.yukumlu_tipi = 'Banka';
+  const kapsamda = Calc.extra(s).sets.find(x => !x.outOfScope);
+  const qa = kapsamda.questions.find(x => x.q.qa).q;
+  const bos = kapsamda.questions.find(x => !x.q.qa || x.q.id !== qa.id).q;
+  s.answers[qa.id] = { a: 'Evet', evidence: 'P-1', note: 'n', qaResult: 'Çelişkili', qaSample: '20', qaErrors: '5', qaNote: 'q' };
+  s.answers[bos.id] = { a: 'Hayır' };
+
+  const h = host();
+  Extra.view(h, { state: s, calc: Calc.compute(s) });
+  const html = h.innerHTML;
+
+  check(`${dil} — ek sette bulgu notu alanı var`, html.includes(`data-ex-note="${qa.id}"`));
+  check(`${dil} — ek sette QA örneklem alanı var`, html.includes('data-field="qaSample"'));
+  check(`${dil} — ek sette QA hata alanı var`, html.includes('data-field="qaErrors"'));
+  check(`${dil} — ek sette QA not alanı var`, html.includes('data-field="qaNote"'));
+  check(`${dil} — ek sette QA çelişki uyarısı çıkıyor`, html.includes('banner danger'));
+  check(`${dil} — eksik satırda aksiyon düğmesi var`, html.includes('data-ex-mkaction'));
+});
+
+/* ---------- 6. Toplu bulgu üretimi ek setleri de kapsar ---------- */
+
+(() => {
+  I18n.apply('tr');
+  Store.reset();
+  const s = Store.state;
+  s.kunye.yukumlu_tipi = 'Banka';
+  const anaQ = DATA.questions[0];
+  s.answers[anaQ.id] = { a: 'Kısmen' };
+
+  const ex = Calc.extra(s);
+  const kapsamda = ex.sets.find(x => !x.outOfScope);
+  const kapsamDisi = ex.sets.find(x => x.outOfScope);
+  const ekQ = kapsamda.questions[0].q;
+  s.answers[ekQ.id] = { a: 'Hayır' };
+  if (kapsamDisi) s.answers[kapsamDisi.questions[0].q.id] = { a: 'Hayır' };
+
+  const gaps = Actions.gapQuestions(Calc.compute(s));
+  const idler = gaps.map(g => g.id);
+  check('toplu üretim — ana anket sorusu listede', idler.includes(anaQ.id), idler);
+  check('toplu üretim — kapsam içi ek set sorusu listede', idler.includes(ekQ.id), idler);
+  if (kapsamDisi) {
+    check('toplu üretim — kapsam dışı set atlanır',
+      !idler.includes(kapsamDisi.questions[0].q.id), idler);
+  }
+  check('toplu üretim — kayıtlar tam şekilli',
+    gaps.every(g => g.id && g.domain && g.critKey && typeof g.text === 'string'));
+
+  // Bulgusu açılmış soru ikinci kez üretilmez
+  Store.state.actions = [{ id: 'BLG-001', questionId: ekQ.id, finding: 'x', status: 'Açık' }];
+  const ikinci = Actions.gapQuestions(Calc.compute(Store.state)).map(g => g.id);
+  check('toplu üretim — bulgusu olan soru atlanır', !ikinci.includes(ekQ.id), ikinci);
+})();
+
+/* ---------- 7. Soru çözümleyici iki bankayı da tanır ---------- */
+
+['tr', 'en'].forEach(dil => {
+  I18n.apply(dil);
+  const ana = Calc.findQuestion(DATA.questions[0].id);
+  const ek = Calc.findQuestion(EXTRA.sets[0].questions[0].id);
+  check(`${dil} — ana soru çözümleniyor`, Boolean(ana && ana.extra === false && ana.text));
+  check(`${dil} — ek set sorusu çözümleniyor`, Boolean(ek && ek.extra === true && ek.text && ek.critKey));
+  check(`${dil} — küçük harfli kimlik de çözümleniyor`,
+    Boolean(Calc.findQuestion(EXTRA.sets[0].questions[0].id.toLowerCase())));
+  check(`${dil} — bilinmeyen kimlik null döner`, Calc.findQuestion('YOK-99') === null);
+  check(`${dil} — boş kimlik null döner`, Calc.findQuestion('') === null && Calc.findQuestion(null) === null);
 });
 
 process.exitCode = H.report('Görünüm — kaçırma, anahtar ve etiket') ? 1 : 0;

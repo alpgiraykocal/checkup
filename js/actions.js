@@ -150,7 +150,8 @@ const Actions = (() => {
   function openForm(id, prefill = {}) {
     const state = Store.state;
     const existing = id ? (state.actions || []).find(a => a.id === id) : null;
-    const q = prefill.questionId ? DATA.questions.find(x => x.id === prefill.questionId) : null;
+    // Soru hem ana bankada hem ek kontrol setlerinde aranır.
+    const q = prefill.questionId ? Calc.findQuestion(prefill.questionId) : null;
 
     const a = existing || Object.assign({
       id: nextId(state),
@@ -233,7 +234,7 @@ const Actions = (() => {
         const qInp = UI.el('#af-questionId', scrim);
         const qEcho = UI.el('#af-qecho', scrim);
         const syncEcho = () => {
-          const q = DATA.questions.find(x => x.id === qInp.value.trim().toUpperCase());
+          const q = Calc.findQuestion(qInp.value);
           qEcho.textContent = q ? `${q.domain} · ${q.section} — ${q.text}` : (qInp.value.trim() ? t('fQNotFound') : '');
           qEcho.classList.toggle('is-error', Boolean(qInp.value.trim() && !q));
         };
@@ -268,7 +269,7 @@ const Actions = (() => {
           if (!rec.rootCause) problems.push(['af-rootCause', t('vRootCause')]);
           if (!rec.owner) problems.push(['af-owner', t('vOwner')]);
           if (!rec.due) problems.push(['af-due', t('vDue')]);
-          if (rec.questionId && !DATA.questions.some(q => q.id === rec.questionId.toUpperCase())) {
+          if (rec.questionId && !Calc.findQuestion(rec.questionId)) {
             problems.push(['af-questionId', t('vQuestionId')]);
           }
           if (problems.length) {
@@ -312,12 +313,31 @@ const Actions = (() => {
   }
 
   /** Aksiyon gerektiren, henüz bulgu kaydı olmayan sorulardan taslak üretir. */
-  async function generateFromGaps(calc) {
+  /* Toplu üretime giren sorular: ana soru bankası ve kapsam içindeki ek
+     kontrol setleri. Bulgusu zaten açılmış soru atlanır. Ayrı bir işlev
+     olması testin DOM'a girmeden aynı listeyi doğrulamasını sağlar. */
+  function gapQuestions(calc) {
     const existing = new Set((Store.state.actions || []).map(a => a.questionId).filter(Boolean));
-    const gaps = DATA.questions.filter(q => {
-      const s = calc.perQuestion[q.id];
-      return s.actionNeeded && s.actionNeeded !== 'Hayır' && !existing.has(q.id);
-    });
+    const acik = st => Boolean(st.actionNeeded && st.actionNeeded !== 'Hayır');
+
+    const ana = DATA.questions
+      .filter(q => acik(calc.perQuestion[q.id]) && !existing.has(q.id))
+      .map(q => Calc.findQuestion(q.id));
+
+    const ek = [];
+    if (calc.extra) {
+      calc.extra.sets.forEach(set => {
+        if (set.outOfScope) return;                 // kapsam dışı setten bulgu üretilmez
+        set.questions.forEach(({ q, st }) => {
+          if (acik(st) && !existing.has(q.id)) ek.push(Calc.findQuestion(q.id));
+        });
+      });
+    }
+    return ana.concat(ek).filter(Boolean);
+  }
+
+  async function generateFromGaps(calc) {
+    const gaps = gapQuestions(calc);
     if (!gaps.length) { UI.toast(t('genNoneToast'), 'ok'); return; }
 
     const ok = await UI.confirmDialog({
@@ -345,6 +365,7 @@ const Actions = (() => {
           owner: '',
           due: Calc.slaDueDate(q.critKey),
           status: 'Açık',
+          // Ek set sorularının kendi örneklem popülasyonu yoktur; genel ifade kullanılır.
           verification: q.qa ? t('genVerifQa', { pop: q.pop || t('genPopFallback') }) : t('genVerifDoc'),
           closedAt: '',
           residualAfter: ''
@@ -354,5 +375,5 @@ const Actions = (() => {
     UI.toast(t('genDone', { n: gaps.length }), 'ok');
   }
 
-  return { view, openForm, generateFromGaps };
+  return { view, openForm, generateFromGaps, gapQuestions };
 })();

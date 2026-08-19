@@ -106,11 +106,11 @@ görünür, bir bölüm kendi eşiğini aştığında uyarı çıkar. Güncellem
 | 3 | **Doğuştan Risk** | 5 ML/TF boyutu ve 25 alt faktör, ayrıca 5 faktörlü PF bloğu ve 12 iş kollu değerlendirme matrisi. Her faktör için 1–5 skor rubriği, gerekçe/kanıt alanı, "Uygulanamaz" seçeneği, düzenlenebilir ağırlık ve künyeden skor önerisi. Baskın risk sürücüleri listelenir. |
 | 4 | **İşlem Detayı** | 8 grupta 101 operasyon ölçütü: işlem evreni, yaptırım taraması ve blokaj, trade finance, muhabir bankacılık, izleme, ŞİB/dondurma/kolluk, müşteri kabul, kalite güvence. 16 türetilen oran hesaplanır; 12 KPI otomatik dolar. |
 | 5 | **Anket** | 218 soru, 11 domain. Yanıt + kanıt referansı + bulgu notu. Bölüm başlığı kaydırırken ekranda kalır, sabit "sonraki yanıtlanmamış" düğmesi kalan soru sayısını gösterir, filtreler adres satırında taşınır (`#/anket?d=D6&st=gap` gibi bir bağlantı paylaşılabilir ve yenilemeye dayanır). |
-| 6 | **Ek Kontroller** | Kaynak çalışma kitabının dışındaki 8 tamamlayıcı set, 44 soru. Ana skorun paydasına girmez. |
+| 6 | **Ek Kontroller** | Kaynak çalışma kitabının dışındaki 8 tamamlayıcı set, 44 soru. Satır yapısı ana anketle aynıdır: yanıt, kanıt referansı, bulgu notu, QA dosya testi (sonuç, örneklem, hata, not) ve eksiklerde aksiyon oluşturma. Ana skorun paydasına girmez. |
 | 7 | **QA Planı** | 24 popülasyon için yıllık hacim girilir; örneklem ve test başına örneklem otomatik hesaplanır. |
 | 8 | **Kontrol Skorları** | Türetilmiş; girdi yoktur. Domain bazlı kontrol etkinliği ve olgunluk. |
 | 9 | **Artık Risk** | Doğuştan risk × (1 − kontrol etkinliği), iştah limiti karşılaştırması. |
-| 10 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Eksik kontrollerden toplu taslak üretilebilir. |
+| 10 | **Aksiyon Planı** | Bulgu → kök neden → aksiyon → sahip → termin → doğrulama. Ana anket ve kapsam içindeki ek kontrol setlerinde eksik çıkan sorulardan toplu taslak üretilebilir; bulgusu olan soru ve kapsam dışı set atlanır. |
 | 11 | **Ekip ve Birleştirme** | Domain bazında sorumlu ataması; paralel çalışılan iki çalışma dosyasının alan bazında birleştirilmesi. Çakışan her parça tek tek gösterilir, sessiz üzerine yazma yoktur. |
 | 12 | **Değişiklik Günlüğü** | Yanıt, doğuştan risk skoru ve bulgu değişikliklerinin kim–ne zaman kaydı. Yalnızca eklenir, düzenlenmez. |
 | 13 | **Dönem Karşılaştırma** | Önceki dönemin çalışma dosyası yüklenir; etkinlik, artık risk, iştah aşımları ve bulgu kapanışı iki dönem yan yana okunur. |

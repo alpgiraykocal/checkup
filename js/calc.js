@@ -757,6 +757,39 @@ const Calc = (() => {
     };
   }
 
+  /* ---------- Soru çözümleyici ----------
+     Bulgu formu, toplu üretim ve aksiyon bağlantıları hem ana soru bankasını
+     hem ek kontrol setlerini tanımalı; tek kaynak burada. Dönen kayıt iki
+     bankanın alan adlarını ortak bir şekle indirir. */
+
+  function findQuestion(id) {
+    const key = String(id || '').trim().toUpperCase();
+    if (!key) return null;
+
+    const q = DATA.questions.find(x => x.id === key);
+    if (q) {
+      return {
+        id: q.id, domain: q.domain, section: q.section, text: q.text,
+        critKey: q.critKey, qa: q.qa, pop: q.pop || '', weight: q.weight,
+        source: q.source, evidence: q.evidence, extra: false
+      };
+    }
+
+    if (typeof EXTRA === 'undefined') return null;
+    for (const set of EXTRA.sets) {
+      const e = set.questions.find(x => x.id === key);
+      if (!e) continue;
+      const en = I18n.isEn;
+      return {
+        id: e.id, domain: e.domain, section: en ? set.en : set.tr,
+        text: en ? e.en : e.tr, critKey: e.crit, qa: e.qa, pop: '',
+        weight: e.weight, source: e.source, evidence: en ? e.enEvidence : e.trEvidence,
+        extra: true, setKey: set.key
+      };
+    }
+    return null;
+  }
+
   /** Kritikliğe göre son tarih (09_Referans SLA tablosu). */
   function slaDueDate(crit, from) {
     const days = DATA.ref.sla[crit];
@@ -772,7 +805,7 @@ const Calc = (() => {
     return toISODate(d);
   }
 
-  return { compute, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince,
+  return { compute, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
            maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite, parseDate, toISODate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

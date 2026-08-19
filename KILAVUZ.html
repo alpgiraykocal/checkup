@@ -1066,9 +1066,12 @@
     <ul>
       <li>Kapsam dışı setler soluk gösterilir ve gerekçesi yazar (“yükümlü tipiniz
         … değil” ya da “bu faaliyet yok”).</li>
-      <li>Soru satırı yanıt, kanıt referansı ve gerekiyorsa QA test sonucundan
-        oluşur. Ana anketteki bulgu notu ile QA dosya/hata sayısı alanları bu
-        sette yoktur; ayrıntıyı aksiyon planındaki bulguya yazın.</li>
+      <li>Soru satırları ana anketle aynı yapıdadır: yanıt, kanıt referansı, bulgu
+        notu ve gerekiyorsa QA dosya testi bloğu (sonuç, test edilen dosya, hatalı
+        dosya, not). Hata oranı otomatik hesaplanır; beyan “Evet” iken sonuç
+        “Çelişkili” ise kırmızı uyarı çıkar.</li>
+      <li>Eksik çıkan satırda <b>Aksiyon oluştur</b> düğmesi vardır; bulgu formu
+        soru kimliği, domain ve kritiklikle ön doldurulur.</li>
       <li>Bu setin skoru ana skorun paydasına girmez; ayrı raporlanır.</li>
     </ul>
 
@@ -1124,11 +1127,11 @@
     <ul>
       <li>Duruma, kritikliğe, domaine ve görünüme (yalnızca açık / yalnızca
         gecikmiş) göre süzme.</li>
-      <li><span class="ekran">Eksiklerden üret</span> — <b>ana ankette</b> eksik
-        çıkan sorulardan toplu bulgu taslağı oluşturur; kaynak soru kimliği,
-        domain, kritiklik ve QA doğrulama önerisi ön doldurulur. Daha önce bulgu
-        açılmış sorular atlanır. Ek kontrol setlerinin eksikleri bu üretime
-        girmez; onlar için bulguyu elle açın.</li>
+      <li><span class="ekran">Eksiklerden üret</span> — ana ankette <b>ve kapsam
+        içindeki ek kontrol setlerinde</b> eksik çıkan sorulardan toplu bulgu
+        taslağı oluşturur; kaynak soru kimliği, domain, kritiklik ve QA doğrulama
+        önerisi ön doldurulur. Daha önce bulgu açılmış sorular ve kapsam dışı
+        setler atlanır.</li>
     </ul>
     <h4>Bulgu formu</h4>
     <div class="tablo-sar">
@@ -1136,7 +1139,7 @@
         <thead><tr><th>Alan</th><th>Not</th></tr></thead>
         <tbody>
           <tr><td>Kimlik</td><td>Otomatik verilir; benzersiz olmalı</td></tr>
-          <tr><td>Domain · Soru kimliği</td><td>Soru kimliği girilirse soru metni altında yankılanır</td></tr>
+          <tr><td>Domain · Soru kimliği</td><td>Soru kimliği girilirse soru metni altında yankılanır. Ana anket ve ek kontrol setlerinin kimlikleri (ör. <code>D6-04</code>, <code>EK-TF-01</code>) tanınır.</td></tr>
           <tr><td>Bulgu <b>(zorunlu)</b></td><td>Ne eksik, hangi kanıt gösteriyor</td></tr>
           <tr><td>Kaynak</td><td>Anket sorusu, QA testi, denetim raporu…</td></tr>
           <tr><td>Kök neden <b>(zorunlu)</b></td><td>Listeden seçilir</td></tr>
