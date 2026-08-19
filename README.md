@@ -68,6 +68,8 @@ dayanıklılık ve dokuz saat dilimli tarih matrisi. Ayrıntı: [test/README.md]
 - Uygulama bunu kendi de takip eder: son JSON yedeğinden bu yana 25 yeni kayıt girildiğinde ya da 7 gün geçtiğinde panoda hatırlatma çıkar, kenar çubuğunda son yedek tarihi görünür ve yedeklenmemiş iş varken sekme kapatılırken tarayıcı onay sorar.
 - Tarayıcı profili paylaşılan bir makinede kullanılıyorsa, veriler o profili açan herkesçe görülebilir.
 - Depolama dolarsa kayıt sessizce başarısız olmaz: uyarı bildirimi ve kenar çubuğunda kalıcı şerit çıkar.
+- Aynı çalışma iki sekmede açıksa uygulama bunu fark eder: diğer sekme kayıt yaptığında kalıcı bir uyarı ve "sayfayı yenile" düğmesi çıkar, böylece sonradan yazan sekme diğerinin işini sessizce ezmez.
+- Dil ve tema kullanılan cihazın tercihidir: ekipten gelen bir dosyayı yüklemek arayüz dilinizi ya da temanızı değiştirmez.
 - Kayıt 250 ms geciktirilerek yazılır; sekme gizlenirken, kapanırken ve sayfa terk edilirken bekleyen yazma tamamlanır.
 
 ## Ekip çalışması

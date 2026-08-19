@@ -16,6 +16,7 @@ const PAKETLER = [
   ['merge.js', 'Birleştirme ve atama'],
   ['fuzz.js', 'Dayanıklılık — bozuk ve düşmanca veri'],
   ['render.js', 'Görünüm — kaçırma, anahtar ve etiket'],
+  ['css.js', 'Biçem — dar ekran ızgara denetimi'],
   ['tz.js', 'Saat dilimi matrisi']
 ];
 

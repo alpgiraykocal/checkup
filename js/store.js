@@ -155,6 +155,22 @@ const Store = (() => {
     return s;
   }
 
+  /* Dil ve tema kullanılan cihazın tercihidir, çalışmanın verisi değil.
+     Ekipten gelen bir dosyayı yükleyen kullanıcı kendi arayüz dilini ve
+     temasını kaybetmemeli: dosyadaki değer yüklenirse ekran o an değişmediği
+     için tercih yalnızca bir sonraki açılışta sessizce kayar. */
+  function cihazTercihi(s) {
+    const ui = (s && s.ui) || {};
+    return { lang: ui.lang, theme: ui.theme };
+  }
+
+  function tercihiKoru(s, yerel) {
+    s.ui = s.ui || {};
+    if (yerel.lang) s.ui.lang = yerel.lang;
+    if (yerel.theme) s.ui.theme = yerel.theme;
+    return s;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -205,11 +221,31 @@ const Store = (() => {
   let saveFailed = false;
   const errorListeners = new Set();
 
+  /* Aynı çalışma iki sekmede açıldığında ikisi de aynı anahtara yazar ve
+     sonradan yazan diğerinin işini sessizce ezer. Tarayıcı, başka bir sekmenin
+     yazdığını 'storage' olayıyla haber verir (yazan sekmeye gelmez). Kendi
+     yazdığımız içerik geri gelirse bu bizim yankımızdır, sayılmaz. */
+  let sonYazilanHam = null;
+  let disDegisiklik = false;
+  const externalListeners = new Set();
+
+  function disYazmayiIzle() {
+    if (typeof window === 'undefined' || !window.addEventListener) return;
+    window.addEventListener('storage', e => {
+      if (e.key !== STORAGE_KEY || e.newValue === null) return;
+      if (e.newValue === sonYazilanHam) return;      // kendi yazımızın yankısı
+      disDegisiklik = true;
+      externalListeners.forEach(fn => { try { fn(); } catch { /* dinleyici hatası yutulur */ } });
+    });
+  }
+
   /** Asıl yazma. Kota dolduğunda sessiz kalmaz: uygulama katmanı uyarılır. */
   function write() {
     state.updatedAt = new Date().toISOString();
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const ham = JSON.stringify(state);
+      localStorage.setItem(STORAGE_KEY, ham);
+      sonYazilanHam = ham;
       snap('auto');
       saveFailed = false;
     } catch (e) {
@@ -238,12 +274,21 @@ const Store = (() => {
 
   return {
     get state() { return state; },
-    init() { load(); return state; },
+    init() {
+      load();
+      sonYazilanHam = localStorage.getItem(STORAGE_KEY);
+      disYazmayiIzle();
+      return state;
+    },
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
     /** Kayıt başarısız olduğunda (ör. depolama dolu) haber verilir. */
     onSaveError(fn) { errorListeners.add(fn); return () => errorListeners.delete(fn); },
     get saveFailed() { return saveFailed; },
+
+    /** Aynı çalışmayı açan başka bir sekme kayıt yaptığında haber verilir. */
+    onExternalChange(fn) { externalListeners.add(fn); return () => externalListeners.delete(fn); },
+    get externalChange() { return disDegisiklik; },
     flush,
 
     /** Değişikliği uygula, kaydet, dinleyicileri uyar.
@@ -263,9 +308,11 @@ const Store = (() => {
 
     replace(next) {
       snap('before-load', true);
+      const yerel = cihazTercihi(state);
       state = normalize(Object.assign(blank(), next));
       migrateKpiKeys(state);
       migrateQaKeys(state);
+      tercihiKoru(state, yerel);
       persist();
       emit();
     },
@@ -317,9 +364,11 @@ const Store = (() => {
       const rec = readSnapshots().find(x => x.at === at);
       if (!rec) return false;
       snap('before-restore', true);
+      const yerel = cihazTercihi(state);
       state = normalize(Object.assign(blank(), rec.data));
       migrateKpiKeys(state);
       migrateQaKeys(state);
+      tercihiKoru(state, yerel);
       persist();
       emit();
       return true;

@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <title>AML/CFT Uyum Check-up</title>
 <meta name="description" content="AML/CFT uyum check-up: anket, risk bazlı QA örneklem planı ve aksiyon takibi. AML/CFT compliance check-up: questionnaire, risk-based QA sampling and action tracking.">
-<link rel="stylesheet" href="css/app.css?v=2.9.1">
+<link rel="stylesheet" href="css/app.css?v=2.9.5">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -38,6 +38,10 @@
       </button>
       <div class="foot-info">
         <div class="subtle center is-danger" id="save-error" role="alert" hidden></div>
+        <div class="subtle center is-danger" id="tab-conflict" role="alert" hidden>
+          <span id="tab-conflict-text"></span>
+          <button class="btn btn-sm btn-block" id="tab-conflict-reload" style="margin-top:6px"></button>
+        </div>
         <div class="subtle center" id="saved-at" aria-live="polite">—</div>
         <div class="subtle center" id="backup-at">—</div>
         <div class="subtle center" id="local-only">Veriler yalnızca bu tarayıcıda saklanır.</div>
@@ -73,29 +77,29 @@
 
 <input type="file" id="file-input" accept="application/json,.json" class="sr-only" aria-hidden="true" tabindex="-1">
 
-<script src="js/data.js?v=2.9.1"></script>
-<script src="js/data.en.js?v=2.9.1"></script>
-<script src="js/questions.en.js?v=2.9.1"></script>
-<script src="js/countries.js?v=2.9.1"></script>
-<script src="js/portfolio.data.js?v=2.9.1"></script>
-<script src="js/operations.data.js?v=2.9.1"></script>
-<script src="js/riskmodel.data.js?v=2.9.1"></script>
-<script src="js/extra.data.js?v=2.9.1"></script>
-<script src="js/refpack.data.js?v=2.9.1"></script>
-<script src="js/i18n.js?v=2.9.1"></script>
-<script src="js/store.js?v=2.9.1"></script>
-<script src="js/calc.js?v=2.9.1"></script>
-<script src="js/ui.js?v=2.9.1"></script>
-<script src="js/views.js?v=2.9.1"></script>
-<script src="js/portfolio.js?v=2.9.1"></script>
-<script src="js/operations.js?v=2.9.1"></script>
-<script src="js/settings.js?v=2.9.1"></script>
-<script src="js/extra.js?v=2.9.1"></script>
-<script src="js/compare.js?v=2.9.1"></script>
-<script src="js/log.js?v=2.9.1"></script>
-<script src="js/merge.js?v=2.9.1"></script>
-<script src="js/actions.js?v=2.9.1"></script>
-<script src="js/export.js?v=2.9.1"></script>
-<script src="js/app.js?v=2.9.1"></script>
+<script src="js/data.js?v=2.9.5"></script>
+<script src="js/data.en.js?v=2.9.5"></script>
+<script src="js/questions.en.js?v=2.9.5"></script>
+<script src="js/countries.js?v=2.9.5"></script>
+<script src="js/portfolio.data.js?v=2.9.5"></script>
+<script src="js/operations.data.js?v=2.9.5"></script>
+<script src="js/riskmodel.data.js?v=2.9.5"></script>
+<script src="js/extra.data.js?v=2.9.5"></script>
+<script src="js/refpack.data.js?v=2.9.5"></script>
+<script src="js/i18n.js?v=2.9.5"></script>
+<script src="js/store.js?v=2.9.5"></script>
+<script src="js/calc.js?v=2.9.5"></script>
+<script src="js/ui.js?v=2.9.5"></script>
+<script src="js/views.js?v=2.9.5"></script>
+<script src="js/portfolio.js?v=2.9.5"></script>
+<script src="js/operations.js?v=2.9.5"></script>
+<script src="js/settings.js?v=2.9.5"></script>
+<script src="js/extra.js?v=2.9.5"></script>
+<script src="js/compare.js?v=2.9.5"></script>
+<script src="js/log.js?v=2.9.5"></script>
+<script src="js/merge.js?v=2.9.5"></script>
+<script src="js/actions.js?v=2.9.5"></script>
+<script src="js/export.js?v=2.9.5"></script>
+<script src="js/app.js?v=2.9.5"></script>
 </body>
 </html>

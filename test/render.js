@@ -230,4 +230,37 @@ function dusmancaDurum() {
   check(`${dil} — boş kimlik null döner`, Calc.findQuestion('') === null && Calc.findQuestion(null) === null);
 });
 
+/* ---------- 8. Dil ve tema cihazın tercihidir ---------- */
+
+(() => {
+  I18n.apply('tr');
+  Store.reset();
+  Store.update(s => { s.ui.lang = 'en'; s.ui.theme = 'dark'; }, { silent: true });
+
+  const gelen = { schema: 1, answers: { 'D1-01': { a: 'Evet' } }, ui: { lang: 'tr', theme: 'light' } };
+  Store.replace(JSON.parse(JSON.stringify(gelen)));
+  check('içe aktarma dili değiştirmiyor', Store.state.ui.lang === 'en', Store.state.ui);
+  check('içe aktarma temayı değiştirmiyor', Store.state.ui.theme === 'dark', Store.state.ui);
+  check('içe aktarma veriyi getiriyor', Boolean(Store.state.answers['D1-01']));
+
+  const yedek = Store.snapshots()[0];
+  if (yedek) {
+    Store.restoreSnapshot(yedek.at);
+    check('yedek geri yükleme dili değiştirmiyor', Store.state.ui.lang === 'en', Store.state.ui);
+  }
+
+  // Cihazda tercih yoksa dosyanınki kabul edilir
+  Store.update(s => { s.ui = {}; }, { silent: true });
+  Store.replace(JSON.parse(JSON.stringify(gelen)));
+  check('tercih yokken dosyanınki alınır',
+    Store.state.ui.lang === 'tr' && Store.state.ui.theme === 'light', Store.state.ui);
+})();
+
+/* ---------- 9. Sekmeler arası yazma uyarısı ---------- */
+
+(() => {
+  check('dış değişiklik dinleyicisi var', typeof Store.onExternalChange === 'function');
+  check('başlangıçta dış değişiklik yok', Store.externalChange === false);
+})();
+
 process.exitCode = H.report('Görünüm — kaçırma, anahtar ve etiket') ? 1 : 0;

@@ -274,9 +274,9 @@ a:hover { color: var(--primary-hover); }
 .card + .card { margin-top: var(--s4); }
 
 .grid { display: grid; gap: var(--s3); }
-.grid-kpi { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-.grid-dims { grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); }
+.grid-kpi { grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+.grid-dims { grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr)); }
 
 /* ---------- Ölçüm kutuları ----------
    İki ağırlık: öne çıkan (hero) ve destekleyici. Önceki tasarımda hepsi aynı
@@ -373,7 +373,7 @@ input::placeholder, textarea::placeholder { color: var(--fg-subtle); }
 select { cursor: pointer; text-overflow: ellipsis; }
 .field { margin-bottom: 14px; }
 .field .help { font-size: 12px; color: var(--fg-subtle); margin-top: 4px; line-height: 1.45; }
-.field-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.field-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
 
 /* Birim etiketli sayı girişi */
 .input-unit { position: relative; display: block; }
@@ -548,15 +548,23 @@ td.is-warn, .num.is-warn { color: var(--warn); font-weight: 600; }
 }
 .step-dot {
   width: 28px; height: 28px; border-radius: 999px; padding: 0;
+  position: relative;
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid var(--border); background: var(--surface); color: var(--fg-subtle);
   font: inherit; font-size: 12px; font-weight: 650; cursor: pointer;
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
               color var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
+/* Görsel daire 28 px kalır; dokunma alanı görünmez bir katmanla 44 px'e çıkar
+   (Apple HIG 44×44, Material 48×48 dp). Küçük daireye parmakla isabet zordu. */
+.step-dot::after { content: ""; position: absolute; inset: -8px; border-radius: inherit; }
 .step-dot:hover { border-color: var(--fg-subtle); color: var(--fg); }
 .step-dot:active { transform: scale(.93); }
 .step-dot .ico { width: 14px; height: 14px; }
+
+/* Tablo hücrelerindeki bağlantılar satır yüksekliğinde kalıyordu; dikey dolgu
+   ile hedef yüksekliği WCAG 2.5.8'in asgarisine (24 px) çıkar. */
+td a { display: inline-block; padding: 4px 0; }
 .step-dot.is-done { background: var(--ok-bg); border-color: transparent; color: var(--ok); }
 .step-dot.is-next { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }

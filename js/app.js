@@ -149,6 +149,11 @@ const App = (() => {
     UI.el('#skip-link').textContent = t('skipToContent');
     UI.el('#nav').setAttribute('aria-label', t('navMain'));
     UI.el('#local-only').textContent = t('localOnly');
+    const cakisma = UI.el('#tab-conflict');
+    if (cakisma && !cakisma.hidden) {
+      UI.el('#tab-conflict-text').textContent = t('tabConflict');
+      UI.el('#tab-conflict-reload').textContent = t('tabConflictReload');
+    }
 
     // Kılavuz iki dilde ayrı belge; bağlantı ve etiket dile göre değişir.
     const guide = UI.el('#guide-link');
@@ -238,13 +243,13 @@ const App = (() => {
         <div class="divider"></div>
         <h3>${t('workingFile')}</h3>
         <p class="subtle">${t('workingFileDesc')}</p>
-        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:16px">
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:8px;margin-bottom:16px">
           <button class="btn btn-primary" data-x="json">${Icons.download()} ${t('downloadJson')}</button>
           <button class="btn" data-x="import">${Icons.upload()} ${t('loadFromFile')}</button>
         </div>
         <h3>${t('tableExports')}</h3>
         <p class="subtle">${t('csvNote')}</p>
-        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:8px">
           <button class="btn" data-x="questions">${Icons.list()} ${t('csvQuestions')}</button>
           <button class="btn" data-x="domains">${Icons.layers()} ${t('csvDomains')}</button>
           <button class="btn" data-x="portfolio">${Icons.users()} ${t('csvPortfolio')}</button>
@@ -339,6 +344,19 @@ const App = (() => {
         else if (act.dataset.act === 'import') UI.el('#file-input').click();
         else if (act.dataset.act === 'reset') resetAll();
       }
+    });
+
+    /* İki sekmede aynı çalışma açıkken sonradan yazan diğerini eziyordu.
+       Uyarı kalıcıdır: kullanıcı ya bu sekmeyi yeniler ya da bilerek devam eder. */
+    Store.onExternalChange(() => {
+      const kutu = UI.el('#tab-conflict');
+      if (!kutu || !kutu.hidden) return;
+      kutu.hidden = false;
+      UI.el('#tab-conflict-text').textContent = t('tabConflict');
+      const btn = UI.el('#tab-conflict-reload');
+      btn.textContent = t('tabConflictReload');
+      btn.addEventListener('click', () => location.reload());
+      UI.toast(t('tabConflictToast'), 'err');
     });
 
     // Depolama dolduğunda kayıt sessizce başarısız oluyordu; kullanıcı uyarılır.
