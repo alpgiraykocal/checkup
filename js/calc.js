@@ -399,8 +399,11 @@ const Calc = (() => {
 
     const active = lines.filter(l => l.active);
     const scored = active.filter(l => l.inherent !== null && l.share !== null);
-    const weighted = scored.length && shareSum > 0
-      ? scored.reduce((a, l) => a + l.inherent * l.share, 0) / shareSum : null;
+    /* Payda yalnızca skorlanmış kolların payıdır. shareSum'a bölmek, henüz
+       skorlanmamış aktif kolu 0 puan sayar ve kurum riskini düşük gösterir. */
+    const scoredShare = scored.reduce((a, l) => a + l.share, 0);
+    const weighted = scoredShare > 0
+      ? scored.reduce((a, l) => a + l.inherent * l.share, 0) / scoredShare : null;
     const worst = active.filter(l => l.inherent !== null)
       .slice().sort((a, b) => b.inherent - a.inherent)[0] || null;
 
@@ -722,13 +725,18 @@ const Calc = (() => {
       let delay = '';
       if (a.due) {
         if (a.status === 'Kapalı') delay = 'Kapalı';
-        else delay = parseDate(a.due) < today ? 'GECİKMİŞ' : 'Zamanında';
+        else {
+          // Çözülemeyen tarih null döner; null < today true verdiği için ayrıca bakılır.
+          const due = parseDate(a.due);
+          delay = due === null ? '' : due < today ? 'GECİKMİŞ' : 'Zamanında';
+        }
       }
       return Object.assign({}, a, { delay });
     });
     const actionStats = {
       total: actions.length,
-      open: actions.filter(a => a.status && a.status !== 'Kapalı').length,
+      // Durumu boş kayıt açık sayılır — ekran da onu "Açık" gösteriyor.
+      open: actions.filter(a => a.status !== 'Kapalı').length,
       overdue: actions.filter(a => a.delay === 'GECİKMİŞ').length,
       closed: actions.filter(a => a.status === 'Kapalı').length,
       critical: actions.filter(a => a.crit === 'Kritik' && a.status !== 'Kapalı').length   // dil-güvenli: aksiyon kaydı sabit anahtar saklar

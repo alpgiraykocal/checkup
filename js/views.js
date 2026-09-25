@@ -968,7 +968,10 @@ const Views = (() => {
       }
       const ap = e.target.closest('[data-inh-apply]');
       if (ap) {
-        Store.update(s => { s.inherent[ap.dataset.inhApply] = Number(ap.dataset.n); });
+        const key = ap.dataset.inhApply, n = Number(ap.dataset.n);
+        // Öneriden gelen skor da elle verilen skor gibi günlüğe düşer.
+        Store.update(s => { s.inherent[key] = n; },
+          { log: { what: 'inherent', ref: key, before: Store.state.inherent[key] ?? '', after: n } });
         UI.toast(t('appliedToast'));
         return;
       }
@@ -995,20 +998,25 @@ const Views = (() => {
       const pfs = e.target.closest('[data-pf-score]');
       if (pfs) {
         const k = pfs.dataset.pfScore, n = Number(pfs.dataset.n);
+        const pfOnce = (Store.state.pf[k] || {}).na ? 'Uygulanamaz' : ((Store.state.pf[k] || {}).score ?? '');
+        const pfSonra = Number((Store.state.pf[k] || {}).score) === n ? '' : n;
         Store.update(s => {
           s.pf[k] = s.pf[k] || {};
           if (Number(s.pf[k].score) === n) delete s.pf[k].score; else s.pf[k].score = n;
           delete s.pf[k].na;
-        });
+        }, { log: { what: 'inherent', ref: 'PF|' + k, before: pfOnce, after: pfSonra } });
         return;
       }
       const pfna = e.target.closest('[data-pf-na]');
       if (pfna) {
         const k = pfna.dataset.pfNa;
+        const rec = Store.state.pf[k] || {};
+        const naOnce = rec.na ? 'Uygulanamaz' : (rec.score ?? '');
+        const naSonra = rec.na ? '' : 'Uygulanamaz';
         Store.update(s => {
           s.pf[k] = s.pf[k] || {};
           if (s.pf[k].na) delete s.pf[k].na; else { s.pf[k].na = true; delete s.pf[k].score; }
-        });
+        }, { log: { what: 'inherent', ref: 'PF|' + k, before: naOnce, after: naSonra } });
         return;
       }
       if (e.target.closest('[data-inh-anchors]')) { inhUI.showAnchors = !inhUI.showAnchors; App.rerender(); return; }

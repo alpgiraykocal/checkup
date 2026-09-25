@@ -116,6 +116,15 @@ const Merge = (() => {
       ornekler: [], tip: 'whole' };
   }
 
+  /* Paralel çalışan iki kişi numaralandırmaya aynı yerden başlar: iki
+     dosyada da BLG-001 olur ama farklı bulgulardır. Aynı kimlik ancak aynı
+     soruya ya da aynı bulgu metnine bağlıysa aynı kayıt sayılır; değilse
+     gelen kayıt yeni kimlikle eklenir, hiçbir bulgu ezilmez. */
+  function ayniBulgu(x, y) {
+    if (x.questionId && y.questionId) return x.questionId === y.questionId;
+    return (x.finding || '').trim() === (y.finding || '').trim();
+  }
+
   function karsilastirAksiyon(mine, theirs) {
     const a = mine.actions || [], b = theirs.actions || [];
     const aById = Object.fromEntries(a.map(x => [x.id, x]));
@@ -123,7 +132,7 @@ const Merge = (() => {
     const ornekler = [];
     b.forEach(y => {
       const x = aById[y.id];
-      if (x && JSON.stringify(x) !== JSON.stringify(y)) {
+      if (x && ayniBulgu(x, y) && JSON.stringify(x) !== JSON.stringify(y)) {
         conflicts += 1;
         if (ornekler.length < 5) ornekler.push({ id: y.id, mine: ozet(x.finding), theirs: ozet(y.finding) });
       }
@@ -143,42 +152,60 @@ const Merge = (() => {
 
   /* ---------- Uygulama ---------- */
 
-  function uygula() {
-    const t2 = gelen.state;
-    let alinan = 0;
+  /** Seçilen parçaları gelen durumdan s'ye aktarır; alınan parça adlarını döner.
+      DOM'a dokunmaz — testler gerçek birleştirme kuralını doğrudan sınar. */
+  function birlestir(s, t2, diff, sec) {
     const alinanParcalar = [];
+    diff.forEach(p => {
+      if ((sec[p.key] || 'mine') !== 'theirs') return;
+      alinanParcalar.push(p.label);
 
-    Store.update(s => {
-      gelen.diff.forEach(p => {
-        const sec = secim[p.key] || 'mine';
-        if (sec !== 'theirs') return;
-        alinan += 1;
-        alinanParcalar.push(p.label);
-
-        if (p.tip === 'keys') {
-          p.ids.forEach(id => {
-            const kaynak = kaynakSozluk(t2, p.key);
-            const hedef = kaynakSozluk(s, p.key);
-            if (dolu(kaynak[id])) hedef[id] = JSON.parse(JSON.stringify(kaynak[id]));
-          });
-        } else if (p.tip === 'multi') {
-          const adlar = ['inherent', 'inherentNA', 'inherentNotes', 'inherentWeights'];
-          p.keys.forEach(k => adlar.forEach(ad => {
+      if (p.tip === 'keys') {
+        p.ids.forEach(id => {
+          const kaynak = kaynakSozluk(t2, p.key);
+          const hedef = kaynakSozluk(s, p.key);
+          if (dolu(kaynak[id])) hedef[id] = JSON.parse(JSON.stringify(kaynak[id]));
+        });
+      } else if (p.tip === 'multi') {
+        /* Faktörün skoru, UA işareti, gerekçesi ve ağırlığı birlikte bir
+           karardır. Gelen tarafta dolu olan faktörde benim dört alanım
+           önce temizlenir; yoksa bendeki UA işareti gelen skoru gizler. */
+        const adlar = ['inherent', 'inherentNA', 'inherentNotes', 'inherentWeights'];
+        p.keys.forEach(k => {
+          if (!adlar.some(ad => dolu(t2[ad][k]))) return;
+          adlar.forEach(ad => {
             if (dolu(t2[ad][k])) s[ad][k] = t2[ad][k];
-          }));
-        } else if (p.tip === 'whole') {
-          s.portfolio = JSON.parse(JSON.stringify(t2.portfolio));
-        } else if (p.tip === 'actions') {
-          // Bulgular kimlik üzerinden birleşir: gelen kayıt varsa üzerine yazar,
-          // yoksa eklenir. Kimlik çakışması burada bilinçli bir seçimdir.
-          const byId = Object.fromEntries((s.actions || []).map(x => [x.id, x]));
-          (t2.actions || []).forEach(y => {
-            if (byId[y.id]) Object.assign(byId[y.id], y);
-            else s.actions.push(JSON.parse(JSON.stringify(y)));
+            else delete s[ad][k];
           });
-        }
-      });
+        });
+      } else if (p.tip === 'whole') {
+        s.portfolio = JSON.parse(JSON.stringify(t2.portfolio));
+      } else if (p.tip === 'actions') {
+        // Aynı bulgu güncellenir; kimliği çakışan farklı bulgu yeni kimlik alır.
+        s.actions = s.actions || [];
+        const byId = Object.fromEntries(s.actions.map(x => [x.id, x]));
+        let n = Math.max(0, ...s.actions.concat(t2.actions || [])
+          .map(x => Number(String(x.id || '').replace(/\D/g, '')) || 0));
+        (t2.actions || []).forEach(y => {
+          const kopya = JSON.parse(JSON.stringify(y));
+          const x = byId[y.id];
+          if (x && ayniBulgu(x, y)) { Object.assign(x, kopya); return; }
+          if (x) {
+            n += 1;
+            kopya.id = 'BLG-' + String(n).padStart(3, '0');
+          }
+          s.actions.push(kopya);
+          byId[kopya.id] = kopya;
+        });
+      }
     });
+    return alinanParcalar;
+  }
+
+  function uygula() {
+    let alinanParcalar = [];
+    Store.update(s => { alinanParcalar = birlestir(s, gelen.state, gelen.diff, secim); });
+    const alinan = alinanParcalar.length;
 
     Store.log('merge', gelen.name, t('mgLogBefore', { n: gelen.diff.length }),
       t('mgLogAfter', { n: alinan, p: alinanParcalar.slice(0, 6).join(', ') }));
@@ -359,5 +386,5 @@ const Merge = (() => {
     });
   }
 
-  return { view };
+  return { view, parcalar, birlestir };
 })();

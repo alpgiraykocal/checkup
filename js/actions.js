@@ -226,8 +226,13 @@ const Actions = (() => {
       onMount(scrim) {
         const critSel = UI.el('#af-crit', scrim);
         const dueInp = UI.el('#af-due', scrim);
+        /* Son tarih kullanıcı elle değiştirmediyse SLA'yı izler; elle
+           girilmiş tarih kritiklik değişince ezilmez. */
+        let otoTarih = existing ? '' : dueInp.value;
         critSel.addEventListener('change', () => {
-          if (!existing || !dueInp.value) dueInp.value = Calc.slaDueDate(critSel.value);
+          if (!dueInp.value || dueInp.value === otoTarih) {
+            dueInp.value = otoTarih = Calc.slaDueDate(critSel.value);
+          }
         });
 
         // Soru ID yazıldıkça sorunun metnini göster — doğru soruya bağlandığı görülsün

@@ -73,17 +73,57 @@ function birlestir(mine, theirs, idler) {
   check('birleştirme sonrası etkinlik hesaplanır', c.totals.effectiveness !== null && !Number.isNaN(c.totals.effectiveness));
 }
 
-/* ---------- 5. Bulgular kimlik üzerinden birleşir ---------- */
+/* ---------- 5. Bulgular kimlik üzerinden birleşir (gerçek Merge.birlestir) ---------- */
+const { Merge } = A;
+const gelenAl = (mine, theirs, anahtar) => {
+  const diff = Merge.parcalar(mine, theirs);
+  Merge.birlestir(mine, theirs, diff, { [anahtar]: 'theirs' });
+  return mine;
+};
 {
+  // Aynı soruya bağlı aynı kimlik: aynı bulgu, güncellenir
   const mine = blank(); const theirs = blank();
-  mine.actions = [{ id: 'BLG-001', finding: 'Benim', status: 'Açık' }];
-  theirs.actions = [{ id: 'BLG-001', finding: 'Gelen', status: 'Kapalı' },
+  mine.actions = [{ id: 'BLG-001', questionId: 'D6-02', finding: 'Benim', status: 'Açık' }];
+  theirs.actions = [{ id: 'BLG-001', questionId: 'D6-02', finding: 'Gelen', status: 'Kapalı' },
                     { id: 'BLG-002', finding: 'Yeni', status: 'Açık' }];
-  const byId = Object.fromEntries(mine.actions.map(x => [x.id, x]));
-  theirs.actions.forEach(y => { if (byId[y.id]) Object.assign(byId[y.id], y); else mine.actions.push(y); });
-  check('mevcut bulgu güncellendi', mine.actions[0].finding === 'Gelen' && mine.actions[0].status === 'Kapalı');
-  check('yeni bulgu eklendi', mine.actions.length === 2 && mine.actions[1].id === 'BLG-002');
+  gelenAl(mine, theirs, 'actions');
+  check('mevcut bulgu güncellendi', mine.actions[0].finding === 'Gelen' && mine.actions[0].status === 'Kapalı', mine.actions);
+  check('yeni bulgu eklendi', mine.actions.length === 2 && mine.actions[1].id === 'BLG-002', mine.actions);
   check('kimlik mükerrer değil', new Set(mine.actions.map(a => a.id)).size === mine.actions.length);
+}
+{
+  // Paralel çalışma: iki dosyada da BLG-001 ama farklı bulgular — ikisi de kalır
+  const mine = blank(); const theirs = blank();
+  mine.actions = [{ id: 'BLG-001', questionId: 'D1-01', finding: 'Benim bulgum', status: 'Açık' },
+                  { id: 'BLG-002', finding: 'Benim ikinci', status: 'Açık' }];
+  theirs.actions = [{ id: 'BLG-001', questionId: 'D6-02', finding: 'Onların bulgusu', status: 'Açık' },
+                    { id: 'BLG-002', finding: 'Onların ikinci', status: 'Açık' }];
+  const diff = Merge.parcalar(mine, theirs);
+  const p = diff.find(x => x.key === 'actions');
+  check('farklı bulgu çakışma sayılmaz', p && p.conflicts === 0, p);
+  gelenAl(mine, theirs, 'actions');
+  const f = mine.actions.map(a => a.finding);
+  check('benim bulgularım korundu', f.includes('Benim bulgum') && f.includes('Benim ikinci'), mine.actions);
+  check('gelen bulgular eklendi', f.includes('Onların bulgusu') && f.includes('Onların ikinci'), mine.actions);
+  check('çakışan kimlik yenilendi', new Set(mine.actions.map(a => a.id)).size === 4, mine.actions.map(a => a.id));
+  const yeni = mine.actions.find(a => a.finding === 'Onların bulgusu');
+  check('yeni kimlik sıradaki numara', yeni.id === 'BLG-003', yeni.id);
+}
+
+/* ---------- 5b. Doğuştan risk faktörü bütün olarak alınır ---------- */
+{
+  const f = DATA.inherentFactors[0].key, g = DATA.inherentFactors[1].key;
+  const dim = DATA.inherentFactors[0].dimKey;
+  const mine = blank(); const theirs = blank();
+  mine.inherentNA[f] = true;
+  mine.inherentNotes[f] = 'Benim gerekçem';
+  mine.inherent[g] = 2;                       // gelen tarafta boş: korunmalı
+  theirs.inherent[f] = 3;
+  gelenAl(mine, theirs, 'inherent:' + dim);
+  const st = Calc.factorState(DATA.inherentFactors[0], Store.normalize(mine));
+  check('gelen skor bendeki UA işaretiyle gizlenmez', st.scored && st.score === 3 && !st.na, st);
+  check('eski gerekçe gelen kararla karışmaz', mine.inherentNotes[f] === undefined, mine.inherentNotes[f]);
+  check('gelende boş faktör korunur', mine.inherent[g] === 2, mine.inherent[g]);
 }
 
 /* ---------- 6. Atama durumu ---------- */

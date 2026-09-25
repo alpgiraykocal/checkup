@@ -87,6 +87,15 @@ const withState = m => { const s = blank(); m(s); return s; };
   check('kritik açık', c.actionStats.critical === 1, c.actionStats.critical);
   check('kapanış oranı', near(c.actionStats.closureRate, 0.2), c.actionStats.closureRate);
   check('boşta kapanış oranı null', Calc.compute(blank()).actionStats.closureRate === null);
+  // elle düzenlenmiş dosya: çözülemeyen termin gecikmiş sayılmaz, boş durum açık sayılır
+  const st2 = withState(s => { s.actions = [
+    { id:'B1', status:'Açık', due:'31.12.2099' },
+    { id:'B2', crit:'Kritik' }
+  ]; });
+  const c2 = Calc.compute(st2);
+  check('geçersiz termin gecikmiş değil', c2.actions.find(a => a.id === 'B1').delay === '', c2.actions[0].delay);
+  check('durumsuz kayıt açık', c2.actionStats.open === 2, c2.actionStats.open);
+  check('açık ile kritik açık tutarlı', c2.actionStats.critical <= c2.actionStats.open, c2.actionStats);
 }
 
 /* ---------- 16. PF ---------- */
@@ -121,6 +130,14 @@ const withState = m => { const s = blank(); m(s); return s; };
   check('pay tamlığı', c.lines.shareComplete === true);
   check('ağırlıklı doğuştan', near(c.lines.weightedInherent, (2*60 + 4*40)/100), c.lines.weightedInherent);
   check('en kötü iş kolu', c.lines.worst.spec.key === lines[1].key, c.lines.worst.spec.key);
+  // skorlanmamış aktif kol ağırlıklı ortalamayı seyreltmez
+  const st3 = withState(s => {
+    s.lines[lines[0].key] = { active: true, share: 50, dims: Object.fromEntries(dims.map(d=>[d,4])) };
+    s.lines[lines[1].key] = { active: true, share: 50 };
+  });
+  const c3 = Calc.compute(st3);
+  check('skorsuz kol paydaya girmez', near(c3.lines.weightedInherent, 4), c3.lines.weightedInherent);
+  check('skorsuz kol pay toplamında görünür', near(c3.lines.shareSum, 100), c3.lines.shareSum);
   // kapsam dışı iş kolu aktif olamaz
   const scoped = lines.find(l => l.scope);
   const st2 = withState(s => { s.kunye[scoped.scope] = 'Hayır'; s.lines[scoped.key] = { active: true, share: 50, dims: {} }; });
