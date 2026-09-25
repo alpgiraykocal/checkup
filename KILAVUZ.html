@@ -8,7 +8,7 @@
 <meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.9.5">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.9.7">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -44,7 +44,7 @@
       <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
       <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
-      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.9.5</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.9.7</span></div>
     </div>
   </header>
 
@@ -308,7 +308,13 @@
 
     <h4>Açık kritik kontrol</h4>
     <p>
-      Kritikliği “Kritik” olup yanıtı “Evet” olmayan her soru açık kritik sayılır.
+      Kritikliği “Kritik” olup test ile düzeltilmiş katsayısı tam olmayan her soru
+      açık kritik sayılır: yanıtı “Evet” olmayanlar ve “Evet” beyanı QA testinde
+      “Kısmen doğrulandı” ya da “Çelişkili” çıkanlar. Aksiyon ihtiyacı da aynı
+      katsayıdan okunur; skor, olgunluk ve artık risk neye bakıyorsa aksiyon
+      listesi de ona bakar. Nedeni QA testi olan sorularda kartta “QA testi
+      nedeniyle” işareti çıkar; toplu üretilen bulgunun kaynağına beyan ve test
+      sonucu birlikte yazılır, raporun açık kritik tablosunda test sonucu görünür.
       Kritiklik yazılı bir kurala göre verilmiştir: bir kontrol ancak yokluğu tek
       başına doğrudan yasal ihlal ya da telafisiz bir maruziyet doğuruyorsa
       kritiktir. Önemli ama telafi edilebilir olan — yönetişim, metodoloji, onay
@@ -355,6 +361,8 @@
         çıkar, panoda ve anket özetinde çelişki sayısı görünür. Doğru davranış,
         skoru olduğu gibi bırakmak değil, beyanı düzeltmektir: yanıt “Kısmen” ya
         da “Hayır” olmalıdır. Çelişki kapatılmadan imzalanan rapor savunulamaz.
+        Beyan düzeltilmese bile soru aksiyon gerektiren ve — kritikse — açık
+        kritik sayılır; toplu bulgu üretimine girer.
       </p>
     </div>
 
@@ -804,7 +812,7 @@
           <tr><td>Başlangıç</td><td>Hiç soru yanıtlanmamışsa</td></tr>
           <tr><td>Eksik faktör</td><td>Doğuştan riskte skorlama başlamış ama bitmemişse</td></tr>
           <tr><td>Gerekçesiz yüksek skor</td><td>4–5 skorlu faktörlerde gerekçe boşsa</td></tr>
-          <tr><td>Açık kritik</td><td>Kritik soruların yanıtı “Evet” değilse</td></tr>
+          <tr><td>Açık kritik</td><td>Kritik soruların yanıtı “Evet” değilse ya da “Evet” beyanı QA testinde düştüyse</td></tr>
           <tr><td>Genel skor aşımı gizliyor</td><td>Kurum geneli iştah içinde ama bir domain aşımdaysa</td></tr>
           <tr><td>QA çelişkisi</td><td>Beyan “Evet” iken dosya testi “Çelişkili” çıkmışsa</td></tr>
         </tbody>
@@ -1526,7 +1534,7 @@
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.9.5 sürümünü ve 2026.1 referans veri paketini
+        Bu kılavuz uygulamanın 2.9.7 sürümünü ve 2026.1 referans veri paketini
         anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
         birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
         doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
@@ -1536,6 +1544,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.9.5"></script>
+<script src="js/kilavuz.js?v=2.9.7"></script>
 </body>
 </html>

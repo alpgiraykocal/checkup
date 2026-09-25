@@ -82,6 +82,7 @@ const Extra = (() => {
             ${q.qa ? `<span class="chip chip-mid">${Icons.flask()} ${t('qaTest')}</span>` : ''}
             ${st.actionNeeded === 'EVET - ÖNCELİKLİ' ? `<span class="chip chip-critical">${Icons.alert()} ${t('priorityAction')}</span>`
               : st.actionNeeded === 'Evet' ? `<span class="chip chip-high">${t('actionNeeded')}</span>` : ''}
+            ${st.actionReason === 'qa' ? `<span class="chip chip-critical" title="${esc(t('actionFromQaTip'))}">${Icons.flask()} ${t('actionFromQa')}</span>` : ''}
             ${missingEvidence ? `<span class="chip chip-high">${t('noEvidenceRef')}</span>` : ''}
           </div>
           <div class="answers" role="group" aria-label="${t('answerFor', { id: esc(q.id) })}">${answerBtns}</div>

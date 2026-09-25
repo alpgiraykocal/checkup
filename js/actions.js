@@ -7,6 +7,28 @@ const Actions = (() => {
 
   const filter = { status: '', crit: '', domain: '', delay: '' };
 
+  /** Sorunun hesaplanmış durumu — ana banka ya da ek kontrol seti. */
+  function soruDurumu(calc, id) {
+    if (!calc) return null;
+    if (calc.perQuestion[id]) return calc.perQuestion[id];
+    for (const set of (calc.extra ? calc.extra.sets : [])) {
+      const x = set.questions.find(({ q }) => q.id === id);
+      if (x) return x.st;
+    }
+    return null;
+  }
+
+  /* Bulgunun kaynağı: yanıt ve — aksiyonu QA testi doğurduysa — test sonucu.
+     "Evet" beyanlı bir bulguda nedenin görünmemesi okuyanı yanıltır. */
+  function kaynakMetni(q, calc) {
+    const rec = Store.state.answers[q.id] || {};
+    const st = soruDurumu(calc, q.id);
+    if (rec.a && st && st.actionReason === 'qa') {
+      return t('genSourceQa', { id: q.id, a: I18n.ref('answers', rec.a), r: I18n.ref('qaResult', rec.qaResult) });
+    }
+    return rec.a ? t('genSourceAnswer', { id: q.id, a: I18n.ref('answers', rec.a) }) : t('genSource', { id: q.id });
+  }
+
   function nextId(state) {
     const nums = (state.actions || [])
       .map(a => Number(String(a.id || '').replace(/\D/g, '')))
@@ -158,7 +180,7 @@ const Actions = (() => {
       questionId: q ? q.id : '',
       domain: q ? q.domain : '',
       finding: q ? q.text : '',
-      source: q ? t('genSource', { id: q.id }) : '',
+      source: q ? kaynakMetni(q, App.calc) : '',
       rootCause: '',
       crit: q ? q.critKey : 'Yüksek',
       action: '',
@@ -363,7 +385,7 @@ const Actions = (() => {
           domain: q.domain,
           questionId: q.id,
           finding: (rec.note && rec.note.trim()) ? rec.note.trim() : q.text,
-          source: rec.a ? t('genSourceAnswer', { id: q.id, a: I18n.ref('answers', rec.a) }) : t('genSource', { id: q.id }),
+          source: kaynakMetni(q, calc),
           rootCause: '',
           crit: q.critKey,
           action: '',
@@ -380,5 +402,5 @@ const Actions = (() => {
     UI.toast(t('genDone', { n: gaps.length }), 'ok');
   }
 
-  return { view, openForm, generateFromGaps, gapQuestions };
+  return { view, openForm, generateFromGaps, gapQuestions, kaynakMetni };
 })();

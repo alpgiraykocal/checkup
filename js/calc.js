@@ -191,6 +191,14 @@ const Calc = (() => {
     const coef = answered ? ANSWER_COEF[answer] : undefined;
     const inScope = answered && coef !== null;      // Uygulanamaz => skorlamadan çıkar
     const cap = (q.qa && rec) ? QA_CAP[rec.qaResult] : undefined;
+    const coefTested = inScope ? Math.min(coef, cap === undefined ? 1 : cap) : null;
+
+    /* Aksiyon ihtiyacı ve açık kritiklik testle düzeltilmiş katsayıdan okunur:
+       skor, olgunluk ve artık risk zaten onu kullanıyor. Beyan "Evet" olsa da
+       testte düşen kontrol açık bir zafiyettir. Neden ayrıca tutulur — ekran,
+       bulgu kaynağı ve rapor "beyan mı, QA testi mi" sorusunu cevaplasın. */
+    const actionReason = !inScope || coefTested === 1 ? ''
+      : (coef < 1 ? 'declared' : 'qa');
 
     return {
       answer,
@@ -207,11 +215,12 @@ const Calc = (() => {
       // Beyan "Evet" ama dosya testi çelişkiliyse skor savunulamaz
       qaConflict: Boolean(q.qa && rec && rec.qaResult === 'Çelişkili' && answer === 'Evet'),
       // Beyan edilen katsayı ile bağımsız testle düzeltilmiş katsayı ayrı tutulur
-      coefTested: inScope ? Math.min(coef, cap === undefined ? 1 : cap) : null,
-      earnedTested: inScope ? q.weight * Math.min(coef, cap === undefined ? 1 : cap) : 0,
+      coefTested,
+      earnedTested: inScope ? q.weight * coefTested : 0,
       qaAdjusted: inScope && cap !== undefined && cap < coef,
-      openCritical: inScope && q.critKey === 'Kritik' && coef < 1,
-      actionNeeded: !inScope ? '' : (coef === 1 ? 'Hayır' : (q.critKey === 'Kritik' ? 'EVET - ÖNCELİKLİ' : 'Evet'))
+      openCritical: inScope && q.critKey === 'Kritik' && coefTested < 1,
+      actionNeeded: !inScope ? '' : (coefTested === 1 ? 'Hayır' : (q.critKey === 'Kritik' ? 'EVET - ÖNCELİKLİ' : 'Evet')),
+      actionReason
     };
   }
 

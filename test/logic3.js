@@ -90,6 +90,7 @@ const withState = m => { const s = blank(); m(s); return s; };
     s.actions = [ { id:'B1', status:'Açık', crit:'Kritik', finding:'x' }, { id:'B2', status:'Açık', crit:'Orta', finding:'y' } ];
   });
   const ozet = Compare.summarize(eski);
+  check('özet kural sürümünü taşır', ozet.rules === 2, ozet.rules);
   check('özet domain sayısı', ozet.domains.length === DATA.domains.length);
   check('özet boyutu küçük', JSON.stringify(ozet).length < 8000, JSON.stringify(ozet).length);
   check('özet yanıt taşımaz', !JSON.stringify(ozet).includes('"answers"'));

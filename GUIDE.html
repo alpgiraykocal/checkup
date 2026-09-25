@@ -8,7 +8,7 @@
 <meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.9.5">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.9.7">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -45,7 +45,7 @@
       <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
       <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
-      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.9.5</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.9.7</span></div>
     </div>
   </header>
 
@@ -319,8 +319,15 @@
 
     <h4>Open critical control</h4>
     <p>
-      Any question rated “Critical” whose answer is not “Yes” counts as an open
-      critical. Criticality is assigned by a written rule: a control is critical
+      Any question rated “Critical” whose test-adjusted coefficient is not full
+      counts as an open critical: answers other than “Yes”, and “Yes”
+      declarations that the QA test rated “Partly confirmed” or
+      “Contradicted”. Action need is read from the same coefficient; the action
+      list looks at what the score, maturity and residual risk look at. Where the
+      reason is the QA test, the card shows a “Due to QA test” marker, the source
+      of a bulk-generated finding records both the declaration and the test
+      result, and the report’s open-critical table shows the test result.
+      Criticality is assigned by a written rule: a control is critical
       only if its absence on its own creates a direct legal breach or an exposure
       that cannot be remedied. What is important but recoverable — governance,
       methodology, an approval step, measurement — is rated “High”. Open criticals
@@ -368,7 +375,9 @@
         the dashboard and in the questionnaire summary. The right response is not
         to leave the score as it is, but to correct the declaration: the answer
         should be “Partial” or “No”. A report signed off with open contradictions
-        cannot be defended.
+        cannot be defended. Even if the declaration is not corrected, the question
+        counts as needing action and — when critical — as an open critical, and
+        it enters bulk finding generation.
       </p>
     </div>
 
@@ -841,7 +850,7 @@
           <tr><td>Getting started</td><td>When no question has been answered</td></tr>
           <tr><td>Missing factors</td><td>When inherent risk scoring has started but is not finished</td></tr>
           <tr><td>High score without rationale</td><td>When factors scored 4–5 have an empty rationale</td></tr>
-          <tr><td>Open critical</td><td>When critical questions are not answered “Yes”</td></tr>
+          <tr><td>Open critical</td><td>When critical questions are not answered “Yes”, or a “Yes” declaration failed QA testing</td></tr>
           <tr><td>Overall score hides a breach</td><td>When the institution figure is within appetite but a domain is over</td></tr>
           <tr><td>QA contradiction</td><td>When a “Yes” declaration meets a “Contradicted” file test</td></tr>
         </tbody>
@@ -1603,7 +1612,7 @@
 
     <div class="altbilgi">
       <p>
-        This guide describes version 2.9.5 of the application and reference data
+        This guide describes version 2.9.7 of the application and reference data
         pack 2026.1. The formulas in the methodology section match the scoring
         engine exactly. Regulatory citations are indicative and must be verified
         against the legislation in force. The tool supports detection,
@@ -1614,6 +1623,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.9.5"></script>
+<script src="js/kilavuz.js?v=2.9.7"></script>
 </body>
 </html>

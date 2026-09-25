@@ -1548,6 +1548,7 @@ const Views = (() => {
             ${critChip(q.critKey)}
             ${s.actionNeeded === 'EVET - ÖNCELİKLİ' ? `<span class="chip chip-critical">${Icons.alert()} ${t('priorityAction')}</span>`
               : s.actionNeeded === 'Evet' ? `<span class="chip chip-high">${t('actionNeeded')}</span>` : ''}
+            ${s.actionReason === 'qa' ? `<span class="chip chip-critical" title="${esc(t('actionFromQaTip'))}">${Icons.flask()} ${t('actionFromQa')}</span>` : ''}
             ${locked ? `<span class="chip chip-na">${Icons.lock()} ${esc(s.scopeReason)}</span>` : ''}
             <span class="chip chip-high ${missingEvidence ? '' : 'hidden'}" data-evidence-badge>${t('noEvidenceRef')}</span>
             <span class="meta-line">

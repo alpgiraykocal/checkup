@@ -78,6 +78,7 @@ const Exporter = (() => {
     return '﻿' + rows.map(r => r.map(csvCell).join(';')).join('\r\n');
   }
   const dec = v => (v === null || v === undefined || v === '') ? '' : String(v).replace('.', ',');
+  const reasonLabel = r => r === 'qa' ? t('reasonQa') : r === 'declared' ? t('reasonDeclared') : '';
 
   function exportCSV(kind, calc) {
     const state = Store.state;
@@ -88,7 +89,7 @@ const Exporter = (() => {
       rows = [[H('questionId'), H('code'), H('domain'), H('section'), H('questionText'), H('answer'),
         H('coefficient'), H('weight'), H('applicableWeight'), H('earned'), H('criticality'),
         H('expectedEvidence'), H('source'), H('qaTest'), H('samplePop'),
-        H('evidenceRef'), H('note'), H('actionNeeded'), H('autoNaReason')]];
+        H('evidenceRef'), H('note'), H('actionNeeded'), H('actionReason'), H('autoNaReason')]];
       const yes = I18n.ref('answers', 'Evet'), no = I18n.ref('answers', 'Hayır');
       DATA.questions.forEach(q => {
         const s = calc.perQuestion[q.id], rec = state.answers[q.id] || {};
@@ -96,7 +97,7 @@ const Exporter = (() => {
           dec(s.applicableWeight || ''), dec(s.earned || ''), q.crit, q.evidence, q.source,
           q.qa ? yes : no, q.pop, rec.evidence || '', rec.note || '',
           s.actionNeeded === 'EVET - ÖNCELİKLİ' ? t('priorityAction') : s.actionNeeded ? I18n.ref('answers', s.actionNeeded) : '',
-          s.scopeReason || '']);
+          reasonLabel(s.actionReason), s.scopeReason || '']);
       });
       // Ek kontroller aynı dosyada, set adıyla işaretlenerek devam eder.
       if (calc.extra) {
@@ -107,7 +108,7 @@ const Exporter = (() => {
             I18n.isEn ? q.enEvidence : q.trEvidence, q.source,
             q.qa ? yes : no, '', (state.answers[q.id] || {}).evidence || '', '',
             st.actionNeeded === 'EVET - ÖNCELİKLİ' ? t('priorityAction') : st.actionNeeded ? I18n.ref('answers', st.actionNeeded) : '',
-            st.scopeReason || '']);
+            reasonLabel(st.actionReason), st.scopeReason || '']);
         }));
       }
     } else if (kind === 'domains') {
@@ -419,7 +420,8 @@ const Exporter = (() => {
             <thead><tr><th>${t('colQuestions')}</th><th>${t('colControl')}</th><th>${t('colAnswer')}</th><th>${t('evidenceRef')}</th></tr></thead>
             <tbody>${topGaps.map(({ q, s }) => `<tr>
               <td class="mono">${esc(q.id)}</td><td>${esc(q.text)}</td>
-              <td>${esc(I18n.ref('answers', s.answer))}</td><td>${esc((state.answers[q.id] || {}).evidence || '—')}</td>
+              <td>${esc(I18n.ref('answers', s.answer))}${s.actionReason === 'qa'
+                ? `<div class="subtle">QA: ${esc(I18n.ref('qaResult', s.qaResult))}</div>` : ''}</td><td>${esc((state.answers[q.id] || {}).evidence || '—')}</td>
             </tr>`).join('')}</tbody></table></div>
             ${tot.openCritical > topGaps.length ? `<p class="subtle">${t('firstNShown', { n: topGaps.length })}</p>` : ''}`
             : `<p class="muted">${t('noOpenCrit')}</p>`}

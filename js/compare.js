@@ -18,6 +18,8 @@ const Compare = (() => {
       period: c.kunye.periodLabel || state.kunye.degerlendirme_donemi || '',
       assessor: state.kunye.degerlendirmeyi_yapan || '',
       method: c.method && c.method.applied ? 'exposure' : 'default',
+      // 2: açık kritik ve aksiyon ihtiyacı QA testiyle düzeltilmiş katsayıdan sayılır
+      rules: 2,
       totals: {
         count: c.totals.count, answered: c.totals.answered,
         effectiveness: c.totals.effectiveness,
@@ -119,6 +121,8 @@ const Compare = (() => {
       ${base.method && base.method !== now.method
         ? Views.banner('warn', t('mtCmpMismatch', { b: base.method === 'exposure' ? t('mtExposure') : t('mtDefault') }), t('mtWarn'))
         : ''}
+
+      ${(base.rules || 1) < now.rules ? Views.banner('warn', t('cmpRuleTtl'), t('cmpRuleBody')) : ''}
 
       <div class="grid grid-kpi">
         ${cmpTile(t('colEffTested'), base.totals.effectivenessTested, now.totals.effectivenessTested, 'up', v => fmtPct1(v))}

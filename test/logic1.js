@@ -56,6 +56,56 @@ const withState = mut => { const s = blank(); mut(s); return s; };
   check('orta + Hayır → normal aksiyon', st.actionNeeded === 'Evet' && st.openCritical === false, st);
 }
 
+/* ---------- 3b. Aksiyon ihtiyacı QA testiyle düzeltilmiş katsayıdan ---------- */
+{
+  const { Actions, EXTRA } = A;
+  const kritikQa = DATA.questions.find(q => q.qa && q.critKey === 'Kritik');
+  const normalQa = DATA.questions.find(q => q.qa && q.critKey !== 'Kritik');
+  const t = (q, a, qaResult) => {
+    const c = Calc.compute(withState(s => { s.answers[q.id] = { a, qaResult }; }));
+    return c.perQuestion[q.id];
+  };
+  let st = t(kritikQa, 'Evet', 'Çelişkili');
+  check('kritik Evet+Çelişkili → açık kritik', st.openCritical === true, st);
+  check('kritik Evet+Çelişkili → öncelikli aksiyon', st.actionNeeded === 'EVET - ÖNCELİKLİ', st.actionNeeded);
+  check('kritik Evet+Çelişkili → neden QA', st.actionReason === 'qa', st.actionReason);
+  st = t(normalQa, 'Evet', 'Kısmen doğrulandı');
+  check('Evet+Kısmen doğrulandı → aksiyon', st.actionNeeded === 'Evet' && st.actionReason === 'qa', st);
+  st = t(kritikQa, 'Evet', 'Kısmen doğrulandı');
+  check('kritik Evet+Kısmen doğrulandı → açık kritik', st.openCritical === true, st);
+  st = t(kritikQa, 'Evet', 'Doğrulandı');
+  check('Evet+Doğrulandı → aksiyon yok', st.actionNeeded === 'Hayır' && st.actionReason === '' && !st.openCritical, st);
+  st = t(kritikQa, 'Evet', 'Test edilmedi');
+  check('Evet+Test edilmedi → aksiyon yok', st.actionNeeded === 'Hayır' && !st.openCritical, st);
+  st = t(kritikQa, 'Hayır', 'Çelişkili');
+  check('Hayır+Çelişkili → neden beyan', st.actionReason === 'declared' && st.openCritical, st);
+  st = t(kritikQa, 'Kısmen', 'Doğrulandı');
+  check('Kısmen+Doğrulandı → neden beyan', st.actionReason === 'declared', st.actionReason);
+  st = t(kritikQa, 'Uygulanamaz', 'Çelişkili');
+  check('Uygulanamaz → neden yok', st.actionReason === '' && st.actionNeeded === '', st);
+
+  // Toplu üretim ve bulgu kaynağı QA kaynaklı zafiyeti görür
+  const temiz = blank();
+  Store.replace(withState(s => { s.answers[kritikQa.id] = { a: 'Evet', qaResult: 'Çelişkili' }; }));
+  const c = Calc.compute(Store.state);
+  const gap = Actions.gapQuestions(c).find(q => q.id === kritikQa.id);
+  check('QA kaynaklı zafiyet toplu üretime girer', Boolean(gap));
+  const kaynak = gap ? Actions.kaynakMetni(gap, c) : '';
+  check('bulgu kaynağı QA sonucunu anar', /QA/.test(kaynak) && kaynak.includes(kritikQa.id), kaynak);
+  check('domain açık kritik sayısı QA kaynaklıyı içerir',
+    c.domains.find(d => d.code === kritikQa.domain).openCritical === 1, c.totals.openCritical);
+
+  // Ek kontrol setleri aynı kural
+  const exQ = EXTRA.sets.flatMap(set => set.types && set.types.length ? [] : set.questions.filter(q => q.qa && !set.activity))[0];
+  if (exQ) {
+    const ce = Calc.compute(withState(s => { s.answers[exQ.id] = { a: 'Evet', qaResult: 'Çelişkili' }; }));
+    const est = ce.extra.sets.flatMap(x => x.questions).find(x => x.q.id === exQ.id).st;
+    check('ek set Evet+Çelişkili → aksiyon', est.actionNeeded !== 'Hayır' && est.actionReason === 'qa', est);
+  }
+  check('ek sette QA sorusu bulundu', Boolean(exQ));
+  Store.replace(temiz);
+}
+
 /* ---------- 4. Domain etkinliği = Σkazanılan / Σuygulanabilir ---------- */
 {
   const st = withState(s => { DATA.questions.forEach((q,i) => { s.answers[q.id] = { a: ['Evet','Kısmen','Hayır','Uygulanamaz'][i%4] }; }); });
