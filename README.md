@@ -53,7 +53,7 @@ Bağımlılık yok. Node 18+ yeterli:
 node test/run.js
 ```
 
-On iki paket, yaklaşık 6.600 kontrol: skorlama zinciri, kapsam ve QA matematiği,
+On üç paket, yaklaşık 6.600 örnek kontrol ve 1,5 milyon değişmez kural denetimi: skorlama zinciri, kapsam ve QA matematiği,
 operasyon ve portföy hesapları, altın örnek regresyon çıpası, veri sözleşmesi,
 iki dilde metin örtüsü, **dil sızıntısı denetimi**, birleştirme, bozuk veriye
 dayanıklılık, görünüm ve etkileşim denetimi, dar ekran ızgarası ve dokuz saat

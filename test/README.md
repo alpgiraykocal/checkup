@@ -21,7 +21,43 @@ commit öncesi kanca için doğrudan kullanılabilir.
 | `i18n.js` | Koddaki her `t()` anahtarının iki dilde karşılığı, dinamik önekler, referans listeleri, içerik çevirisi | 1641 |
 | `lint.js` | **Dil sızıntısı**: yerelleştirilmiş alanın mantık anahtarı olarak kullanılması; ayrıca iki dilde sayısal sonuçların aynılığı | 5 + davranışsal |
 | `fuzz.js` | Bozuk, eksik ve düşmanca durumla tüm hesap yolları: null alanlar, yanlış tipler, geçersiz değerler, HTML enjeksiyon yükleri, aşırı büyük sayılar | 54 |
+| `props.js` | **Değişmez kurallar**: sabit tohumlu üreteçle 1.500 rastgele çalışma dosyası; her birinde aralıklar, tutarlılık, tekdüzelik, dil bağımsızlığı, yükleme ve birleştirme özdeşliği ile **kılavuzdan bağımsız yazılmış referans hesapla** birebir karşılaştırma | ~1,5 milyon denetim, 76 kural |
 | `tz.js` | Aynı tarih hesabını dokuz saat diliminde koşar; gün kayması olmamalı | 9 dilim |
+
+## Değişmez kurallar ve referans hesap
+
+Elle yazılmış örnekler yazarın aklına gelen durumları sınar. `props.js` sabit
+tohumlu bir üreteçle gerçekçi çalışma dosyaları üretir — uç durumlar dahil:
+tam puanlı ve doğrulanmış (tavanı zorlayan), skorsuz ama paylı iş kolu,
+maruziyet yöntemi seçili ama uygulanamaz, kapsam dışı ve elle yanıtlanmış
+sorular, risk kabulü — ve her birinde şunları denetler:
+
+- **Aralık ve tutarlılık**: etkinlik 0–1, test ≤ beyan, artık ≤ doğuştan ve
+  ≥ doğuştanın %5'i, seviye ve olgunluk bantları (kılavuz tablosundan, koddan
+  değil), aşım = artık > limit, örneklem ≤ hacim, açık + kapalı + kabul = toplam.
+- **Tekdüzelik**: bir yanıtı iyileştirmek etkinliği düşürmez, artık riski
+  artırmaz; "Çelişkili" test etkinliği artırmaz; faktör skorunu artırmak artık
+  riski azaltmaz; iştah limitini yükseltmek aşım sayısını artırmaz.
+- **Özdeşlik**: dosya yükleme iki kez uygulanınca değişmez; kaydet-yükle aynı
+  sonucu verir; dosyanın kendisiyle birleştirilmesi hiçbir şeyi değiştirmez;
+  iki farklı dosya birleştirilince gelen veri aynen alınır, bulgu kaybolmaz.
+- **Dil**: TR ve EN'de bütün sayısal çıktılar aynı.
+- **Referans hesap**: kılavuzun Metodoloji bölümündeki formüllerden, uygulama
+  kodunu çağırmadan yazılmış ikinci bir hesap. Domain etkinlikleri, boyut ve
+  genel doğuştan risk, iş kolu ağırlıklı değer, maruziyet yöntemi, artık
+  riskler, güvence örtüsü, QA örneklemi ve kapanış oranı her durumda
+  karşılaştırılır.
+
+Paketin kendisi mutasyon testiyle sınandı: skorlama, birleştirme ve maruziyet
+yöntemine bilerek yerleştirilen 27 hatanın 27'si yakalandı. Daha büyük ya da
+farklı bir örneklem için:
+
+```bash
+PROPS_N=20000 PROPS_SEED=42 node test/props.js
+```
+
+Bir kural düşerse rapor kuralı, ihlal sayısını ve ilk ihlalin durum
+numarasını yazar; aynı tohum ve sayı o durumu yeniden üretir.
 
 ## Altın örnek
 
