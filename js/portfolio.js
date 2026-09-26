@@ -174,6 +174,13 @@ const Portfolio = (() => {
 
     /* Tutarlılık uyarıları */
     const warnings = [];
+    // Negatif değer hesapta 0 sayılır (num); kullanıcı nedenini görsün.
+    const negatif = v => !(v === '' || v === null || v === undefined) && Number(v) < 0;
+    const negSay = Object.values(p.matrix).reduce((a, r) => a + Object.values(r || {}).filter(negatif).length, 0)
+      + Object.values(p.segments).reduce((a, r) => a + ['customers', 'highRisk'].filter(k => negatif((r || {})[k])).length, 0)
+      + p.countries.reduce((a, c) => a + ['customers', 'txIn', 'txOut'].filter(k => negatif(c[k])).length, 0)
+      + p.branches.reduce((a, b) => a + ['customers', 'highRiskCustomers', 'complianceFte'].filter(k => negatif(b[k])).length, 0);
+    if (negSay) warnings.push(t('pfWarnNegative', { n: negSay }));
     const kunyeTotal = Number(state.kunye.toplam_musteri_sayisi);
     if (matrixFilled && Number.isFinite(kunyeTotal) && kunyeTotal > 0 && Math.abs(kunyeTotal - total) / kunyeTotal > 0.01) {
       warnings.push(t('pfWarnTotalMismatch', { m: fmtInt(total), k: fmtInt(kunyeTotal) }));
@@ -187,6 +194,8 @@ const Portfolio = (() => {
     });
     if (matrixFilled && cCustomers > total * 1.01) warnings.push(t('pfWarnCountryOver'));
     if (branchCustomers > 0 && matrixFilled && branchCustomers > total * 1.01) warnings.push(t('pfWarnBranchOver'));
+    branches.filter(b => Calc.isFutureDate(b.lastAudit))
+      .forEach(b => warnings.push(t('pfWarnFutureAudit', { n: b.name || '—' })));
     if (Number.isFinite(annualTx) && annualTx > 0 && cTx > annualTx * 1.01) {
       warnings.push(t('pfWarnCrossBorderOver'));
     }
@@ -492,7 +501,7 @@ const Portfolio = (() => {
           data-br="${i}" data-field="complianceFte" value="${esc(b.complianceFte ?? '')}" placeholder="0" aria-label="${t('pfComplianceFte')}"></td>
         <td class="num">${b.load === null ? '—' : fmtInt(Math.round(b.load))}</td>
         <td style="width:150px"><input type="date" id="br-audit-${i}" data-br="${i}" data-field="lastAudit"
-          value="${esc(b.lastAudit || '')}" aria-label="${t('pfLastAudit')}"></td>
+          value="${esc(b.lastAudit || '')}" max="${Calc.toISODate(new Date())}" aria-label="${t('pfLastAudit')}"></td>
         <td>${b.auditMonths === null
           ? `<span class="chip chip-high">${t('pfNoAudit')}</span>`
           : b.auditOverdue ? `<span class="chip chip-critical">${b.auditMonths} ${t('monthsShort')}</span>`

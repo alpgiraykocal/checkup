@@ -71,11 +71,108 @@ const Store = (() => {
 
     // Yanıt kayıtları nesne, ülke kararları bayrak listesi olmalı
     Object.keys(s.answers).forEach(k => { if (!isObj(s.answers[k])) delete s.answers[k]; });
-    Object.keys(s.countryRisk).forEach(k => { if (!Array.isArray(s.countryRisk[k])) delete s.countryRisk[k]; });
+    Object.keys(s.countryRisk).forEach(k => {
+      if (!Array.isArray(s.countryRisk[k])) delete s.countryRisk[k];
+      else s.countryRisk[k] = s.countryRisk[k].filter(x => typeof x === 'string');
+    });
 
-    s.baseline = isObj(s.baseline) ? s.baseline : null;
+    icAlanlar(s);
+    s.baseline = baselineGecerli(s.baseline) ? s.baseline : null;
     s.ui = Object.assign({ theme: 'light' }, asObj(s.ui));
     return s;
+  }
+
+  /* ---------- İç alanların tipi ----------
+     Üst düzey alanların şekli yetmiyor: bir metin alanı nesne, bir liste
+     metin olarak gelirse ekran çöküyor (trim/map yok) ya da "[object Object]"
+     basıyordu. Burada yalnızca TİP düzeltilir; değerin anlamlı aralıkta olup
+     olmadığı hesap katmanında denetlenir ve ekranda uyarı olarak görünür —
+     sessizce silinmez. */
+
+  /** Metin alanı: metin olduğu gibi, sonlu sayı metne çevrilir, gerisi atılır. */
+  const metin = v => (typeof v === 'string' ? v
+    : (typeof v === 'number' && Number.isFinite(v) ? String(v) : undefined));
+  /** Sayı alanı: sonlu sayı ya da sayıya çevrilebilen metin kalır, gerisi atılır. */
+  const sayisal = v => (typeof v === 'number' ? (Number.isFinite(v) ? v : undefined)
+    : (typeof v === 'string' ? v : undefined));
+
+  function alanlariDuzelt(o, metinler, sayilar) {
+    (metinler || []).forEach(k => {
+      if (!(k in o)) return;
+      const m = metin(o[k]);
+      if (m === undefined) delete o[k]; else o[k] = m;
+    });
+    (sayilar || []).forEach(k => {
+      if (!(k in o)) return;
+      const n = sayisal(o[k]);
+      if (n === undefined) delete o[k]; else o[k] = n;
+    });
+    return o;
+  }
+
+  /** Sözlüğün her değerini nesne olmaya zorlar ve içini düzeltir. */
+  function nesneSozluk(sozluk, duzelt) {
+    Object.keys(sozluk).forEach(k => {
+      if (!isObj(sozluk[k])) delete sozluk[k];
+      else if (duzelt) duzelt(sozluk[k]);
+    });
+  }
+
+  /** Sözlüğün her değerini tek bir tipe zorlar. */
+  function degerSozluk(sozluk, cevir) {
+    Object.keys(sozluk).forEach(k => {
+      const v = cevir(sozluk[k]);
+      if (v === undefined) delete sozluk[k]; else sozluk[k] = v;
+    });
+  }
+
+  function icAlanlar(s) {
+    degerSozluk(s.kunye, metin);
+    nesneSozluk(s.answers, r => alanlariDuzelt(r,
+      ['a', 'evidence', 'note', 'qaResult', 'qaNote'], ['qaSample', 'qaErrors']));
+    degerSozluk(s.inherent, sayisal);
+    degerSozluk(s.inherentNA, v => (v === true ? true : undefined));
+    degerSozluk(s.inherentNotes, metin);
+    degerSozluk(s.inherentWeights, sayisal);
+    degerSozluk(s.appetite, sayisal);
+    degerSozluk(s.qaVolumes, sayisal);
+    degerSozluk(s.assign, metin);
+    nesneSozluk(s.pf, r => {
+      alanlariDuzelt(r, ['note'], ['score']);
+      if (r.na !== true) delete r.na;
+    });
+    nesneSozluk(s.lines, r => {
+      alanlariDuzelt(r, ['note'], ['share']);
+      if (r.active !== true) delete r.active;
+      r.dims = asObj(r.dims);
+      degerSozluk(r.dims, sayisal);
+    });
+    nesneSozluk(s.operations, r => degerSozluk(r, sayisal));
+    nesneSozluk(s.kpis, r => alanlariDuzelt(r, ['target', 'value', 'note']));
+    nesneSozluk(s.signoff, r => alanlariDuzelt(r, ['name', 'date']));
+    if (s.method.weightByExposure !== true) delete s.method.weightByExposure;
+
+    s.actions.forEach(a => alanlariDuzelt(a, ['id', 'domain', 'questionId', 'finding', 'source',
+      'rootCause', 'crit', 'action', 'owner', 'due', 'status', 'verification', 'closedAt', 'residualAfter']));
+    s.log = s.log.filter(e => typeof e.at === 'string' && typeof e.what === 'string');
+    s.log.forEach(e => alanlariDuzelt(e, ['who', 'ref', 'from', 'to']));
+
+    const p = s.portfolio;
+    nesneSozluk(p.matrix, r => degerSozluk(r, sayisal));
+    nesneSozluk(p.segments, r => alanlariDuzelt(r, ['note'], ['customers', 'highRisk']));
+    p.countries.forEach(c => {
+      alanlariDuzelt(c, ['code', 'name'], ['customers', 'txIn', 'txOut']);
+      c.relations = Array.isArray(c.relations) ? c.relations.filter(x => typeof x === 'string') : [];
+    });
+    p.branches.forEach(b => alanlariDuzelt(b, ['name', 'type', 'country', 'lastAudit'],
+      ['customers', 'highRiskCustomers', 'complianceFte']));
+  }
+
+  /** Referans dönem özeti, karşılaştırma ekranının okuduğu şekilde mi? */
+  function baselineGecerli(b) {
+    return isObj(b) && Array.isArray(b.domains) && b.domains.every(isObj)
+      && isObj(b.totals) && isObj(b.inherent)
+      && isObj(b.actions) && Array.isArray(b.actions.ids) && b.actions.ids.every(isObj);
   }
 
   /* ---------- Değişiklik günlüğü ----------

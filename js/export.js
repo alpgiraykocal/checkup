@@ -336,7 +336,8 @@ const Exporter = (() => {
               kv(r.label, r.format === 'int' ? UI.fmtInt(Math.round(r.value)) : UI.fmtPct1(r.value))).join('')}
             ${calc.kunye.stale.map(s => kv(s.field.label,
               (k[s.field.id] ? fmtDate(k[s.field.id]) : '—') +
-              (s.overdue ? ` — ${s.months} ${t('monthsShort')}, ${t('exceededMonths', { n: s.field.staleMonths })}` : ''))).join('')}
+              (s.overdue ? ` — ${s.months} ${t('monthsShort')}, ${t('exceededMonths', { n: s.field.staleMonths })}` : '')
+              + (s.future ? ` — ${t('futureDate')}` : ''))).join('')}
           </tbody></table></div>
 
           ${calc.masksBreach ? `<p><b style="color:var(--warn)">${t('bnMasksTtl')}:</b>

@@ -8,7 +8,7 @@
 <meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.10.0">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -44,7 +44,7 @@
       <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
       <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
-      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.0</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.1</span></div>
     </div>
   </header>
 
@@ -354,7 +354,9 @@
         Artık risk bu değerden hesaplanır.</li>
       <li><b>Güvence örtüsü</b> — test gerektiren sorulardan kaçının gerçekten test
         edildiği. Düşükse skorlarınızın ispat gücü zayıftır; skorun kendisi
-        değişmez, güveniniz değişir.</li>
+        değişmez, güveniniz değişir. Yanıtı “Uygulanamaz” olan (elle ya da
+        kapsam kuralıyla) soru test beklemez ve paydaya girmez; yanıtlanmamış soru
+        paydada kalır.</li>
     </ul>
 
     <div class="kutu kritik">
@@ -608,7 +610,7 @@
           <tr><td>Soru puanı</td><td>ağırlık × katsayı</td></tr>
           <tr><td>Test edilmiş soru puanı</td><td>ağırlık × MİN(katsayı, QA tavanı)</td></tr>
           <tr><td>Kontrol etkinliği</td><td>Σ kazanılan puan ÷ Σ uygulanabilir ağırlık</td></tr>
-          <tr><td>Güvence örtüsü</td><td>test edilen soru ÷ test gereken soru</td></tr>
+          <tr><td>Güvence örtüsü</td><td>test edilen soru ÷ test gereken soru (Uygulanamaz hariç)</td></tr>
           <tr><td>Boyut doğuştan riski</td><td>Σ(skor × ağırlık) ÷ Σ(skorlanan ağırlık)</td></tr>
           <tr><td>GENEL doğuştan risk</td><td>ölçülmüş boyutların düz ortalaması</td></tr>
           <tr><td>Artık risk</td><td>doğuştan risk × (1 − MİN(test edilmiş etkinlik, 0,95))</td></tr>
@@ -902,10 +904,14 @@
       <li><b>Kapsam etkisi tablosu</b> — “Hayır” yanıtlarının hangi bölümü neden
         kapsam dışı bıraktığı ve kaç soruyu etkilediği.</li>
       <li><b>Tarih yaşlandırma tablosu</b> — her tarih alanı için geçen ay sayısı ve
-        beklenen aralığın aşılıp aşılmadığı.</li>
+        beklenen aralığın aşılıp aşılmadığı. Bu tarihler geçmişte yapılmış bir işin
+        tarihidir: ileri tarih seçilemez, dosyadan gelirse “ileri tarih” olarak
+        işaretlenir ve geçen süre hesaplanmaz (ilgili KPI da boş kalır).</li>
       <li><b>Tutarlılık uyarıları</b> — yüksek riskli veya PEP sayısı toplamı
         aşarsa, sınır ötesi işlem toplam işlemi aşarsa, dönem bitişi başlangıçtan
-        önceyse kırmızı şerit çıkar.</li>
+        önceyse, bir tarih ileri bir tarihse ya da bir sayı negatifse kırmızı şerit
+        çıkar. Negatif sayı hesaba katılmaz; aynı kural portföy ve işlem
+        ekranlarında da geçerlidir.</li>
       <li><b>Skor önerileri</b> — künyedeki sayılar, portföy verisi yoksa doğuştan
         risk faktörlerine öneri üretir.</li>
     </ul>
@@ -1432,7 +1438,12 @@
     <p>
       Dosya bu uygulamanın ürettiği JSON olmalı. Elle düzenlenmiş dosyalarda
       tanınmayan yanıt değerleri yanıtlanmamış sayılır; skor sessizce bozulmaz ama
-      kayıt da görünmez. Bozuk dosyada uygulama çökmez, uyarı verir.
+      kayıt da görünmez. Tanınmayan QA sonucu test edilmemiş sayılır. Aralık dışı
+      değerler — 1–5 dışı skor, 0–10 dışı faktör ağırlığı, 0–100 dışı iş kolu payı,
+      0–5 dışı iştah limiti — hesaba katılmaz; panoda ve Doğuştan Risk ekranında
+      “geçersiz değer” şeridiyle, ilgili satırda işaretle gösterilir. Yanlış tipte
+      alanlar (liste yerine metin gibi) yüklenirken düzeltilir, okunamayan
+      referans dönem özeti atılır. Bozuk dosyada uygulama çökmez, uyarı verir.
     </p>
 
     <h3>Skorlar beklediğim gibi değil</h3>
@@ -1560,7 +1571,7 @@
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.10.0 sürümünü ve 2026.1 referans veri paketini
+        Bu kılavuz uygulamanın 2.10.1 sürümünü ve 2026.1 referans veri paketini
         anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
         birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
         doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
@@ -1570,6 +1581,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.10.0"></script>
+<script src="js/kilavuz.js?v=2.10.1"></script>
 </body>
 </html>

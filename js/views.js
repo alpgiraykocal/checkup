@@ -103,6 +103,9 @@ const Views = (() => {
     if (tot.answered === 0) {
       banners.push(banner('info', t('bnStartTitle'), t('bnStartBody')));
     }
+    if (invalidCount(calc)) {
+      banners.push(banner('danger', t('bnInvalidTtl', { n: invalidCount(calc) }), t('bnInvalidBody')));
+    }
     if (inh.pending > 0 && inh.scored > 0) {
       banners.push(banner('warn', t('bnInhPendTtl', { n: inh.pending }), t('bnInhPendBody')));
     }
@@ -417,7 +420,8 @@ const Views = (() => {
           ${selectOptions(f.optionKeys || f.options, val, t('select'), f.options)}</select>`;
         break;
       case 'date':
-        input = `<input type="date" id="${id}" data-kunye="${f.id}" value="${esc(val)}"${described}>`;
+        // Yaşlandırılan tarih geçmişte yapılmış bir işin tarihidir; ileri tarih seçilemez.
+        input = `<input type="date" id="${id}" data-kunye="${f.id}" value="${esc(val)}"${f.staleMonths ? ` max="${Calc.toISODate(new Date())}"` : ''}${described}>`;
         break;
       case 'number':
         input = `<div class="input-unit">
@@ -520,7 +524,8 @@ const Views = (() => {
                 <tbody>${k.stale.map(s => `<tr>
                   <td>${esc(s.field.label.replace(/ tarihi$/, '').replace(/^Date of /, ''))}</td>
                   <td class="num">${s.months === null ? '—' : fmtInt(s.months) + ' ' + t('monthsShort')}</td>
-                  <td>${s.months === null ? `<span class="chip chip-na">${t('noDateEntered')}</span>`
+                  <td>${s.future ? `<span class="chip chip-critical">${Icons.alert()} ${t('futureDate')}</span>`
+                    : s.months === null ? `<span class="chip chip-na">${t('noDateEntered')}</span>`
                     : s.overdue ? `<span class="chip chip-critical">${Icons.alert()} ${t('exceededMonths', { n: s.field.staleMonths })}</span>`
                     : `<span class="chip chip-ok">${t('withinMonths', { n: s.field.staleMonths })}</span>`}</td>
                 </tr>`).join('')}</tbody>
@@ -583,7 +588,7 @@ const Views = (() => {
       .join('');
 
     host.innerHTML = `
-      ${inherentBanners(inh)}
+      ${inherentBanners(inh, calc)}
 
       <div class="grid grid-kpi">
         ${Calc.DIMS.map(dimKey => {
@@ -633,8 +638,16 @@ const Views = (() => {
     bindInherent(host);
   }
 
-  function inherentBanners(inh) {
+  /** Dosyadan gelen aralık dışı değerlerin toplamı (skor, ağırlık, pay, iştah). */
+  function invalidCount(calc) {
+    return calc.inherent.invalid + calc.pf.invalid + calc.lines.invalid
+      + calc.residual.filter(r => r.appetiteInvalid).length + (calc.pfLine.appetiteInvalid ? 1 : 0);
+  }
+
+  function inherentBanners(inh, calc) {
     const out = [];
+    const bozuk = invalidCount(calc);
+    if (bozuk) out.push(banner('danger', t('bnInvalidTtl', { n: bozuk }), t('bnInvalidBody')));
     if (!inh.measured) {
       out.push(banner('info', t('bnInhIntroTtl'), t('bnInhIntroBody')));
     } else if (inh.pending > 0) {
@@ -716,6 +729,7 @@ const Views = (() => {
           <span>${esc(f.factor)}</span>
           ${st.na ? `<span class="chip chip-na">${Icons.lock()} ${esc(st.manualNA ? t('notApplicable') : st.scopeReason)}</span>` : ''}
           ${st.weightOverridden ? `<span class="chip chip-mid">${t('weightChanged')}</span>` : ''}
+          ${st.invalidScore || st.invalidWeight ? `<span class="chip chip-critical">${Icons.alert()} ${t('invalidValue')}</span>` : ''}
           ${st.needsNote ? `<span class="chip chip-critical">${Icons.alert()} ${t('rationaleNeeded')}</span>` : ''}
         </div>
         <div class="subtle">${esc(f.why)}</div>
@@ -843,6 +857,7 @@ const Views = (() => {
             <span>${esc(I18n.isEn ? s.en : s.tr)}</span>
           </label>
           ${dis ? `<div class="subtle">${t('opOutOfScope')}</div>` : ''}
+          ${l.invalidShare && l.active ? `<div class="help is-error">${t('invalidValue')}</div>` : ''}
         </td>
         <td style="width:140px">
           <div class="input-unit">
@@ -1061,6 +1076,11 @@ const Views = (() => {
       const w = e.target.closest('[data-inh-weight]');
       if (w) {
         const v = Number(w.value);
+        if (w.value !== '' && Calc.validWeight(w.value) === null) {
+          UI.toast(t('vWeightRange', { m: Calc.WEIGHT_MAX }), 'err');
+          App.rerender();
+          return;
+        }
         Store.update(s => {
           const def = DATA.inherentFactors.find(f => f.key === w.dataset.inhWeight);
           if (!Number.isFinite(v) || v <= 0 || (def && v === def.weight)) delete s.inherentWeights[w.dataset.inhWeight];
@@ -1249,6 +1269,23 @@ const Views = (() => {
     });
 
     host.addEventListener('change', e => {
+      // Örneklem ve hata sayısı yazılınca yalnızca o kart tazelenir: oran ya da
+      // tutarsızlık uyarısı hemen görünür, liste kaydırması korunur.
+      const qn = e.target.closest('input[data-qa][type="number"]');
+      if (qn) {
+        const fresh = App.recompute();
+        ctx.calc = fresh;
+        // Oran satırı her zaman hata alanının altındadır; örneklem alanının kendi
+        // yardımı (popülasyon adı) değişmez.
+        const hataAlani = document.getElementById('qe-' + qn.dataset.qa);
+        const help = hataAlani && hataAlani.closest('.field').querySelector('.help');
+        if (help) {
+          const tmp = document.createElement('div');
+          tmp.innerHTML = qaHelp(fresh.perQuestion[qn.dataset.qa]);
+          help.replaceWith(tmp.firstElementChild);
+        }
+        return;
+      }
       const qa = e.target.closest('select[data-qa]');
       if (qa) {
         Store.update(s => {
@@ -1449,7 +1486,7 @@ const Views = (() => {
       if (qFilter.status === 'answered' && !s.answered) return false;
       if (qFilter.status === 'gap' && (!s.actionNeeded || s.actionNeeded === 'Hayır')) return false;
       if (qFilter.status === 'opencrit' && !s.openCritical) return false;
-      if (qFilter.status === 'qapending' && (!q.qa || (s.qaResult && s.qaResult !== 'Test edilmedi'))) return false;
+      if (qFilter.status === 'qapending' && (!Calc.qaRequired(q, s) || Calc.qaTested(s))) return false;
       if (qFilter.status === 'qaconflict' && !s.qaConflict) return false;
       if (qFilter.status === 'noevidence') {
         const rec = Store.state.answers[q.id];
@@ -1527,6 +1564,13 @@ const Views = (() => {
           + (calc.qa2.conflicts.length ? ` · <b style="color:var(--danger)">${calc.qa2.conflicts.length} ${t('qaConflictShort')}</b>` : '')
           + meter(calc.qa2.coverage, calc.qa2.coverage >= 0.8 ? 'ok' : '') })
     ].join('');
+  }
+
+  /** QA hata alanının yardım satırı: oran ya da tutarsızlık uyarısı. */
+  function qaHelp(st) {
+    const c = Calc.qaSampleCheck(st.qaSample, st.qaErrors);
+    if (c.error) return `<div class="help is-error" role="alert">${t(c.error === 'over' ? 'qaErrOver' : 'qaErrNegative')}</div>`;
+    return `<div class="help">${c.rate === null ? t('qaErrorsHelp') : t('qaErrorRate', { p: fmtPct1(c.rate) })}</div>`;
   }
 
   const ANSWER_ICON = { 'Evet': Icons.check(), 'Kısmen': Icons.half(), 'Hayır': Icons.x(), 'Uygulanamaz': Icons.minus() };
@@ -1611,8 +1655,7 @@ const Views = (() => {
               <label for="qe-${q.id}">${t('qaErrors')}</label>
               <input type="number" min="0" step="1" inputmode="numeric" id="qe-${q.id}"
                 data-qa="${q.id}" data-field="qaErrors" value="${esc(s.qaErrors)}" placeholder="0">
-              <div class="help">${s.qaSample && s.qaErrors !== '' && Number(s.qaSample) > 0
-                ? t('qaErrorRate', { p: fmtPct1(Number(s.qaErrors) / Number(s.qaSample)) }) : t('qaErrorsHelp')}</div>
+              ${qaHelp(s)}
             </div>
           </div>
           <div class="field" style="margin:0">
@@ -1853,6 +1896,7 @@ const Views = (() => {
           <input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-${r.code}"
             data-appetite="${r.code}" value="${esc(r.appetite)}" aria-label="${esc(r.name)} — ${t('colAppetiteLimit')}">
           ${r.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}
+          ${r.appetiteInvalid ? `<div class="help is-error">${t('apInvalid')}</div>` : ''}
         </td>
         <td>${r.breach === null ? '—' : r.breach
           ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
@@ -1901,7 +1945,8 @@ const Views = (() => {
               <td>${calc.pfLine.level ? `<span class="chip ${levelClass(calc.pfLine.level)}">${esc(I18n.ref('riskLevel', calc.pfLine.level))}</span>` : '—'}</td>
               <td style="width:92px"><input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-PF"
                 data-appetite="PF" value="${esc(calc.pfLine.appetite)}" aria-label="PF — ${t('colAppetiteLimit')}">
-                ${calc.pfLine.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}</td>
+                ${calc.pfLine.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}
+                ${calc.pfLine.appetiteInvalid ? `<div class="help is-error">${t('apInvalid')}</div>` : ''}</td>
               <td>${calc.pfLine.breach === null ? '—' : calc.pfLine.breach
                 ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
                 : `<span class="chip chip-ok">${t('withinAppetiteFull')}</span>`}</td>
@@ -1932,6 +1977,11 @@ const Views = (() => {
     host.addEventListener('change', e => {
       const a = e.target.closest('[data-appetite]');
       if (!a) return;
+      if (a.value !== '' && Calc.validAppetite(a.value) === null) {
+        UI.toast(t('vAppetiteRange', { m: Calc.APPETITE_MAX }), 'err');
+        App.rerender();
+        return;
+      }
       Store.update(s => {
         const v = Number(a.value);
         s.appetite = s.appetite || {};
@@ -1954,11 +2004,12 @@ const Views = (() => {
         <td style="width:150px">
           <div class="input-unit">
             <input type="number" min="0" step="1" inputmode="numeric" id="qa-vol-${i}" data-vol="${esc(p.key)}"
-              value="${esc(p.volume === null ? '' : p.volume)}" placeholder="0"
+              value="${esc(p.rawVolume)}" placeholder="0"
               aria-label="${esc(p.pop)} — ${t('colPeriodVol')}">
             <span class="unit-tag">${t('items')}</span>
           </div>
-          ${p.volume !== null ? `<div class="subtle">${fmtInt(p.volume)} ${t('records')}</div>` : ''}
+          ${p.invalidVolume ? `<div class="help is-error">${t('qaVolInvalid')}</div>`
+            : p.volume !== null ? `<div class="subtle">${fmtInt(p.volume)} ${t('records')}</div>` : ''}
         </td>
         <td>${p.full
           ? `<span class="chip chip-critical">${t('fullCoverage')}</span><div class="subtle">${t('allTested')}</div>`
@@ -2023,5 +2074,5 @@ const Views = (() => {
     });
   }
 
-  return { dashboard, kunye, inherent: inherentView, questions, questionCard, domainScores, residual, qa, guide, banner, maturityClass };
+  return { dashboard, kunye, inherent: inherentView, questions, questionCard, qaHelp, domainScores, residual, qa, guide, banner, maturityClass };
 })();

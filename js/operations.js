@@ -15,7 +15,8 @@ const Operations = (() => {
     const rec = (state.operations || {})[key];
     if (!rec) return null;
     const v = Number(rec[field]);
-    return Number.isFinite(v) ? v : null;
+    // Adet, tutar, gün ve saat negatif olamaz; negatif değer hesaba girmez, uyarı verilir.
+    return Number.isFinite(v) && v >= 0 ? v : null;
   };
 
   /** "metric.field" veya bunların dizisi -> toplam; hiçbiri girilmemişse null. */
@@ -90,6 +91,9 @@ const Operations = (() => {
 
     // Tutarlılık uyarıları
     const w = [];
+    const negSay = Object.values(state.operations || {})
+      .reduce((a, r) => a + Object.values(r || {}).filter(v => v !== '' && Number(v) < 0).length, 0);
+    if (negSay) w.push(t('opWarnNegative', { n: negSay }));
     const cmp = (a, b, msg) => {
       const va = pick(state, a), vb = pick(state, b);
       if (va !== null && vb !== null && va > vb) w.push(msg);

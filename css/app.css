@@ -398,6 +398,10 @@ select { cursor: pointer; text-overflow: ellipsis; }
 
 .q-echo { margin-top: 4px; line-height: 1.4; }
 .q-echo.is-error { color: var(--danger); }
+.field .help.is-error { color: var(--danger); font-weight: 500; }
+/* Tarayıcının kendi aralık denetimi (min/max/step) görünür olsun: negatif sayı,
+   100'ü aşan pay ya da ileri tarih girildiğinde alan kırmızı çerçeve alır. */
+input[type="number"]:invalid, input[type="date"]:invalid { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
 
 /* ---------- Segmented answer control ---------- */
 /* Yanıt kontrolü — dört seçenek tek bir bitişik grup olarak okunur */

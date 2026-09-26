@@ -34,6 +34,26 @@ const Calc = (() => {
 
   const DIMS = ['Müşteri', 'Coğrafya ve Yaptırım', 'Ürün', 'Kanal', 'İşlem'];
 
+  /* ---------- Değer aralıkları ----------
+     Arayüz bu aralıkların dışını üretemez ama elle düzenlenmiş, başka sürümden
+     gelen ya da birleştirilen bir dosya üretebilir. 7 puanlık bir skor 1–5
+     ölçeğini bozar, artık risk 5'i aşar. Aralık dışı değer yok sayılır ve
+     sayılır; ekran bunu uyarı olarak gösterir. */
+  const WEIGHT_MAX = 10;        // faktör ağırlığı girişi 0,5–10
+  const APPETITE_MAX = 5;       // iştah limiti girişi 0,1–5 (artık risk ölçeği)
+
+  /** 1–5 arası tam sayı skor; değilse null. */
+  function validScore(v) {
+    if (v === '' || v === null || v === undefined) return null;
+    const n = Number(v);
+    return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+  }
+  const isBlank = v => v === '' || v === null || v === undefined;
+  /** Doluysa ama geçerli skor değilse. */
+  const invalidScore = v => !isBlank(v) && validScore(v) === null;
+  function validWeight(v) { const n = Number(v); return !isBlank(v) && Number.isFinite(n) && n > 0 && n <= WEIGHT_MAX ? n : null; }
+  function validAppetite(v) { const n = Number(v); return !isBlank(v) && Number.isFinite(n) && n > 0 && n <= APPETITE_MAX ? n : null; }
+
   /* PF çalışma kitabında ayrı bir satır olmadığı için iştah limiti DATA.appetite
      içinde yok; domainlerle aynı varsayılana bağlanır. */
   const PF_APPETITE = 1.5;
@@ -82,9 +102,21 @@ const Calc = (() => {
 
   /* ---------- Künye ---------- */
 
+  /** Bugünden sonraki bir tarih mi? Geçen süre hesabında geçersiz sayılır. */
+  function isFutureDate(dateStr) {
+    const d = parseDate(dateStr);
+    if (!d) return false;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return d > today;
+  }
+
+  /* İleri bir tarih için geçen süre üretilmez (null). Aksi hâlde "−5 ay"
+     güncel sayılıyor, ilgili KPI "hedefte" görünüyor ve ileri tarihli
+     denetim gecikmemiş kabul ediliyordu: yazım hatası iyi sonuç üretiyordu.
+     Tarih geçersiz olduğu için çağıran taraf ayrıca uyarı gösterir. */
   function monthsSince(dateStr) {
     const d = parseDate(dateStr);
-    if (!d) return null;
+    if (!d || isFutureDate(dateStr)) return null;
     const now = new Date();
     return (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth())
       + (now.getDate() < d.getDate() ? -1 : 0);
@@ -92,7 +124,7 @@ const Calc = (() => {
 
   function ratio(state, numId, denId) {
     const n = Number(state.kunye[numId]), d = Number(state.kunye[denId]);
-    if (!Number.isFinite(n) || !Number.isFinite(d) || d <= 0) return null;
+    if (!Number.isFinite(n) || !Number.isFinite(d) || d <= 0 || n < 0) return null;
     return n / d;
   }
 
@@ -107,7 +139,8 @@ const Calc = (() => {
       .filter(f => f.staleMonths)
       .map(f => {
         const m = monthsSince(state.kunye[f.id]);
-        return { field: f, months: m, overdue: m !== null && m > f.staleMonths };
+        return { field: f, months: m, future: isFutureDate(state.kunye[f.id]),
+                 overdue: m !== null && m > f.staleMonths };
       });
 
     const T = I18n.t;
@@ -147,6 +180,9 @@ const Calc = (() => {
       warnings.push(T('errCrossBorder'));
     }
     if (periodError) warnings.push(periodError);
+    DATA.kunyeFields.filter(f => f.type === 'number' && !isBlank(state.kunye[f.id]) && Number(state.kunye[f.id]) < 0)
+      .forEach(f => warnings.push(T('errNegative', { label: f.label })));
+    stale.filter(s => s.future).forEach(s => warnings.push(T('errFutureDate', { label: s.field.label })));
 
     return {
       total: DATA.kunyeFields.length,
@@ -179,6 +215,25 @@ const Calc = (() => {
 
   /* ---------- Soru düzeyi ---------- */
 
+  /* Güvence örtüsünün paydası: QA testi gereken ve uygulanabilir sorular.
+     "Uygulanamaz" (elle ya da kapsam kuralıyla) bir kontrol test edilemez;
+     paydada kalırsa kapsam belirleyen kurumda örtü hiç %100 olamıyordu.
+     Yanıtlanmamış soru paydada kalır: uygulanıp uygulanmadığı henüz belli değil. */
+  function qaRequired(q, st) {
+    return Boolean(q.qa) && !(st.answered && st.coef === null);
+  }
+  /** QA örneklem girişinin tutarlılığı: negatif sayı ya da örneklemi aşan hata. */
+  function qaSampleCheck(sample, errors) {
+    const n = Number(sample), e = Number(errors);
+    const nOk = !isBlank(sample) && Number.isFinite(n), eOk = !isBlank(errors) && Number.isFinite(e);
+    if ((nOk && n < 0) || (eOk && e < 0)) return { error: 'negative', rate: null };
+    if (nOk && eOk && e > n) return { error: 'over', rate: null };
+    return { error: null, rate: nOk && eOk && n > 0 ? e / n : null };
+  }
+  function qaTested(st) {
+    return Boolean(st.qaResult) && st.qaResult !== 'Test edilmedi';
+  }
+
   /** 03_Soru_Bankasi G/I/J/R sütunları. */
   function scoreQuestion(q, rec, scopeReason) {
     const stored = rec && rec.a ? rec.a : '';
@@ -190,7 +245,10 @@ const Calc = (() => {
     const answered = answer !== '';
     const coef = answered ? ANSWER_COEF[answer] : undefined;
     const inScope = answered && coef !== null;      // Uygulanamaz => skorlamadan çıkar
-    const cap = (q.qa && rec) ? QA_CAP[rec.qaResult] : undefined;
+    // Tanınmayan QA sonucu (başka sürüm, elle düzenleme) girilmemiş sayılır;
+    // aksi hâlde herhangi bir değer "test edildi" diye güvenceye yazılıyordu.
+    const qaRes = (rec && DATA.ref.qaResult.includes(rec.qaResult)) ? rec.qaResult : '';
+    const cap = q.qa ? QA_CAP[qaRes] : undefined;
     const coefTested = inScope ? Math.min(coef, cap === undefined ? 1 : cap) : null;
 
     /* Aksiyon ihtiyacı ve açık kritiklik testle düzeltilmiş katsayıdan okunur:
@@ -208,12 +266,12 @@ const Calc = (() => {
       coef: inScope ? coef : null,
       applicableWeight: inScope ? q.weight : 0,
       earned: inScope ? q.weight * coef : 0,
-      qaResult: (rec && rec.qaResult) || '',
+      qaResult: qaRes,
       qaSample: (rec && rec.qaSample) || '',
       qaErrors: (rec && rec.qaErrors) || '',
       qaNote: (rec && rec.qaNote) || '',
       // Beyan "Evet" ama dosya testi çelişkiliyse skor savunulamaz
-      qaConflict: Boolean(q.qa && rec && rec.qaResult === 'Çelişkili' && answer === 'Evet'),
+      qaConflict: Boolean(q.qa && qaRes === 'Çelişkili' && answer === 'Evet'),
       // Beyan edilen katsayı ile bağımsız testle düzeltilmiş katsayı ayrı tutulur
       coefTested,
       earnedTested: inScope ? q.weight * coefTested : 0,
@@ -229,19 +287,21 @@ const Calc = (() => {
   /** Bir faktörün etkin durumu: ağırlık geçersiz kılma, kapsam dışılık, skor, gerekçe. */
   function factorState(f, state) {
     const key = f.key;          // sabit anahtar; görünen ad dile göre değişir
-    const wOverride = Number(state.inherentWeights[key]);
-    const weight = Number.isFinite(wOverride) && wOverride > 0 ? wOverride : f.weight;
+    const wOverride = validWeight(state.inherentWeights[key]);
+    const weight = wOverride !== null ? wOverride : f.weight;
 
     const autoNA = Boolean(f.scope && (state.kunye[f.scope.field] || '') === 'Hayır');
     const manualNA = state.inherentNA[key] === true;
-    const scoreRaw = Number(state.inherent[key]);
-    const scored = Number.isFinite(scoreRaw) && scoreRaw >= 1;
+    const scoreRaw = validScore(state.inherent[key]);
+    const scored = scoreRaw !== null;
 
     // Kapsam kuralı yalnızca elle skorlanmamış faktörü bağlar.
     const na = manualNA || (autoNA && !scored);
 
     return {
       key, weight, na, autoNA, manualNA,
+      invalidScore: invalidScore(state.inherent[key]),
+      invalidWeight: !isBlank(state.inherentWeights[key]) && wOverride === null,
       scopeReason: autoNA ? f.scope.reason : null,
       weightOverridden: weight !== f.weight,
       score: scored ? scoreRaw : null,
@@ -315,7 +375,8 @@ const Calc = (() => {
       scored, na, total, applicable: total - na, pending,
       complete: pending === 0 && total - na > 0,
       coverage: (total - na) ? scored / (total - na) : 0,
-      missingNotes: factors.filter(x => x.st.needsNote).length
+      missingNotes: factors.filter(x => x.st.needsNote).length,
+      invalid: factors.filter(x => x.st.invalidScore || x.st.invalidWeight).length
     };
   }
 
@@ -350,12 +411,13 @@ const Calc = (() => {
 
   function pfRisk(state) {
     const rec = state.pf || {};
-    let num = 0, den = 0, scored = 0, na = 0;
+    let num = 0, den = 0, scored = 0, na = 0, invalid = 0;
     const factors = RISKMODEL.pf.factors.map(f => {
       const r = rec[f.key] || {};
       const autoNA = Boolean(f.scope && (state.kunye[f.scope] || '') === 'Hayır');
-      const score = Number(r.score);
-      const has = Number.isFinite(score) && score >= 1;
+      const score = validScore(r.score);
+      const has = score !== null;
+      if (invalidScore(r.score)) invalid += 1;
       const excluded = r.na === true || (autoNA && !has);
       if (excluded) na += 1;
       else if (has) { num += score * f.weight; den += f.weight; scored += 1; }
@@ -372,7 +434,8 @@ const Calc = (() => {
       value: value === null ? 0 : value, measured: value !== null,
       level: value === null ? '' : riskLevel5(value),
       complete: applicable > 0 && scored === applicable,
-      missingNotes: factors.filter(f => f.needsNote).length
+      missingNotes: factors.filter(f => f.needsNote).length,
+      invalid
     };
   }
 
@@ -383,25 +446,30 @@ const Calc = (() => {
   function businessLines(state) {
     const rec = state.lines || {};
     const dims = RISKMODEL.businessLines.dims;
-    let shareSum = 0;
+    let shareSum = 0, invalid = 0;
 
     const lines = RISKMODEL.businessLines.lines.map(l => {
       const r = rec[l.key] || {};
       const outOfScope = Boolean(l.scope && (state.kunye[l.scope] || '') === 'Hayır');
       const active = r.active === true && !outOfScope;
       const share = Number(r.share);
-      const hasShare = Number.isFinite(share) && share > 0;
+      // Pay 0–100 arasında olmalı; negatif ya da 100'ü aşan tek pay geçersizdir.
+      const hasShare = !isBlank(r.share) && Number.isFinite(share) && share > 0 && share <= 100;
+      const invalidShare = !isBlank(r.share) && !hasShare && share !== 0;
+      if (invalidShare && active) invalid += 1;      // pasif kolun girişi kapalı; uyarı yalnız etkin kolda
       const scores = {};
       let sum = 0, n = 0;
       dims.forEach(d => {
-        const v = Number((r.dims || {})[d]);
-        if (Number.isFinite(v) && v >= 1) { scores[d] = v; sum += v; n += 1; }
+        const raw = (r.dims || {})[d];
+        const v = validScore(raw);
+        if (invalidScore(raw) && active) invalid += 1;
+        if (v !== null) { scores[d] = v; sum += v; n += 1; }
         else scores[d] = null;
       });
       const inherent = n ? sum / n : null;
       if (active && hasShare) shareSum += share;
       return {
-        spec: l, active, outOfScope, share: hasShare ? share : null,
+        spec: l, active, outOfScope, share: hasShare ? share : null, invalidShare,
         scores, scoredDims: n, inherent, note: r.note || ''
       };
     });
@@ -420,7 +488,7 @@ const Calc = (() => {
       lines, active: active.length, scored: scored.length,
       shareSum, shareComplete: Math.abs(shareSum - 100) < 0.5,
       weightedInherent: weighted, worst,
-      dims
+      dims, invalid
     };
   }
 
@@ -522,7 +590,7 @@ const Calc = (() => {
         earnedTested += st.earnedTested;
         if (st.openCritical) openCrit += 1;
         if (st.actionNeeded && st.actionNeeded !== 'Hayır') actions += 1;
-        if (q.qa) { qaReq += 1; if (st.qaResult && st.qaResult !== 'Test edilmedi') qaDone += 1; }
+        if (qaRequired(spec, st)) { qaReq += 1; if (qaTested(st)) qaDone += 1; }
         return { q, st };
       });
 
@@ -589,7 +657,7 @@ const Calc = (() => {
         earnedTested += s.earnedTested;
         if (s.openCritical) openCrit += 1;
         if (s.actionNeeded && s.actionNeeded !== 'Hayır') actions += 1;
-        if (q.qa) { qaReq += 1; if (s.qaResult && s.qaResult !== 'Test edilmedi') qaDone += 1; }
+        if (qaRequired(q, s)) { qaReq += 1; if (qaTested(s)) qaDone += 1; }
         if (s.qaAdjusted) qaAdj += 1;
       });
       const eff = appW ? earned / appW : null;
@@ -607,11 +675,8 @@ const Calc = (() => {
     });
 
     // QA doğrulama örtüsü: testi gereken sorulardan kaçı test edildi
-    const qaRequired = DATA.questions.filter(q => q.qa);
-    const qaTested = qaRequired.filter(q => {
-      const r = perQuestion[q.id].qaResult;
-      return r && r !== 'Test edilmedi';
-    });
+    const qaGereken = DATA.questions.filter(q => qaRequired(q, perQuestion[q.id]));
+    const qaYapilan = qaGereken.filter(q => qaTested(perQuestion[q.id]));
     const qaConflicts = DATA.questions.filter(q => perQuestion[q.id].qaConflict);
 
     const totals = domains.reduce((t, d) => {
@@ -624,7 +689,7 @@ const Calc = (() => {
     totals.effectivenessTested = totals.applicableWeight ? totals.earnedTested / totals.applicableWeight : null;
     totals.maturity = maturity(totals.effectivenessTested);
     totals.maturityDeclared = maturity(totals.effectiveness);
-    totals.assurance = qaRequired.length ? qaTested.length / qaRequired.length : null;
+    totals.assurance = qaGereken.length ? qaYapilan.length / qaGereken.length : null;
     totals.progress = totals.count ? totals.answered / totals.count : 0;
 
     // Doğuştan + artık risk (05_Artik_Risk)
@@ -659,15 +724,16 @@ const Calc = (() => {
       // Kontrol etkisi tavanla sınırlanır: hiçbir kontrol seti riski sıfırlamaz.
       const applied = eff === null ? null : Math.min(eff, MAX_CONTROL_EFFECT);
       const res = (applied === null || !irMeasured) ? null : ir * (1 - applied);
-      const ovr = Number((state.appetite || {})[d.code]);
-      const limit = Number.isFinite(ovr) && ovr > 0 ? ovr : defaultAppetite(d.code);
+      const rawAp = (state.appetite || {})[d.code];
+      const ovr = validAppetite(rawAp);
+      const limit = ovr !== null ? ovr : defaultAppetite(d.code);
       return {
         code: d.code, name: d.name,
         source: DATA.residualSource[d.code] || '',
         inherentRisk: irMeasured ? ir : null,
         effectiveness: dom.effectiveness, effectivenessTested: eff, effectiveApplied: applied,
         residual: res, level: res === null ? '' : residualLevel(res),
-        appetite: limit, appetiteOverridden: Number.isFinite(ovr) && ovr > 0,
+        appetite: limit, appetiteOverridden: ovr !== null, appetiteInvalid: !isBlank(rawAp) && ovr === null,
         breach: res === null ? null : res > limit
       };
     });
@@ -685,8 +751,9 @@ const Calc = (() => {
     const pfDom = byCode[RISKMODEL.pf.controlDomain];
     const pfEff = pfDom ? pfDom.effectivenessTested : null;
     const pfApplied = pfEff === null ? null : Math.min(pfEff, MAX_CONTROL_EFFECT);
-    const pfAppetiteOvr = Number((state.appetite || {}).PF);
-    const pfAppetite = Number.isFinite(pfAppetiteOvr) && pfAppetiteOvr > 0 ? pfAppetiteOvr : defaultAppetite('PF');
+    const pfRawAp = (state.appetite || {}).PF;
+    const pfAppetiteOvr = validAppetite(pfRawAp);
+    const pfAppetite = pfAppetiteOvr !== null ? pfAppetiteOvr : defaultAppetite('PF');
     const pfResidualValue = (pfApplied === null || !pf.measured) ? null : pf.value * (1 - pfApplied);
     const pfLine = {
       code: 'PF', name: I18n.isEn ? RISKMODEL.pf.en : RISKMODEL.pf.tr,
@@ -696,7 +763,7 @@ const Calc = (() => {
       effectivenessTested: pfEff, effectiveApplied: pfApplied,
       residual: pfResidualValue,
       level: pfResidualValue === null ? '' : residualLevel(pfResidualValue),
-      appetite: pfAppetite, appetiteOverridden: Number.isFinite(pfAppetiteOvr) && pfAppetiteOvr > 0,
+      appetite: pfAppetite, appetiteOverridden: pfAppetiteOvr !== null, appetiteInvalid: !isBlank(pfRawAp) && pfAppetiteOvr === null,
       breach: pfResidualValue === null ? null : pfResidualValue > pfAppetite,
       separate: true
     };
@@ -712,8 +779,11 @@ const Calc = (() => {
 
     // QA örneklem planı (06_QA_Orneklem)
     const qa = DATA.qaPopulations.map(p => {
-      const vol = Number(state.qaVolumes[p.key]);
+      const rawVol = state.qaVolumes[p.key];
+      const vol = Number(rawVol);
       const has = Number.isFinite(vol) && vol > 0;
+      // Negatif ya da sayı olmayan hacim geçersizdir; sessizce "boş" gösterilmez.
+      const invalidVolume = !isBlank(rawVol) && !(Number.isFinite(vol) && vol >= 0);
       const yearly = !has ? null
         : (p.full ? vol : Math.min(vol, Math.max(Math.round(vol * p.rate), p.min)));
       /* Bölücü, görünen metne değil sabit anahtara bakar: p.freq dile göre
@@ -721,7 +791,7 @@ const Calc = (() => {
          bırakıyordu — test başına örneklem dört katı görünüyordu. */
       const divisor = p.freqKey === 'Çeyreklik' ? 4 : p.freqKey === 'Altı Aylık' ? 2 : 1;
       return Object.assign({}, p, {
-        volume: has ? vol : null,
+        volume: has ? vol : null, invalidVolume, rawVolume: isBlank(rawVol) ? '' : rawVol,
         yearlySample: yearly,
         perTest: yearly === null ? null : Math.ceil(yearly / divisor),
         tests: divisor
@@ -764,9 +834,9 @@ const Calc = (() => {
     return {
       scopeMap, perQuestion, domains, totals, kunye: kunye(state),
       qa2: {
-        required: qaRequired.length,
-        tested: qaTested.length,
-        coverage: qaRequired.length ? qaTested.length / qaRequired.length : 0,
+        required: qaGereken.length,
+        tested: qaYapilan.length,
+        coverage: qaGereken.length ? qaYapilan.length / qaGereken.length : 0,
         conflicts: qaConflicts.map(q => q.id)
       },
       portfolio: (typeof Portfolio !== 'undefined') ? Portfolio.compute(state) : null,
@@ -839,7 +909,7 @@ const Calc = (() => {
     return toISODate(d);
   }
 
-  return { compute, actionOpen, ACTION_ACCEPTED, ACTION_CLOSING, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
+  return { compute, qaSampleCheck, validScore, validWeight, validAppetite, WEIGHT_MAX, APPETITE_MAX, isFutureDate, qaRequired, qaTested, actionOpen, ACTION_ACCEPTED, ACTION_CLOSING, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
            maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite, parseDate, toISODate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

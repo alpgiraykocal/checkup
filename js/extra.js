@@ -133,8 +133,7 @@ const Extra = (() => {
               <label for="exqe-${esc(q.id)}">${t('qaErrors')}</label>
               <input type="number" min="0" step="1" inputmode="numeric" id="exqe-${esc(q.id)}"
                 data-ex-qa="${esc(q.id)}" data-field="qaErrors" value="${esc(st.qaErrors)}" placeholder="0">
-              <div class="help">${st.qaSample && st.qaErrors !== '' && Number(st.qaSample) > 0
-                ? t('qaErrorRate', { p: fmtPct1(Number(st.qaErrors) / Number(st.qaSample)) }) : t('qaErrorsHelp')}</div>
+              ${Views.qaHelp(st)}
             </div>
           </div>
           <div class="field" style="margin:0">

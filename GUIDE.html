@@ -8,7 +8,7 @@
 <meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.10.0">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -45,7 +45,7 @@
       <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
       <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
-      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.0</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.1</span></div>
     </div>
   </header>
 
@@ -367,7 +367,9 @@
         Residual risk is calculated from this value.</li>
       <li><b>Assurance coverage</b> — how many of the questions requiring a test
         were actually tested. If it is low, your scores have weak evidential
-        force; the score itself does not change, your confidence does.</li>
+        force; the score itself does not change, your confidence does. A question
+        answered “Not applicable” (by hand or by a scope rule) needs no test and
+        is left out of the denominator; an unanswered question stays in it.</li>
     </ul>
 
     <div class="kutu kritik">
@@ -644,7 +646,7 @@
           <tr><td>Question points</td><td>weight × coefficient</td></tr>
           <tr><td>Test-adjusted question points</td><td>weight × MIN(coefficient, QA cap)</td></tr>
           <tr><td>Control effectiveness</td><td>Σ points earned ÷ Σ applicable weight</td></tr>
-          <tr><td>Assurance coverage</td><td>questions tested ÷ questions requiring a test</td></tr>
+          <tr><td>Assurance coverage</td><td>questions tested ÷ questions requiring a test (Not applicable excluded)</td></tr>
           <tr><td>Dimension inherent risk</td><td>Σ(score × weight) ÷ Σ(scored weight)</td></tr>
           <tr><td>OVERALL inherent risk</td><td>plain average of the measured dimensions</td></tr>
           <tr><td>Residual risk</td><td>inherent risk × (1 − MIN(test-adjusted effectiveness, 0.95))</td></tr>
@@ -949,10 +951,15 @@
       <li><b>Scope effect table</b> — which section each “No” took out of scope,
         why, and how many questions it affects.</li>
       <li><b>Date ageing table</b> — for every date field, the months elapsed and
-        whether the expected interval has been exceeded.</li>
+        whether the expected interval has been exceeded. These are dates of work
+        already done: a future date cannot be picked, and if one comes from a file
+        it is marked “future date” and no elapsed time is calculated (the related
+        KPI stays empty too).</li>
       <li><b>Consistency warnings</b> — a red strip appears if the high-risk or PEP
         count exceeds the total, if cross-border transactions exceed total
-        transactions, or if the period end precedes the start.</li>
+        transactions, if the period end precedes the start, if a date is in the
+        future or if a number is negative. A negative number is not used; the
+        same rule applies on the portfolio and operations screens.</li>
       <li><b>Score suggestions</b> — where there is no portfolio data, these
         figures produce suggestions for inherent risk factors.</li>
     </ul>
@@ -1511,8 +1518,14 @@
     <p>
       The file must be a JSON produced by this application. In hand-edited files,
       unrecognised answer values count as unanswered; the score is not silently
-      corrupted, but the record does not appear either. A corrupt file does not
-      crash the application — it produces a warning.
+      corrupted, but the record does not appear either. An unrecognised QA result
+      counts as not tested. Out-of-range values — scores outside 1–5, factor
+      weights outside 0–10, business line shares outside 0–100, appetite limits
+      outside 0–5 — are not used; they are shown with an “invalid value” strip on
+      the dashboard and the Inherent Risk screen and a marker on the row
+      concerned. Fields of the wrong type (text instead of a list, say) are
+      corrected on load, and an unreadable reference-period summary is dropped. A
+      corrupt file does not crash the application — it produces a warning.
     </p>
 
     <h3>The scores are not what I expected</h3>
@@ -1641,7 +1654,7 @@
 
     <div class="altbilgi">
       <p>
-        This guide describes version 2.10.0 of the application and reference data
+        This guide describes version 2.10.1 of the application and reference data
         pack 2026.1. The formulas in the methodology section match the scoring
         engine exactly. Regulatory citations are indicative and must be verified
         against the legislation in force. The tool supports detection,
@@ -1652,6 +1665,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.10.0"></script>
+<script src="js/kilavuz.js?v=2.10.1"></script>
 </body>
 </html>
