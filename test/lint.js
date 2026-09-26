@@ -119,4 +119,49 @@ check('iki dilde sayısal sonuçlar aynı', farklar.length === 0, farklar.slice(
   check(`${alan}: iki dilde aynı`, JSON.stringify(a) === JSON.stringify(b));
 });
 
+/* ---------- İngilizce arayüzde Türkçe kalıntı ----------
+   Anahtar örtüsü testi her t() anahtarının iki dilde karşılığını arar; koda ya da
+   veriye doğrudan yazılmış Türkçe metni görmez. Canlıda İngilizce ekranda ek
+   kontrol kaynakları, sözlük terimleri ve referans paketi takvimi Türkçe
+   kalmıştı. Burada kullanıcı metni nötrlenmiş bir çalışma İngilizce çizilir. */
+{
+  const { Views, Portfolio, Operations, Settings, Extra, ChangeLog, Actions, Exporter, GLOSSARY, REFPACK } = A;
+  const TR = /[çğıöşüÇĞİÖŞÜ]/;
+  const KELIME = /\b(ve|veya|ile|için|soru|yanıt|bulgu|kontrol|toplam|açık|kapalı|Evet|Hayır|Kısmen|Uygulanamaz|Seçiniz|Tümü)\b/;
+  const IZIN = /Türkiye|Curaçao/;             // resmî İngilizce ülke adları
+  const bul = [];
+  const tara = (yer, metin) => String(metin).replace(/<[^>]+>/g, '\n').split('\n').map(x => x.trim()).filter(Boolean)
+    .forEach(x => { if ((TR.test(x) || KELIME.test(x)) && !IZIN.test(x)) bul.push(`${yer}: ${x.slice(0, 80)}`); });
+
+  I18n.apply('en');
+  EXTRA.sets.forEach(set => set.questions.forEach(q => tara('ek kaynak ' + q.id, I18n.source(q.source))));
+  DATA.questions.forEach(q => tara('kaynak ' + q.id, q.source));
+  GLOSSARY.forEach(g => tara('sözlük', g.kEn || g.k));
+  Object.values(REFPACK.sections).forEach(s => tara('referans takvimi', s.enCadence || s.cadence));
+
+  const s = JSON.parse(JSON.stringify(Store.snapshot()));
+  s.kunye.trade_finance_faaliyeti_var_mi = 'Hayır';
+  s.kunye.yukumlu_tipi = 'Banka';
+  DATA.questions.forEach((q, i) => { s.answers[q.id] = { a: ['Evet', 'Kısmen', 'Hayır', 'Uygulanamaz'][i % 4], evidence: 'Xx' }; if (q.qa) s.answers[q.id].qaResult = 'Çelişkili'; });
+  DATA.inherentFactors.forEach((f, i) => { s.inherent[f.key] = (i % 5) + 1; });
+  s.actions = [{ id: 'BLG-001', finding: 'Xx', rootCause: 'Süreç', crit: 'Yüksek', status: 'Kabul Edilen Risk', closedAt: '2026-01-01', verification: 'Xx', due: '2025-01-01', owner: 'Xx' }];
+  s.portfolio.countries = [{ code: 'DE', relations: ['muhabir'], customers: 5 }];
+  s.log = [{ at: new Date().toISOString(), what: 'answer', ref: 'D1-01', from: '', to: 'Evet' }];
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  Store.replace(s);
+  const calc = Calc.compute(Store.state);
+  const h = () => ({ innerHTML: '', addEventListener() {}, querySelector() { return null; } });
+  [['Pano', Views.dashboard], ['Nasıl', Views.guide], ['Künye', Views.kunye], ['Doğuştan', Views.inherent],
+   ['Skorlar', Views.domainScores], ['Artık', Views.residual], ['QA', Views.qa], ['Portföy', Portfolio.view],
+   ['İşlem', Operations.view], ['Ayarlar', Settings.view], ['Ek', Extra.view], ['Günlük', ChangeLog.view],
+   ['Bulgu', Actions.view], ['Rapor', Exporter.report]].forEach(([ad, fn]) => { const x = h(); fn(x, { state: Store.state, calc }); tara(ad, x.innerHTML); });
+  const q = DATA.questions.find(x => x.qa);
+  tara('soru kartı', Views.questionCard(q, calc));
+  // Durum değerleri: "Kabul Edilen Risk" gibi referans değerlerinin kart içi metni
+  // ve günlük tür adları da taranmış olur.
+  Store.replace(temiz);
+  I18n.apply('tr');
+  check('İngilizce arayüzde Türkçe kalıntı yok', bul.length === 0, bul.slice(0, 8));
+}
+
 process.exitCode = H.report('Dil sızıntısı denetimi') ? 1 : 0;

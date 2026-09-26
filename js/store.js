@@ -181,6 +181,11 @@ const Store = (() => {
      Kim bilgisi künyedeki uyum görevlisi ya da atanan sorumludur — uygulama
      kimlik doğrulaması yapmaz, bu yüzden alan beyan niteliğindedir. */
 
+  /* Olay türü günlükleri (dosya yükleme, birleştirme) değer değişmese de
+     yazılır: sayıları aynı, içeriği farklı bir dosya iz bırakmadan
+     yüklenebiliyordu. Değer değişikliği türleri eşitse atlanır. */
+  const HER_ZAMAN = new Set(['import', 'merge']);
+
   function logEvent(s, what, ref, before, after) {
     if (!Array.isArray(s.log)) s.log = [];
     const kim = (s.kunye && (s.kunye.uyum_gorevlisi || s.kunye.degerlendirmeyi_yapan)) || '';
@@ -190,7 +195,7 @@ const Store = (() => {
       return t.length > 120 ? t.slice(0, 117) + '…' : t;
     };
     const b = kis(before), a = kis(after);
-    if (b === a) return;                       // gerçek bir değişiklik yoksa kayıt yok
+    if (b === a && !HER_ZAMAN.has(what)) return;   // gerçek bir değişiklik yoksa kayıt yok
     s.log.push({ at: new Date().toISOString(), who: kis(kim), what, ref: kis(ref), from: b, to: a });
     if (s.log.length > LOG_LIMIT) s.log.splice(0, s.log.length - LOG_LIMIT);
   }

@@ -110,6 +110,21 @@ const gelenAl = (mine, theirs, anahtar) => {
   check('yeni kimlik sıradaki numara', yeni.id === 'BLG-003', yeni.id);
 }
 
+/* ---------- 5a. İnceleme listesi yalnızca farklı parçaları gösterir ---------- */
+{
+  const mine = blank();
+  DATA.questions.forEach(q => { mine.answers[q.id] = { a: 'Evet' }; });
+  DATA.inherentFactors.forEach(f => { mine.inherent[f.key] = 3; });
+  mine.kunye.kurum_unvani = 'X';
+  mine.actions = [{ id: 'BLG-001', finding: 'A', status: 'Açık' }];
+  const theirs = JSON.parse(JSON.stringify(mine));
+  check('aynı dosyada inceleme listesi boş', Merge.parcalar(mine, theirs).length === 0, Merge.parcalar(mine, theirs).map(p => p.key));
+  DATA.questions.filter(q => q.domain === 'D2').forEach(q => { theirs.answers[q.id] = { a: 'Hayır' }; });
+  theirs.actions.push({ id: 'BLG-002', finding: 'B', status: 'Açık' });
+  const anahtar = Merge.parcalar(mine, theirs).map(p => p.key).sort();
+  check('yalnızca değişen parçalar listelenir', JSON.stringify(anahtar) === JSON.stringify(['actions', 'answers:D2']), anahtar);
+}
+
 /* ---------- 5b. Doğuştan risk faktörü bütün olarak alınır ---------- */
 {
   const f = DATA.inherentFactors[0].key, g = DATA.inherentFactors[1].key;

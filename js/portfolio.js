@@ -392,8 +392,8 @@ const Portfolio = (() => {
     const rows = p.countries.rows.map((c, i) => `
       <tr>
         <td style="min-width:230px">
-          <select id="cn-code-${i}" data-cn="${i}" data-field="code" aria-label="${t('pfCountry')}">
-            ${CountryRisk.options(c.code, state)}
+          <select id="cn-code-${i}" data-cn="${i}" data-field="code" data-ulke-tembel aria-label="${t('pfCountry')}">
+            ${CountryRisk.optionsLazy(c.code, state)}
           </select>
         </td>
         <td style="min-width:170px">
@@ -488,8 +488,8 @@ const Portfolio = (() => {
           </select>
         </td>
         <td style="min-width:200px">
-          <select id="br-country-${i}" data-br="${i}" data-field="country" aria-label="${t('pfCountry')}">
-            ${CountryRisk.options(b.country, state)}
+          <select id="br-country-${i}" data-br="${i}" data-field="country" data-ulke-tembel aria-label="${t('pfCountry')}">
+            ${CountryRisk.optionsLazy(b.country, state)}
           </select>
         </td>
         <td style="width:120px"><input type="number" min="0" step="1" inputmode="numeric" id="br-cus-${i}"
@@ -553,6 +553,14 @@ const Portfolio = (() => {
   /* ---------- Olay bağlama ---------- */
 
   function bind(host, ctx) {
+    // Ülke listeleri ilk tıklamada ya da klavye odağında dolar (bkz. CountryRisk.optionsLazy)
+    const doldur = e => {
+      const sel = e.target.closest && e.target.closest('select[data-ulke-tembel]');
+      if (sel) CountryRisk.fillLazy(sel, Store.state);
+    };
+    host.addEventListener('mousedown', doldur, true);
+    host.addEventListener('focusin', doldur);
+    host.addEventListener('touchstart', doldur, { passive: true, capture: true });
     // Sayı ve metin girişleri: sessiz kaydet, odak kaybında türetilenleri tazele
     host.addEventListener('input', e => {
       const mx = e.target.closest('[data-mx]');

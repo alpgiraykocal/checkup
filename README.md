@@ -39,7 +39,7 @@ Belgeler `css/kilavuz.css` ve `js/kilavuz.js` dosyalarını paylaşır (açık/k
 tema, okuma ilerlemesi, etkin bölüm işareti); harici istek yoktur.
 
 Yazdırma sürümleri depoda hazır durur: [KILAVUZ.pdf](KILAVUZ.pdf) (A4, 36 sayfa)
-ve [GUIDE.pdf](GUIDE.pdf) (A4, 29 sayfa). Yeniden üretmek için:
+ve [GUIDE.pdf](GUIDE.pdf) (A4, 30 sayfa). Yeniden üretmek için:
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=KILAVUZ.pdf KILAVUZ.html
@@ -53,7 +53,7 @@ Bağımlılık yok. Node 18+ yeterli:
 node test/run.js
 ```
 
-On üç paket, yaklaşık 6.600 örnek kontrol ve 1,5 milyon değişmez kural denetimi: skorlama zinciri, kapsam ve QA matematiği,
+On üç paket, yaklaşık 6.800 örnek kontrol ve 1,5 milyon değişmez kural denetimi: skorlama zinciri, kapsam ve QA matematiği,
 operasyon ve portföy hesapları, altın örnek regresyon çıpası, veri sözleşmesi,
 iki dilde metin örtüsü, **dil sızıntısı denetimi**, birleştirme, bozuk veriye
 dayanıklılık, görünüm ve etkileşim denetimi, dar ekran ızgarası ve dokuz saat

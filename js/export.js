@@ -23,7 +23,7 @@ const Exporter = (() => {
   /* ---------- JSON ---------- */
   function saveJSON() {
     const snap = Store.snapshot();
-    const name = (snap.kunye.kurum_unvani || 'kurum').replace(/[^\p{L}\p{N}]+/gu, '-').slice(0, 40);
+    const name = ((snap.kunye.kurum_unvani || 'kurum').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '') || 'kurum').slice(0, 40);
     download(`${t('fileWorkbook')}-${name}-${stamp()}.json`, JSON.stringify(snap, null, 2), 'application/json');
     // Yedeğin ne zaman ve hangi hacimde alındığı işaretlenir; hatırlatma buna bakar.
     Store.markExported();
@@ -48,7 +48,8 @@ const Exporter = (() => {
         });
         if (!ok) return;
       }
-      const ozet = () => t('impSummary', {
+      // Günlüğe dilden bağımsız sayılar yazılır; ekranda seçili dile çevrilir.
+      const ozet = () => JSON.stringify({
         a: Object.keys(Store.state.answers).length,
         b: (Store.state.actions || []).length
       });
@@ -71,13 +72,18 @@ const Exporter = (() => {
   function csvCell(v) {
     let s = v === null || v === undefined ? '' : String(v);
     if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s) && !SAYI.test(s.trim())) s = "'" + s;
-    return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    return /[",;\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
+  /* Biçim arayüz diline uyar: Türkçe Excel noktalı virgül ayraç ve virgül
+     ondalık bekler, İngilizce Excel virgül ayraç ve nokta ondalık. Tek biçim
+     İngilizce Excel'de sütunları bölmüyor, "0,45"i metin okuyordu. */
+  const ayrac = () => (I18n.isEn ? ',' : ';');
   function toCSV(rows) {
-    // Noktalı virgül + BOM: Türkçe Excel yerelinde sütunlar doğru ayrışır.
-    return '﻿' + rows.map(r => r.map(csvCell).join(';')).join('\r\n');
+    // BOM: Excel UTF-8'i tanısın, Türkçe karakterler bozulmasın.
+    return '﻿' + rows.map(r => r.map(csvCell).join(ayrac())).join('\r\n');
   }
-  const dec = v => (v === null || v === undefined || v === '') ? '' : String(v).replace('.', ',');
+  const dec = v => (v === null || v === undefined || v === '') ? ''
+    : (I18n.isEn ? String(v) : String(v).replace('.', ','));
   const reasonLabel = r => r === 'qa' ? t('reasonQa') : r === 'declared' ? t('reasonDeclared') : '';
 
   function exportCSV(kind, calc) {
@@ -105,7 +111,7 @@ const Exporter = (() => {
           rows.push([q.id, q.domain, I18n.isEn ? set.spec.en : set.spec.tr, t('navExtra'),
             I18n.isEn ? q.en : q.tr, I18n.ref('answers', st.answer), dec(st.coef), q.weight,
             dec(st.applicableWeight || ''), dec(st.earned || ''), I18n.ref('crit', q.crit),
-            I18n.isEn ? q.enEvidence : q.trEvidence, q.source,
+            I18n.isEn ? q.enEvidence : q.trEvidence, I18n.source(q.source),
             q.qa ? yes : no, '', (state.answers[q.id] || {}).evidence || '', (state.answers[q.id] || {}).note || '',
             st.actionNeeded === 'EVET - ÖNCELİKLİ' ? t('priorityAction') : st.actionNeeded ? I18n.ref('answers', st.actionNeeded) : '',
             reasonLabel(st.actionReason), st.scopeReason || '']);
@@ -159,20 +165,21 @@ const Exporter = (() => {
         rows.push([LL(g)]);
         g.metrics.forEach(m => {
           const rec = (state.operations || {})[m.key] || {};
-          rows.push([LL(m), rec.adet ?? '', rec.tutar ?? '', rec.gun ?? '', rec.saat ?? '']);
+          // Tutar, gün ve saat ondalıklı olabilir; CSV'nin geri kalanı gibi virgülle yazılır.
+          rows.push([LL(m), dec(rec.adet), dec(rec.tutar), dec(rec.gun), dec(rec.saat)]);
         });
       });
       rows.push([]);
       rows.push([t('opDerivedTitle')]);
       rows.push([t('opRatio'), t('opNumerator'), t('opDenominator'), t('opValue')]);
-      O.derived.forEach(d => rows.push([LL(d.spec), d.num ?? '', d.den ?? '',
+      O.derived.forEach(d => rows.push([LL(d.spec), dec(d.num), dec(d.den),
         d.value === null ? '' : dec((d.value * 100).toFixed(2)) + '%']));
     } else if (kind === 'log') {
       name = t('lgCsv');
       rows = [[t('lgWhen'), t('lgWho'), t('lgWhat'), t('lgRef'), t('lgFrom'), t('lgTo')]];
       (state.log || []).forEach(e => rows.push([
         new Date(e.at).toLocaleString(I18n.locale), e.who || '',
-        ChangeLog.turAdi(e.what), e.ref || '', e.from || '', e.to || ''
+        ChangeLog.turAdi(e.what), e.ref || '', ChangeLog.degerMetni(e, e.from), ChangeLog.degerMetni(e, e.to)
       ]));
     } else if (kind === 'countries') {
       name = 'country-risk';
@@ -223,7 +230,7 @@ const Exporter = (() => {
         t('pfHighRisk'), t('pfComplianceFte'), t('pfLoad'), t('pfLastAudit'), t('pfAuditAge')]);
       P.branches.rows.forEach(b => {
         rows.push([b.name || '', LL(PORTFOLIO.branchTypes.find(x => x.key === b.type)), b.country || '',
-          b.customers || '', b.highRiskCustomers || '', b.complianceFte ?? '',
+          b.customers || '', b.highRiskCustomers || '', dec(b.complianceFte),
           b.load === null ? '' : Math.round(b.load), b.lastAudit || '',
           b.auditMonths === null ? '' : b.auditMonths]);
       });
@@ -251,7 +258,7 @@ const Exporter = (() => {
       rows.push([t('blTitle')]);
       rows.push([t('blLine'), t('blShare'), ...RISKMODEL.businessLines.dims.map(d => I18n.dim(d)), t('blInherent')]);
       calc.lines.lines.filter(l => l.active).forEach(l => rows.push([
-        I18n.isEn ? l.spec.en : l.spec.tr, l.share ?? '',
+        I18n.isEn ? l.spec.en : l.spec.tr, dec(l.share),
         ...RISKMODEL.businessLines.dims.map(d => l.scores[d] ?? ''),
         l.inherent === null ? '' : dec(l.inherent.toFixed(2))]));
       rows.push([t('blWeighted'), dec(calc.lines.shareSum), '', '', '', '', '',
@@ -297,7 +304,7 @@ const Exporter = (() => {
       <div class="toolbar no-print">
         <div style="flex:1" class="subtle">${t('reportPrintNote')}</div>
         <div class="toolbar-actions">
-          <button class="btn btn-primary" onclick="window.print()">${Icons.print()} ${t('printPdf')}</button>
+          <button class="btn btn-primary" data-print>${Icons.print()} ${t('printPdf')}</button>
         </div>
       </div>
 
@@ -386,7 +393,7 @@ const Exporter = (() => {
               `${fmtNum2(calc.pfLine.residual)} · ${esc(I18n.ref('riskLevel', calc.pfLine.level))}${calc.pfLine.breach ? ' — ' + t('breachAction') : ''}`
               + ` · ${t('colAppetiteLimit')} ${fmtNum1(calc.pfLine.appetite)}${calc.pfLine.appetiteOverridden ? ` (${t('rrOwnLimit')})` : ''}`) : ''}
             ${calc.lines.weightedInherent !== null ? kv(t('blWeighted'), fmtNum2(calc.lines.weightedInherent)) : ''}
-            ${calc.inherent.measured ? kv(t('blDimBased'), fmtNum2(calc.inherent.general)) : ''}
+            ${calc.inherent.measured ? kv(t('blDimBased').replace(/:\s*$/, ''), fmtNum2(calc.inherent.general)) : ''}
             ${calc.lines.worst && calc.lines.worst.inherent !== null
               ? kv(t('blWorst'), `${esc(I18n.isEn ? calc.lines.worst.spec.en : calc.lines.worst.spec.tr)} · ${fmtNum2(calc.lines.worst.inherent)}`) : ''}
           </tbody></table></div>

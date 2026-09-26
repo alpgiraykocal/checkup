@@ -887,7 +887,7 @@ const Calc = (() => {
       return {
         id: e.id, domain: e.domain, section: en ? set.en : set.tr,
         text: en ? e.en : e.tr, critKey: e.crit, qa: e.qa, pop: '',
-        weight: e.weight, source: e.source, evidence: en ? e.enEvidence : e.trEvidence,
+        weight: e.weight, source: I18n.source(e.source), evidence: en ? e.enEvidence : e.trEvidence,
         extra: true, setKey: set.key
       };
     }

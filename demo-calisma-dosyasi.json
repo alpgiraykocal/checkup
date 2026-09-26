@@ -2739,7 +2739,7 @@
       "questionId": "D7-17",
       "finding": "Dönem içinde 1.420 alert toplu kapatma ile kapatılmış (kapatılanların %5,4ü); özel onay kaydı bulunmuyor.",
       "source": "Operasyon ölçümü — toplu kapatma payı",
-      "rootCause": "İç kontrol",
+      "rootCause": "Süreç",
       "crit": "Kritik",
       "action": "Toplu kapatma sistemsel olarak engellenecek; istisna için ikinci seviye onay kurulacak.",
       "owner": "BT — AML Sistemleri",

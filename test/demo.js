@@ -518,7 +518,7 @@ s.actions = [
     owner: 'Dış Ticaret Operasyon', due: gunEkle(-11), verification: 'Tarama örtüsü %100',
     status: 'Açık', closedAt: '', residualAfter: 'Yüksek' },
   { id: 'BLG-012', domain: 'D7', questionId: 'D7-17', finding: 'Dönem içinde 1.420 alert toplu kapatma ile kapatılmış (kapatılanların %5,4ü); özel onay kaydı bulunmuyor.',
-    source: 'Operasyon ölçümü — toplu kapatma payı', rootCause: 'İç kontrol', crit: 'Kritik',
+    source: 'Operasyon ölçümü — toplu kapatma payı', rootCause: 'Süreç', crit: 'Kritik',
     action: 'Toplu kapatma sistemsel olarak engellenecek; istisna için ikinci seviye onay kurulacak.',
     owner: 'BT — AML Sistemleri', due: gunEkle(58), verification: 'Toplu kapatma sayısı sıfır veya onaylı',
     status: 'Devam Ediyor', closedAt: '', residualAfter: 'Orta' }

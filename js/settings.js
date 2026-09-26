@@ -45,6 +45,27 @@ const CountryRisk = (() => {
     return `<option value=""${!selected ? ' selected' : ''}>${UI.esc(I18n.t('select'))}</option>` + opts;
   }
 
+  /* Tembel liste: satır yalnızca seçili ülkeyi taşır, 250 seçenek kullanıcı
+     listeye tıklayınca ya da klavyeyle odaklanınca doldurulur. 500 ülke
+     satırında her satıra tam liste basmak 125.000 öğe demekti ve portföy
+     ekranı her çizimde ~3 saniye donuyordu. */
+  function optionsLazy(selected, state) {
+    const c = byCode[selected];
+    if (!c) return `<option value="" selected>${UI.esc(I18n.t('select'))}</option>`;
+    const w = worst(flags(c.code, state));
+    const suffix = w ? ` — ${I18n.isEn ? (w.short.en) : (w.short.tr)}` : '';
+    return `<option value="${c.code}" selected>${UI.esc(label(c))} (${c.code})${UI.esc(suffix)}</option>`;
+  }
+
+  /** Tembel listeyi ilk etkileşimde doldurur; değer korunur. */
+  function fillLazy(sel, state) {
+    if (!sel || sel.dataset.ulkeDolu) return;
+    const v = sel.value;
+    sel.innerHTML = options(v, state);
+    sel.value = v;
+    sel.dataset.ulkeDolu = '1';
+  }
+
   /** Bayrak dağılımı — ayar ekranı özeti. */
   function summary(state) {
     const out = {};
@@ -59,7 +80,7 @@ const CountryRisk = (() => {
     return { byFlag: out, flagged, overridden, total: COUNTRIES.length };
   }
 
-  return { byCode, label, name, flags, isOverridden, worst, options, summary };
+  return { byCode, label, name, flags, isOverridden, worst, options, optionsLazy, fillLazy, summary };
 })();
 
 
@@ -164,7 +185,7 @@ const Settings = (() => {
             <td><b>${esc(b.label)}</b><div class="subtle">${esc(b.sources)}</div></td>
             <td class="nowrap">${esc(b.spec.as)}</td>
             <td class="num nowrap">${b.months === null ? '—' : t('rpMonths', { n: b.months })}</td>
-            <td class="subtle">${esc(b.spec.cadence)}</td>
+            <td class="subtle">${esc(I18n.isEn ? (b.spec.enCadence || b.spec.cadence) : b.spec.cadence)}</td>
             <td>${b.stale
               ? `<span class="chip chip-high">${Icons.alert()} ${t('rpStale')}</span>`
               : `<span class="chip chip-ok">${t('rpFresh')}</span>`}</td>

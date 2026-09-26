@@ -197,4 +197,16 @@ const withState = m => { const s = blank(); m(s); return s; };
   }
 })();
 
+/* ---------- Dosya yükleme her zaman günlüğe düşer ---------- */
+{
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  Store.replace(temiz);
+  const once = Store.state.log.length;
+  Store.log('import', 'ayni-sayilar.json', '{"a":0,"b":0}', '{"a":0,"b":0}');
+  check('sayıları aynı dosya yüklemesi de kaydedilir', Store.state.log.length === once + 1, Store.state.log.length);
+  Store.log('answer', 'D1-01', 'Evet', 'Evet');
+  check('değer değişmeyen yanıt kaydedilmez', Store.state.log.length === once + 1);
+  Store.replace(temiz);
+}
+
 process.exitCode = H.report('Mantık — operasyon, portföy, ülke, karşılaştırma, depolama, dil') ? 1 : 0;

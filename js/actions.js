@@ -339,14 +339,15 @@ const Actions = (() => {
             return;
           }
           rec.questionId = rec.questionId.toUpperCase();
-          const oncekiKayit = existing ? JSON.stringify({
-            finding: existing.finding, status: existing.status, crit: existing.crit,
-            owner: existing.owner, due: existing.due, closedAt: existing.closedAt || ''
-          }) : '';
-          const sonrakiKayit = JSON.stringify({
-            finding: rec.finding, status: rec.status, crit: rec.crit, owner: rec.owner, due: rec.due,
-            closedAt: rec.closedAt
-          });
+          // Günlük değeri 120 karakterde kesilir; JSON bütün kalsın diye bulgu metni kısaltılır.
+          /* Günlük değeri 120 karakterde kesilir. Düzenlemede yalnızca değişen
+             alanlar yazılır ve metinler kısaltılır; kayıt okunur ve bütün kalır. */
+          const ALANLAR = ['finding', 'status', 'crit', 'owner', 'due', 'closedAt'];
+          const kisa = v => { const x = String(v || ''); return x.length > 30 ? x.slice(0, 29) + '…' : x; };
+          const ozet = (a, alanlar) => JSON.stringify(Object.fromEntries(alanlar.map(k => [k, kisa(a[k])])));
+          const degisen = existing ? ALANLAR.filter(k => (existing[k] || '') !== (rec[k] || '')) : ALANLAR;
+          const oncekiKayit = existing ? ozet(existing, degisen) : '';
+          const sonrakiKayit = ozet(rec, degisen);
           Store.update(s => {
             s.actions = s.actions || [];
             const i = s.actions.findIndex(x => x.id === (existing ? existing.id : rec.id));

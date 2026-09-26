@@ -3,12 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Veri cihazdan çıkmaz: tarayıcı başka kaynaktan betik yüklemeyi ve dışarıya bağlantıyı reddeder. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data:; font-src 'self' file:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="light dark">
 <title>Metodoloji ve Kılavuz · AML/CFT Uyum Check-up</title>
 <meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.10.1">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.7">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -44,7 +46,7 @@
       <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
       <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
-      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.1</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.7</span></div>
     </div>
   </header>
 
@@ -702,7 +704,9 @@
     <p>
       Uygulama hiçbir ağ isteği yapmaz: harici font, CDN, analitik yoktur. Tüm
       veriler yalnızca kullandığınız tarayıcının yerel deposunda (localStorage)
-      tutulur. Kurum verisi cihazdan çıkmaz.
+      tutulur. Kurum verisi cihazdan çıkmaz. Bu yalnızca bir taahhüt değildir:
+      sayfalar bir içerik güvenlik politikası taşır ve tarayıcı, uygulamanın
+      dışarıya bağlanmasını ve başka bir kaynaktan betik yüklemesini reddeder.
     </p>
     <p>
       Bunun bedeli şudur: <b>tarayıcı verisi temizlenirse çalışma kaybolur.</b>
@@ -1544,8 +1548,10 @@
       </table>
     </div>
     <p>
-      CSV dosyaları noktalı virgül ayracı ve BOM ile üretilir; Türkçe Excel
-      yerelinde sütunlar doğru ayrışır.
+      CSV dosyaları BOM ile ve arayüz dilinin Excel biçiminde üretilir: Türkçe
+      arayüzde noktalı virgül ayraç ve virgül ondalık, İngilizce arayüzde virgül
+      ayraç ve nokta ondalık. Böylece iki yerelde de sütunlar ve sayılar doğru
+      ayrışır. Serbest metin hücreleri formül olarak çalıştırılmaz.
     </p>
 
     <h3>Sayılarla kapsam</h3>
@@ -1571,7 +1577,7 @@
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.10.1 sürümünü ve 2026.1 referans veri paketini
+        Bu kılavuz uygulamanın 2.10.7 sürümünü ve 2026.1 referans veri paketini
         anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
         birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
         doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
@@ -1581,6 +1587,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.10.1"></script>
+<script src="js/kilavuz.js?v=2.10.7"></script>
 </body>
 </html>

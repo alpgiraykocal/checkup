@@ -60,7 +60,10 @@ const Merge = (() => {
     out.push(karsilastirPortfoy(mine, theirs));
     out.push(karsilastirAksiyon(mine, theirs));
 
-    return out.filter(p => p.theirs > 0 || p.conflicts > 0);
+    /* Yalnızca gelen dosyada yeni ya da farklı verisi olan parça incelemeye
+       girer. Aynı içerikli parçalar listelenince (iki benzer dosyada 34 satır)
+       gerçek fark gürültünün içinde kayboluyordu. */
+    return out.filter(p => p.yeni > 0 || p.conflicts > 0);
   }
 
   const dolu = v => v !== undefined && v !== null && v !== '' &&
@@ -68,24 +71,25 @@ const Merge = (() => {
 
   /** Belirli anahtar kümesi için iki kaynağı karşılaştırır. */
   function karsilastirAnahtarlar(key, label, kind, ids, a, b) {
-    let mineN = 0, theirsN = 0, conflicts = 0;
+    let mineN = 0, theirsN = 0, conflicts = 0, yeni = 0;
     const ornekler = [];
     ids.forEach(id => {
       const x = a[id], y = b[id];
       const xd = dolu(x), yd = dolu(y);
       if (xd) mineN += 1;
       if (yd) theirsN += 1;
+      if (yd && !xd) yeni += 1;
       if (xd && yd && JSON.stringify(x) !== JSON.stringify(y)) {
         conflicts += 1;
         if (ornekler.length < 5) ornekler.push({ id, mine: ozet(x), theirs: ozet(y) });
       }
     });
-    return { key, label, kind, mine: mineN, theirs: theirsN, conflicts, ornekler, ids, tip: 'keys' };
+    return { key, label, kind, mine: mineN, theirs: theirsN, conflicts, yeni, ornekler, ids, tip: 'keys' };
   }
 
   /** Aynı anahtar kümesinin birden çok sözlükte tutulduğu durum (doğuştan risk). */
   function karsilastirCoklu(key, label, kind, keys, aList, bList) {
-    let mineN = 0, theirsN = 0, conflicts = 0;
+    let mineN = 0, theirsN = 0, conflicts = 0, yeni = 0;
     const ornekler = [];
     keys.forEach(k => {
       const x = aList.map(o => (o || {})[k]);
@@ -93,12 +97,13 @@ const Merge = (() => {
       const xd = x.some(dolu), yd = y.some(dolu);
       if (xd) mineN += 1;
       if (yd) theirsN += 1;
+      if (yd && !xd) yeni += 1;
       if (xd && yd && JSON.stringify(x) !== JSON.stringify(y)) {
         conflicts += 1;
         if (ornekler.length < 5) ornekler.push({ id: k.split('|').pop(), mine: ozet(x[0]), theirs: ozet(y[0]) });
       }
     });
-    return { key, label, kind, mine: mineN, theirs: theirsN, conflicts, ornekler, keys, tip: 'multi' };
+    return { key, label, kind, mine: mineN, theirs: theirsN, conflicts, yeni, ornekler, keys, tip: 'multi' };
   }
 
   function karsilastirNesne(key, label, kind, a, b) {
@@ -113,7 +118,7 @@ const Merge = (() => {
     const farkli = JSON.stringify(a) !== JSON.stringify(b);
     return { key: 'portfolio', label: t('navPortfolio'), kind: 'other',
       mine: say(a), theirs: say(b), conflicts: (farkli && say(a) && say(b)) ? 1 : 0,
-      ornekler: [], tip: 'whole' };
+      yeni: (farkli && say(b) && !say(a)) ? 1 : 0, ornekler: [], tip: 'whole' };
   }
 
   /* Paralel çalışan iki kişi numaralandırmaya aynı yerden başlar: iki
@@ -128,17 +133,19 @@ const Merge = (() => {
   function karsilastirAksiyon(mine, theirs) {
     const a = mine.actions || [], b = theirs.actions || [];
     const aById = Object.fromEntries(a.map(x => [x.id, x]));
-    let conflicts = 0;
+    let conflicts = 0, yeni = 0;
     const ornekler = [];
     b.forEach(y => {
       const x = aById[y.id];
+      // Bende olmayan ya da aynı kimlikle farklı bir bulgu eklenecektir
+      if (!x || !ayniBulgu(x, y)) yeni += 1;
       if (x && ayniBulgu(x, y) && JSON.stringify(x) !== JSON.stringify(y)) {
         conflicts += 1;
         if (ornekler.length < 5) ornekler.push({ id: y.id, mine: ozet(x.finding), theirs: ozet(y.finding) });
       }
     });
     return { key: 'actions', label: t('navActions'), kind: 'actions',
-      mine: a.length, theirs: b.length, conflicts, ornekler, tip: 'actions' };
+      mine: a.length, theirs: b.length, conflicts, yeni, ornekler, tip: 'actions' };
   }
 
   function ozet(v) {
@@ -151,6 +158,21 @@ const Merge = (() => {
   }
 
   /* ---------- Uygulama ---------- */
+
+  /** Parça anahtarının seçili dildeki adı — günlük dilden bağımsız anahtarı saklar. */
+  function parcaEtiketi(key) {
+    const [tur, a, b] = String(key).split(':');
+    if (tur === 'answers' && a === 'extra') {
+      const set = typeof EXTRA !== 'undefined' && EXTRA.sets.find(x => x.key === b);
+      return set ? (I18n.isEn ? set.en : set.tr) : key;
+    }
+    if (tur === 'answers') { const d = DATA.domains.find(x => x.code === a); return d ? `${d.code} · ${d.name}` : key; }
+    if (tur === 'inherent') return I18n.dim(a);
+    const ADLAR = { kunye: 'navKunye', qaVolumes: 'navQa', operations: 'navOperations', kpis: 'kpiSectionTitle',
+      lines: 'blTitle', appetite: 'colAppetiteLimit', countryRisk: 'ttlSettings', portfolio: 'navPortfolio', actions: 'navActions' };
+    if (tur === 'pf') return 'PF';
+    return ADLAR[tur] ? t(ADLAR[tur]) : key;
+  }
 
   /** Seçilen parçaları gelen durumdan s'ye aktarır; alınan parça adlarını döner.
       DOM'a dokunmaz — testler gerçek birleştirme kuralını doğrudan sınar. */
@@ -207,8 +229,10 @@ const Merge = (() => {
     Store.update(s => { alinanParcalar = birlestir(s, gelen.state, gelen.diff, secim); });
     const alinan = alinanParcalar.length;
 
-    Store.log('merge', gelen.name, t('mgLogBefore', { n: gelen.diff.length }),
-      t('mgLogAfter', { n: alinan, p: alinanParcalar.slice(0, 6).join(', ') }));
+    // Günlüğe dilden bağımsız sayılar ve parça anahtarları yazılır; ekranda çevrilir.
+    const alinanAnahtarlar = gelen.diff.filter(p => secim[p.key] === 'theirs').map(p => p.key);
+    Store.log('merge', gelen.name, JSON.stringify({ n: gelen.diff.length }),
+      JSON.stringify({ n: alinan, p: alinanAnahtarlar.slice(0, 6) }));
     UI.toast(t('mgDone', { n: alinan }), 'ok');
     gelen = null;
     Object.keys(secim).forEach(k => delete secim[k]);
@@ -386,5 +410,5 @@ const Merge = (() => {
     });
   }
 
-  return { view, parcalar, birlestir };
+  return { view, parcalar, birlestir, parcaEtiketi };
 })();

@@ -1831,7 +1831,7 @@ const Views = (() => {
           <div class="table-wrap"><table>
             <thead><tr><th style="width:26%">${t('gdTerm')}</th><th>${t('gdMeans')}</th></tr></thead>
             <tbody>${(typeof GLOSSARY === 'undefined' ? [] : GLOSSARY).map(g =>
-              `<tr><td><b>${esc(g.k)}</b></td><td>${esc(I18n.isEn ? g.en : g.tr)}</td></tr>`).join('')}</tbody>
+              `<tr><td><b>${esc(I18n.isEn ? (g.kEn || g.k) : g.k)}</b></td><td>${esc(I18n.isEn ? g.en : g.tr)}</td></tr>`).join('')}</tbody>
           </table></div>
         </div>
       </div>

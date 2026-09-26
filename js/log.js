@@ -15,13 +15,51 @@ const ChangeLog = (() => {
     return v === 'lgWhat_' + w ? w : v;
   };
 
+  /* Günlük değerleri dilden bağımsız saklanır (yanıt "Evet", durum "Açık",
+     yöntem "true"). Ekranda ve CSV'de seçili dile çevrilir; kayıt değişmez. */
+  function degerMetni(e, v) {
+    if (v === undefined || v === null || v === '') return '';
+    if (e.what === 'answer' || e.what === 'inherent') {
+      return DATA.ref.answers.includes(v) ? I18n.ref('answers', v) : v;
+    }
+    if (e.what === 'method') return v === 'true' ? t('mtExposure') : v === 'false' ? t('mtDefault') : v;
+    if (e.what === 'import' || e.what === 'merge') {
+      let o = null;
+      try { o = JSON.parse(v); } catch { return v; }            // eski sürüm: düz metin
+      if (!o || typeof o !== 'object') return v;
+      if (e.what === 'import') return t('impSummary', { a: o.a, b: o.b });
+      if (Array.isArray(o.p)) {
+        const ad = k => (typeof Merge !== 'undefined' ? Merge.parcaEtiketi(k) : k);
+        return t('mgLogAfter', { n: o.n, p: o.p.map(ad).join(', ') });
+      }
+      return t('mgLogBefore', { n: o.n });
+    }
+    if (e.what === 'action-add' || e.what === 'action-edit') {
+      let o = null;
+      try { o = JSON.parse(v); } catch { /* düz metin ya da kısaltılmış kayıt */ }
+      if (!o && v.startsWith('{')) {
+        // 120 karakterde kesilmiş kayıt: bütün kalan "alan":"değer" çiftleri okunur
+        o = {};
+        for (const m of v.matchAll(/"(\w+)":"((?:[^"\\]|\\.)*)"/g)) o[m[1]] = m[2];
+      }
+      if (!o || typeof o !== 'object') return v;
+      return [o.finding,
+        o.status && `${t('status')}: ${I18n.ref('status', o.status)}`,
+        o.crit && `${t('criticality')}: ${I18n.ref('crit', o.crit)}`,
+        o.owner && `${t('colOwner')}: ${o.owner}`,
+        o.due && `${t('colDue')}: ${o.due}`,
+        o.closedAt && `${t('fClosedAt')}: ${o.closedAt}`].filter(Boolean).join(' · ');
+    }
+    return v;
+  }
+
   /** En yeni başta, süzülmüş liste. */
   function filtrele(log) {
     const term = ui.q.trim().toLocaleLowerCase(I18n.locale);
     return log.filter(e => {
       if (ui.what && e.what !== ui.what) return false;
       if (term) {
-        const hay = [e.ref, e.who, e.from, e.to, turAdi(e.what)].join(' ').toLocaleLowerCase(I18n.locale);
+        const hay = [e.ref, e.who, e.from, e.to, degerMetni(e, e.from), degerMetni(e, e.to), turAdi(e.what)].join(' ').toLocaleLowerCase(I18n.locale);
         if (!hay.includes(term)) return false;
       }
       return true;
@@ -92,8 +130,8 @@ const ChangeLog = (() => {
       <td>${esc(e.who || '—')}</td>
       <td><span class="chip">${esc(turAdi(e.what))}</span></td>
       <td class="mono">${esc(e.ref || '')}</td>
-      <td class="subtle">${esc(e.from || '—')}</td>
-      <td>${esc(e.to || '—')}</td>
+      <td class="subtle">${esc(degerMetni(e, e.from) || '—')}</td>
+      <td>${esc(degerMetni(e, e.to) || '—')}</td>
     </tr>`;
   }
 
@@ -111,5 +149,5 @@ const ChangeLog = (() => {
     });
   }
 
-  return { view, turAdi };
+  return { view, turAdi, degerMetni };
 })();

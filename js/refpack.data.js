@@ -24,6 +24,7 @@ const REFPACK = {
       as: '2026-01-01',
       // Kaynağın kendi yayın döngüsü — bayatlama eşiği buna göre
       cadence: 'FATF genel kurulları: Şubat · Haziran · Ekim',
+      enCadence: 'FATF plenaries: February · June · October',
       staleMonths: 6,
       trLabel: 'Ülke risk işaretleri',
       enLabel: 'Country risk flags',
@@ -33,6 +34,7 @@ const REFPACK = {
     regulation: {
       as: '2026-01-01',
       cadence: 'Mevzuat değişikliği yayımlandıkça',
+      enCadence: 'As regulatory changes are published',
       staleMonths: 12,
       trLabel: 'Mevzuat atıfları',
       enLabel: 'Regulatory citations',
@@ -42,6 +44,7 @@ const REFPACK = {
     questionBank: {
       as: '2026-01-01',
       cadence: 'Kapsam incelemesi sonrası',
+      enCadence: 'After a scope review',
       staleMonths: 18,
       trLabel: 'Soru bankası ve ek kontroller',
       enLabel: 'Question bank and extra controls',

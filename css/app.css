@@ -438,7 +438,11 @@ input[type="number"]:invalid, input[type="date"]:invalid { border-color: var(--d
 .q.is-open-critical::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--danger);
 }
-.q.is-locked { opacity: .66; }
+/* Kilitli ve kapsam dışı öğeler renkle soluklaşır, saydamlıkla değil: saydamlık
+   bilgi metnini (kapsam gerekçesi, "Uygulanamaz") WCAG AA eşiğinin altına
+   düşürüyordu (2,2–3,5:1). */
+.q.is-locked { background: var(--surface-2); }
+.q.is-locked .q-text { color: var(--fg-muted); }
 .q-head { padding: var(--s3) var(--s4); display: flex; gap: var(--s3); align-items: flex-start; }
 .q-id {
   font-family: var(--font-mono); font-size: 11.5px; font-weight: 600;
@@ -458,7 +462,8 @@ input[type="number"]:invalid, input[type="date"]:invalid { border-color: var(--d
 /* ---------- Doğuştan risk faktör satırı ---------- */
 .factor { padding: 14px 16px; border-bottom: 1px solid var(--border-soft); display: grid; gap: 10px; }
 .factor:last-child { border-bottom: 0; }
-.factor.is-na { opacity: .68; background: var(--surface-2); }
+.factor.is-na { background: var(--surface-2); }
+.factor.is-na .factor-title > span:first-child { color: var(--fg-muted); }
 .factor.needs-note { box-shadow: inset 3px 0 0 var(--danger); }
 .factor-title { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; font-weight: 500; }
 .factor-title > span:first-child { flex: 1; min-width: 180px; }
@@ -534,7 +539,7 @@ input[type="number"]:invalid, input[type="date"]:invalid { border-color: var(--d
 .exposure-row > .chip { flex: 0 0 auto; min-width: 190px; }
 .exposure-row > .num:last-child { margin-left: auto; font-weight: 600; }
 
-tr.is-muted > td { opacity: .55; }
+tr.is-muted > td { color: var(--fg-subtle); background: var(--surface-2); }
 td.is-warn, .num.is-warn { color: var(--warn); font-weight: 600; }
 
 /* ---------- Başlangıç / devam kartı ---------- */
@@ -853,15 +858,56 @@ kbd {
 .delta { font-weight: 600; white-space: nowrap; }
 .delta.ok { color: var(--ok); }
 .delta.danger { color: var(--danger); }
-.subhead th { font-size: 11px; font-weight: 600; opacity: .8; }
+.subhead th { font-size: 11px; font-weight: 600; color: var(--fg-subtle); }
 .group-head { border-bottom: 1px solid var(--border); text-align: center !important; }
 .sign-table td { vertical-align: bottom; }
 
 @media print {
+  /* Kâğıt her zaman açık temadır. Koyu temada yazdırınca metin açık renk
+     kalıyor, arka plan basılmayınca beyaz kâğıtta okunmuyordu. */
+  :root[data-theme="dark"] {
+    --primary: #1E40AF;
+    --primary-hover: #1B379B;
+    --primary-soft: #E8EEFB;
+    --on-primary: #FFFFFF;
+    --secondary: #3B82F6;
+    --accent: #B45309;
+    --bg: #F6F8FB;
+    --surface: #FFFFFF;
+    --surface-2: #F5F7FA;
+    --surface-3: #E9EEF5;
+    --fg: #0F172A;
+    --fg-muted: #45536B;
+    --fg-subtle: #5D6B80;
+    --muted: #EBEFF5;
+    --border: #C9D3E0;
+    --border-soft: #E4E9F0;
+    --danger: #C81E1E;
+    --danger-bg: #FDF0F0;
+    --warn: #9A5B08;
+    --warn-bg: #FDF6E9;
+    --ok: #15703C;
+    --ok-bg: #EEF8F1;
+    --info-bg: #EEF3FD;
+    --ring: #1E40AF;
+    color-scheme: light;
+  }
   .sidebar, .topbar .btn, .lang-switch, .toolbar, .toasts, .q-fab, .no-print { display: none !important; }
   .only-print { display: table-cell; }
-  .sign-line { border-bottom: 1px solid #333; min-width: 120px; }
+  /* Son satırın alt çizgisini kaldıran genel kuraldan daha özgül: "Onaylayan"
+     satırının imza çizgisi basılmıyordu. */
+  .sign-table tbody td.sign-line { border-bottom: 1px solid #333; min-width: 120px; }
   .sign-table { break-inside: avoid; }
+  /* Kâğıtta kaydırma yoktur: kap taşanı kırpıyor, İngilizce raporda son sütun
+     (açık kritik) sayfanın dışında kalıyordu. Başlıklar satır kırar, tablo sığar. */
+  .table-wrap { overflow: visible !important; }
+  table { width: 100%; table-layout: auto; }
+  thead th { white-space: normal; letter-spacing: .02em; position: static; }
+  th, td { padding-left: 6px; padding-right: 6px; }
+  /* Satır iki sayfaya bölünmez; başlık sayfa sonunda tek başına kalmaz. */
+  tr { break-inside: avoid; }
+  thead { display: table-header-group; }
+  h2, h3 { break-after: avoid; }
   body { background: #fff; font-size: 11px; }
   .card, .stat { box-shadow: none; border-color: #999; break-inside: avoid; }
   .q { break-inside: avoid; }

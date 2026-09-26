@@ -17,7 +17,7 @@ const PAKETLER = [
   ['fuzz.js', 'Dayanıklılık — bozuk ve düşmanca veri'],
   ['props.js', 'Değişmez kurallar ve bağımsız referans hesap'],
   ['render.js', 'Görünüm — kaçırma, anahtar ve etiket'],
-  ['css.js', 'Biçem — dar ekran ızgara denetimi'],
+  ['css.js', 'Biçem — dar ekran, renk karşıtlığı ve yazdırma'],
   ['tz.js', 'Saat dilimi matrisi']
 ];
 

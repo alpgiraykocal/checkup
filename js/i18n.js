@@ -820,7 +820,7 @@ const I18n = (() => {
     downloadJson:  ['JSON indir', 'Download JSON'],
     loadFromFile:  ['Dosyadan yükle', 'Load from file'],
     tableExports:  ['Tablo çıktıları (CSV)', 'Table exports (CSV)'],
-    csvNote:       ['Excel\'de noktalı virgül ayracıyla açılır.', 'Opens in Excel with the semicolon separator.'],
+    csvNote:       ['Türkçe Excel biçimindedir: noktalı virgül ayraç, virgül ondalık. İngilizce arayüzden alınan CSV virgül ayraç ve nokta ondalık kullanır.', 'English Excel format: comma separator, dot decimals. A CSV taken from the Turkish interface uses a semicolon separator and comma decimals.'],
     csvQuestions:  ['Soru bankası', 'Question bank'],
     csvDomains:    ['Domain skorları', 'Domain scores'],
     csvInherent:   ['Doğuştan risk', 'Inherent risk'],
@@ -1207,6 +1207,21 @@ const I18n = (() => {
 
   /** Mevzuat atıflarını kural bazlı çevirir; kod ve madde numaraları korunur. */
   const SOURCE_RULES = [
+    // Ek kontrol setlerinin atıfları — genel kurallardan önce, daha özgül olanlar
+    [/FATF TF tipolojileri \(ML eşiklerinin altında kalır\)/g, 'FATF TF typologies (below ML thresholds)'],
+    [/FATF TF tipoloji raporları/g, 'FATF TF typology reports'],
+    [/FATF\/Egmont tipolojileri/g, 'FATF/Egmont typologies'],
+    [/yüksek standart taraması/g, 'enhanced-standard screening'],
+    [/iç kontrol standardı/g, 'internal control standard'],
+    [/[Dd]enetlenebilirlik standardı/g, m => (m[0] === 'D' ? 'Auditability standard' : 'auditability standard')],
+    [/İç tehdit yönetimi/g, 'Insider threat management'],
+    [/OFAC uygulama beklentileri/g, 'OFAC enforcement expectations'],
+    [/OFAC dijital varlık rehberi/g, 'OFAC digital asset guidance'],
+    [/hayat sigortası/g, 'life insurance'],
+    [/sigorta sektörü/g, 'insurance sector'],
+    [/ayna işlem/g, 'mirror trading'],
+    [/IOSCO ilkeleri/g, 'IOSCO principles'],
+    [/piyasa gözetim standartları/g, 'market surveillance standards'],
     [/Uyum Programı Yön\./g, 'Compliance Programme Reg.'],
     [/Tedbirler Yön\./g, 'Measures Reg.'],
     [/MASAK tebliğleri/g, 'MASAK communiqués'],

@@ -398,4 +398,108 @@ function dusmancaDurum() {
   Store.replace(temiz);
 })();
 
+/* ---------- CSV yapısı ----------
+   Dokuz dışa aktarım gerçek bir ayrıştırıcıyla okunur: her tabloda satır
+   genişliği başlıkla aynı, ondalık biçimi dile uygun (TR ; ve virgül, EN , ve
+   nokta), formül enjeksiyonu yükleri etkisiz, EN başlıklarda Türkçe yok.
+   Canlıda şube FTE'si, iş kolu payı ve işlem tutarı noktalı ondalık yazılıyor;
+   İngilizce CSV de noktalı virgülle bölünüyordu. */
+(() => {
+  const ctx = A.__ctx;
+  let yakalanan = null;
+  const eskiUrl = ctx.URL.createObjectURL, eskiEl = ctx.document.createElement;
+  ctx.URL.createObjectURL = b => { yakalanan = b.parts.join(''); return 'blob:x'; };
+  ctx.document.createElement = (...a) => Object.assign(eskiEl(...a), { click() {} });
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  try {
+    const demo = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '..', 'demo-calisma-dosyasi.json'), 'utf8'));
+    demo.actions[0].finding = '=HYPERLINK("http://x")'; demo.actions[0].owner = '+1 555';
+    demo.answers['D1-01'].evidence = '@SUM(A1)'; demo.answers['D1-02'].note = '-cmd|calc';
+    demo.portfolio.branches[0].complianceFte = 2.5;
+    demo.operations.islem_toplam = Object.assign({}, demo.operations.islem_toplam, { tutar: 1234.56 });
+    Object.values(demo.lines || {}).forEach(l => { l.share = 12.5; });
+    demo.log = [{ at: new Date().toISOString(), what: 'answer', ref: 'D1-01', from: 'Hayır', to: 'Evet', who: '=1+1' }];
+    Store.replace(demo);
+    const ayristir = (t, sep) => {
+      const rows = []; let row = [], cell = '', q = false;
+      for (let i = 0; i < t.length; i++) {
+        const ch = t[i];
+        if (q) { if (ch === '"') { if (t[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+        else if (ch === '"') q = true; else if (ch === sep) { row.push(cell); cell = ''; }
+        else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; } else if (ch !== '\r') cell += ch;
+      }
+      row.push(cell); rows.push(row); return rows;
+    };
+    const sorun = [];
+    ['tr', 'en'].forEach(dil => {
+      I18n.apply(dil);
+      const calc = Calc.compute(Store.state);
+      ['questions', 'domains', 'portfolio', 'operations', 'countries', 'inherent', 'qa', 'actions', 'log'].forEach(k => {
+        yakalanan = null; Exporter.exportCSV(k, calc);
+        if (!yakalanan.startsWith('\ufeff')) sorun.push(`${dil} ${k}: BOM yok`);
+        const rows = ayristir(yakalanan.slice(1), dil === 'en' ? ',' : ';');
+        const bloklar = []; let b = [];
+        rows.forEach(r => { if (r.length === 1 && r[0] === '') { if (b.length) bloklar.push(b); b = []; } else b.push(r); });
+        if (b.length) bloklar.push(b);
+        bloklar.forEach((bl, bi) => {
+          const i = bl[0].length === 1 && bl.length > 1 ? 1 : 0;
+          const w = bl[i].length;
+          bl.slice(i + 1).forEach((r, ri) => { if (r.length !== w) sorun.push(`${dil} ${k} blok ${bi} satır ${ri + 1}: ${r.length} ≠ ${w}`); });
+          if (dil === 'en') bl[i].forEach(h => { if (/[çğıöşüÇĞİÖŞÜ]/.test(h)) sorun.push(`en ${k} başlık: ${h}`); });
+        });
+        rows.forEach(r => r.forEach(c => {
+          if (/^[=+\-@]/.test(c) && !/^[+-]?(\d+([.,]\d+)?|[.,]\d+)%?$/.test(c.trim())) sorun.push(`${dil} ${k}: korumasız "${c.slice(0, 20)}"`);
+          if (dil === 'tr' && /^-?\d+\.\d+%?$/.test(c)) sorun.push(`tr ${k}: noktalı ondalık "${c}"`);
+          if (dil === 'en' && /^-?\d+,\d+%?$/.test(c)) sorun.push(`en ${k}: virgüllü ondalık "${c}"`);
+          if (/NaN|undefined|\[object/.test(c)) sorun.push(`${dil} ${k}: "${c.slice(0, 30)}"`);
+        }));
+      });
+    });
+    I18n.apply('tr');
+    check('CSV yapısı: hiza, ondalık, enjeksiyon, dil', sorun.length === 0, sorun.slice(0, 6));
+  } finally {
+    ctx.URL.createObjectURL = eskiUrl; ctx.document.createElement = eskiEl;
+    Store.replace(temiz);
+  }
+})();
+
+/* ---------- Büyük portföy: ülke listesi satır başına basılmaz ----------
+   500 ülke satırında her satıra 250 seçenekli liste basmak ekranı ~3 sn
+   donduruyordu. Liste ilk etkileşimde doldurulur (CountryRisk.optionsLazy). */
+(() => {
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  const s = JSON.parse(JSON.stringify(temiz));
+  s.portfolio.countries = Array.from({ length: 500 }, (_, i) => ({ code: ['DE', 'IR', 'TR'][i % 3], relations: [], customers: i }));
+  s.portfolio.branches = Array.from({ length: 50 }, (_, i) => ({ name: 'Ş' + i, country: 'DE' }));
+  Store.replace(s);
+  const x = host(); Portfolio.view(x, { state: Store.state, calc: Calc.compute(Store.state) });
+  const secenek = (x.innerHTML.match(/<option/g) || []).length;
+  check('büyük portföyde seçenek sayısı satır sayısıyla orantılı', secenek < 2000, secenek);
+  check('ülke satırı seçili ülkeyi taşır', /value="IR" selected/.test(x.innerHTML));
+  check('tembel liste işaretli', (x.innerHTML.match(/data-ulke-tembel/g) || []).length === 550);
+  const tam = A.CountryRisk.options('DE', Store.state);
+  check('tam liste ilk etkileşimde doldurulabilir', (tam.match(/<option/g) || []).length > 150 && /value="DE" selected/.test(tam));
+  Store.replace(temiz);
+})();
+
+/* ---------- İçerik güvenlik politikası ----------
+   Sayfalar dışarıya bağlanamaz ve başka kaynaktan betik yükleyemez. Politika
+   satır içi betiği de reddeder; bu yüzden şablonlarda on* niteliği olmamalı. */
+(() => {
+  const fs = require('fs'), path = require('path'), KOK = path.join(__dirname, '..');
+  ['index.html', 'KILAVUZ.html', 'GUIDE.html'].forEach(f => {
+    const h = fs.readFileSync(path.join(KOK, f), 'utf8');
+    const m = h.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/);
+    check(`${f}: CSP var`, Boolean(m));
+    if (m) {
+      check(`${f}: dışarıya bağlantı yok`, /connect-src 'none'/.test(m[1]));
+      // file: yalnızca index.html çift tıklanarak açıldığında geçerlidir; https sayfası yerel dosya yükleyemez
+      check(`${f}: betik yalnız aynı kaynaktan`, /script-src 'self'( file:)?(;|$)/.test(m[1]) && !/script-src[^;]*(unsafe|https?:|\*)/.test(m[1]));
+    }
+    check(`${f}: satır içi betik yok`, !/<script(?![^>]*\bsrc=)[^>]*>/.test(h));
+  });
+  const kod = fs.readdirSync(path.join(KOK, 'js')).map(f => fs.readFileSync(path.join(KOK, 'js', f), 'utf8')).join('\n');
+  check('şablonlarda on* olay niteliği yok', !/\son(click|load|error|change|input|submit|mouse\w+|key\w+)=/.test(kod));
+})();
+
 process.exitCode = H.report('Görünüm — kaçırma, anahtar ve etiket') ? 1 : 0;

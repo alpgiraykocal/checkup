@@ -3,12 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Veri cihazdan çıkmaz: tarayıcı başka kaynaktan betik yüklemeyi ve dışarıya bağlantıyı reddeder. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data:; font-src 'self' file:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="light dark">
 <title>Methodology and Guide · AML/CFT Compliance Check-up</title>
 <meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.10.1">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.7">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -45,7 +47,7 @@
       <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
       <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
-      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.1</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.7</span></div>
     </div>
   </header>
 
@@ -740,7 +742,9 @@
     <p>
       The application makes no network requests at all: no external fonts, no CDN,
       no analytics. All data is held only in the local storage of the browser you
-      use. Institutional data never leaves the device.
+      use. Institutional data never leaves the device. This is not only a
+      promise: the pages carry a content security policy, and the browser refuses
+      any outbound connection or script from another origin.
     </p>
     <p>
       The price of that is this: <b>if browser data is cleared, the assessment is
@@ -1627,8 +1631,10 @@
       </table>
     </div>
     <p>
-      CSV files are produced with a semicolon separator and a BOM, so columns
-      split correctly in a Turkish Excel locale.
+      CSV files are produced with a BOM and in the Excel format of the interface
+      language: a semicolon separator and comma decimals in Turkish, a comma
+      separator and dot decimals in English. Columns and numbers therefore split
+      correctly in both locales. Free-text cells are never run as formulas.
     </p>
 
     <h3>Scope in numbers</h3>
@@ -1654,7 +1660,7 @@
 
     <div class="altbilgi">
       <p>
-        This guide describes version 2.10.1 of the application and reference data
+        This guide describes version 2.10.7 of the application and reference data
         pack 2026.1. The formulas in the methodology section match the scoring
         engine exactly. Regulatory citations are indicative and must be verified
         against the legislation in force. The tool supports detection,
@@ -1665,6 +1671,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.10.1"></script>
+<script src="js/kilavuz.js?v=2.10.7"></script>
 </body>
 </html>

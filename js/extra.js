@@ -92,7 +92,7 @@ const Extra = (() => {
       <div class="q-detail">
         <div class="q-refs">
           <div><b>${t('expectedEvidence')}:</b> ${esc(evidence)}</div>
-          <div><b>${t('source')}:</b> ${esc(q.source)}</div>
+          <div><b>${t('source')}:</b> ${esc(I18n.source(q.source))}</div>
         </div>
         <div class="field-row">
           <div class="field" style="margin:0">

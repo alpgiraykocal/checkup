@@ -176,7 +176,23 @@ const App = (() => {
     });
   }
 
+  /* Çizim iç içe girmez. Eski içerik kaldırılırken içindeki odaklı alan da
+     kalkar ve tarayıcı "blur" olayı atar; blur dinleyicisi yeniden çizim
+     isterse ikinci çizim ilki bitmeden içeriği değiştiriyor, ilki de artık
+     yerinde olmayan düğümü değiştirmeye çalışıp hata fırlatıyordu (portföyde
+     ülke seçmek bunu tetikliyordu). Çizim zaten güncel durumu kullandığı için
+     sürerken gelen istek yok sayılır; sonraya bırakmak döngü kurardı (her
+     çizim odağı yeni alana taşır, bir sonraki onu yine kaldırır). */
+  let cizimde = false;
+
   function render() {
+    if (cizimde) return;
+    cizimde = true;
+    try { cizimYap(); }
+    finally { cizimde = false; }
+  }
+
+  function cizimYap() {
     const state = Store.state;
     const snap = captureFocus();
     calc = Calc.compute(state);
@@ -367,7 +383,8 @@ const App = (() => {
       }
       const langBtn = e.target.closest('[data-lang]');
       if (langBtn) { setLanguage(langBtn.dataset.lang); return; }
-      if (e.target.closest('#print-btn')) { window.print(); return; }
+      // Satır içi onclick yok: içerik güvenlik politikası satır içi betiğe izin vermez.
+      if (e.target.closest('#print-btn, [data-print]')) { window.print(); return; }
       const act = e.target.closest('[data-act]');
       if (act) {
         if (act.dataset.act === 'export') exportMenu();
