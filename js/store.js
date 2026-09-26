@@ -191,13 +191,44 @@ const Store = (() => {
      Kaza sonucu sıfırlama veya yanlış dosya yüklemesi geri alınabilir. */
 
   function readSnapshots() {
-    try { return JSON.parse(localStorage.getItem(SNAPSHOT_KEY)) || []; }
-    catch { return []; }
+    try {
+      const list = JSON.parse(localStorage.getItem(SNAPSHOT_KEY));
+      return Array.isArray(list) ? list.filter(isObj) : [];
+    } catch { return []; }
   }
 
+  /* Yedek listesi sığmazsa en eskiden başlayarak kısaltılır; hiç sığmazsa
+     anahtar kaldırılır. Yarım yazılmış ya da eski kalmış bir liste, asıl
+     kaydın yerini boşuna tutmamalı. */
   function writeSnapshots(list) {
-    try { localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(list)); }
-    catch (e) { console.warn('Yedek yazılamadı', e); }
+    for (let n = list.length; n > 0; n -= 1) {
+      try { localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(list.slice(0, n))); return n; }
+      catch { /* bir eksiğiyle yeniden dene */ }
+    }
+    try { localStorage.removeItem(SNAPSHOT_KEY); } catch { /* yok sayılır */ }
+    if (list.length) console.warn('Yedek yazılamadı: depolama dolu');
+    return 0;
+  }
+
+  /* Asıl çalışma otomatik yedekten önemlidir. Depolama dolduğunda önce en
+     eski yedek silinip asıl kayıt yeniden denenir; yedekler bitince hata
+     çağırana geçer. Yedekler zamanla büyüyüp (günlük 4.000 kayda kadar)
+     kotayı doldurduğunda asıl kayıt sessizce yazılamaz hâle geliyordu. */
+  function anaKayitYaz(ham) {
+    for (;;) {
+      try { localStorage.setItem(STORAGE_KEY, ham); return; }
+      catch (e) {
+        const list = readSnapshots();
+        if (!list.length) {
+          // Okunamayan (bozuk) yedek anahtarı da yer tutar; bir kez temizlenir.
+          if (localStorage.getItem(SNAPSHOT_KEY) === null) throw e;
+          localStorage.removeItem(SNAPSHOT_KEY);
+          continue;
+        }
+        list.pop();
+        writeSnapshots(list);
+      }
+    }
   }
 
   /** force: sıfırlama/geri yükleme gibi yıkıcı işlemlerden hemen önce. */
@@ -244,7 +275,7 @@ const Store = (() => {
     state.updatedAt = new Date().toISOString();
     try {
       const ham = JSON.stringify(state);
-      localStorage.setItem(STORAGE_KEY, ham);
+      anaKayitYaz(ham);
       sonYazilanHam = ham;
       snap('auto');
       saveFailed = false;

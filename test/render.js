@@ -263,4 +263,25 @@ function dusmancaDurum() {
   check('başlangıçta dış değişiklik yok', Store.externalChange === false);
 })();
 
+/* ---------- Odak kaybında yeniden çizim tıklamayı yutmamalı ----------
+   Alan odağı kaybedince ekran hemen yeniden çizilirse fareyle basılan düğme
+   DOM'dan kalkar ve tıklama gelmez (canlıda: "Ülke ekle" ilk basışta
+   çalışmıyordu). blur dinleyicileri App.rerenderAfterBlur kullanmalı. */
+(() => {
+  const fs = require('fs'), path = require('path');
+  const JS = path.join(__dirname, '..', 'js');
+  let dinleyici = 0;
+  fs.readdirSync(JS).filter(f => f.endsWith('.js')).forEach(f => {
+    const kod = fs.readFileSync(path.join(JS, f), 'utf8');
+    const re = /addEventListener\('blur',[\s\S]{0,200}?\}, true\)/g;
+    let m;
+    while ((m = re.exec(kod))) {
+      dinleyici += 1;
+      check(`${f}: blur dinleyicisi tıklamayı yutmaz`, !/App\.rerender\(\)/.test(m[0]), m[0].slice(0, 120));
+    }
+  });
+  check('blur dinleyicileri bulundu', dinleyici >= 6, dinleyici);
+  check('ertelenmiş çizim dışa açık', typeof A.App.rerenderAfterBlur === 'function');
+})();
+
 process.exitCode = H.report('Görünüm — kaçırma, anahtar ve etiket') ? 1 : 0;

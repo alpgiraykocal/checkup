@@ -311,8 +311,9 @@ const Exporter = (() => {
           <div class="grid grid-kpi">
             ${UI.statTile({ label: t('colEffTested'), value: fmtPct1(tot.effectivenessTested),
               foot: `${t('colEffDeclared')} ${fmtPct1(tot.effectiveness)} · ${esc(tot.maturity ? I18n.ref('maturity', tot.maturity) : '—')}` })}
-            ${UI.statTile({ label: t('csvH.inherentRisk'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/5',
-              foot: inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) + ` · ${inh.scored}/${inh.applicable} ${t('factor')}` : t('notMeasured') })}
+            ${UI.statTile({ label: t('csvH.inherentRisk'), value: calc.generalInherentMeasured ? fmtNum2(calc.generalInherent) : '—', unit: '/5',
+              foot: calc.generalInherentMeasured ? esc(I18n.ref('riskLevel', Calc.riskLevel5(calc.generalInherent))) + ` · ${inh.scored}/${inh.applicable} ${t('factor')}`
+                + (calc.method && calc.method.applied ? ` · ${esc(t('mtExposure'))}` : '') : t('notMeasured') })}
             ${UI.statTile({ label: t('colResidual'), value: fmtNum2(calc.generalResidual), unit: '/5',
               foot: calc.generalResidual === null ? '—' : esc(I18n.ref('riskLevel', Calc.residualLevel(calc.generalResidual))) })}
             ${UI.statTile({ label: t('coverage'), value: `${fmtInt(tot.answered)} / ${fmtInt(tot.count)}`, foot: t('answeredPct', { p: fmtPct(tot.progress) }) })}

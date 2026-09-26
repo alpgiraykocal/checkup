@@ -204,6 +204,31 @@ const App = (() => {
     restoreFocus(snap);
   }
 
+  /* Alan odağı kaybedince türetilen değerler için ekran yeniden çizilir.
+     Odak kaybı fareye basıldığı anda olur; o anda çizilirse basılan düğme
+     DOM'dan kalkar ve tıklama hiç gelmez — "Ülke ekle"ye yazdıktan hemen
+     sonra basmak ilk seferde işe yaramıyordu. İşaretçi basılıyken çizim,
+     bırakıldıktan ve tıklama işlendikten sonraya ertelenir. */
+  let isaretciBasili = false, bekleyenCizim = false;
+
+  function rerenderAfterBlur() {
+    if (isaretciBasili) { bekleyenCizim = true; return; }
+    render();
+  }
+
+  function isaretciyiIzle() {
+    document.addEventListener('pointerdown', () => { isaretciBasili = true; }, true);
+    const birak = () => {
+      isaretciBasili = false;
+      if (!bekleyenCizim) return;
+      bekleyenCizim = false;
+      // click, pointerup ile aynı görevde gelir; çizim ondan sonraki göreve kalır.
+      setTimeout(render, 0);
+    };
+    document.addEventListener('pointerup', birak, true);
+    document.addEventListener('pointercancel', birak, true);
+  }
+
   /** query: ekranın açılış durumu (ör. anketi bir domaine filtreli açmak). */
   function go(id, query) {
     current = ROUTES.find(r => r.id === id) ? id : 'pano';
@@ -323,6 +348,7 @@ const App = (() => {
     current = route();
 
     Store.subscribe(() => render());
+    isaretciyiIzle();
     window.addEventListener('hashchange', () => { current = route(); render(); });
     window.addEventListener('resize', measureChrome);
 
@@ -394,7 +420,7 @@ const App = (() => {
     render();
   }
 
-  return { init, rerender: render, go, recompute, refreshChrome, setLanguage,
+  return { init, rerender: render, rerenderAfterBlur, go, recompute, refreshChrome, setLanguage,
            routeQuery, setRouteQuery, get calc() { return calc; } };
 })();
 

@@ -259,7 +259,7 @@ const Operations = (() => {
         if (!Object.keys(o[f.dataset.op]).length) delete o[f.dataset.op];
       }, { silent: true });
     });
-    host.addEventListener('blur', e => { if (e.target.closest('[data-op]')) App.rerender(); }, true);
+    host.addEventListener('blur', e => { if (e.target.closest('[data-op]')) App.rerenderAfterBlur(); }, true);
     host.addEventListener('change', e => {
       const j = e.target.closest('[data-op-jump]');
       if (j) {

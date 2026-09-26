@@ -27,7 +27,8 @@ const Compare = (() => {
         assurance: c.totals.assurance,
         openCritical: c.totals.openCritical
       },
-      inherent: { general: c.inherent.measured ? c.inherent.general : null, scored: c.inherent.scored },
+      // Artık riskin dayandığı doğuştan değer (yöntem açıkken iş kolu ağırlıklı)
+      inherent: { general: c.generalInherentMeasured ? c.generalInherent : null, scored: c.inherent.scored },
       generalResidual: c.generalResidual,
       breaches: c.breaches,
       domains: c.residual.map(r => {

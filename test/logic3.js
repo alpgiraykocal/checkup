@@ -162,4 +162,39 @@ const withState = m => { const s = blank(); m(s); return s; };
   check('dil değişimi skorları bozmaz', JSON.stringify(say(tr)) === JSON.stringify(say(en)), { tr: say(tr), en: say(en) });
 }
 
+/* ---------- Depolama dolu: yedekler asıl kaydı engellememeli ---------- */
+(() => {
+  const raw = A.__ctx.__raw, ls = A.__ctx.localStorage, asil = ls.setItem;
+  const kullanilan = () => Object.values(raw).reduce((a, v) => a + v.length, 0);
+  let sinir = Infinity;
+  ls.setItem = (k, v) => {
+    const onceki = (raw[k] || '').length;
+    if (kullanilan() - onceki + String(v).length > sinir) {
+      const e = new Error('QuotaExceededError'); e.name = 'QuotaExceededError'; throw e;
+    }
+    asil(k, v);
+  };
+  try {
+    const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+    Store.replace(temiz);
+    DATA.questions.forEach(q => { Store.state.answers[q.id] = { a: 'Evet', evidence: 'k'.repeat(200) }; });
+    Store.update(() => {}); Store.flush();
+    for (let i = 0; i < 5; i++) Store.snapshotNow('auto');
+    const yedekOnce = Store.snapshots().length;
+    sinir = kullanilan() + 1000;              // yedekler kotayı doldurmuş
+    Store.update(s => { DATA.questions.slice(0, 60).forEach(q => { s.answers[q.id].note = 'n'.repeat(200); }); });
+    Store.flush();
+    check('kota dolu: asıl kayıt yazıldı', !Store.saveFailed && raw['aml-checkup-v1'].includes('nnnnn'));
+    check('kota dolu: yer için eski yedek silindi', Store.snapshots().length < yedekOnce, Store.snapshots().length);
+    // bozuk yedek anahtarı da yer açmak için temizlenir
+    raw['aml-checkup-snapshots-v1'] = '{bozuk' + 'x'.repeat(5000);
+    sinir = kullanilan() + 100;
+    Store.update(s => { s.kunye.kurum_unvani = 'y'.repeat(2000); }); Store.flush();
+    check('bozuk yedek temizlendi, asıl kayıt yazıldı', !Store.saveFailed && raw['aml-checkup-v1'].includes('yyyyy'));
+    Store.replace(temiz);
+  } finally {
+    ls.setItem = asil;
+  }
+})();
+
 process.exitCode = H.report('Mantık — operasyon, portföy, ülke, karşılaştırma, depolama, dil') ? 1 : 0;

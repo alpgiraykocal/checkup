@@ -199,7 +199,7 @@ const Extra = (() => {
 
     // Hata oranı yazma bitince tazelensin; sonuç değişimi kartı yeniden çizer.
     host.addEventListener('blur', e => {
-      if (e.target.closest('[data-ex-qa]')) App.rerender();
+      if (e.target.closest('[data-ex-qa]')) App.rerenderAfterBlur();
     }, true);
 
     host.addEventListener('click', e => {

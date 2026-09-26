@@ -606,19 +606,20 @@ const Portfolio = (() => {
 
     // Yazma bittiğinde türetilen değerler tazelenir
     host.addEventListener('blur', e => {
-      if (e.target.closest('[data-mx],[data-seg],[data-cn],[data-br]')) App.rerender();
+      if (e.target.closest('[data-mx],[data-seg],[data-cn],[data-br]')) App.rerenderAfterBlur();
     }, true);
 
     host.addEventListener('click', async e => {
       if (e.target.closest('[data-cn-add]')) {
         Store.update(s => { pf(s).countries.push({ code: '', name: '', relations: [] }); });
-        const inp = UI.el('#cn-code-' + (Store.state.portfolio.countries.length - 1), host);
+        // Güncelleme ekranı yeniden çizdi; host artık eski düğüm, arama belgede yapılır.
+        const inp = UI.el('#cn-code-' + (Store.state.portfolio.countries.length - 1));
         if (inp) inp.focus();
         return;
       }
       if (e.target.closest('[data-br-add]')) {
         Store.update(s => { pf(s).branches.push({ name: '', type: '', country: '' }); });
-        const inp = UI.el('#br-name-' + (Store.state.portfolio.branches.length - 1), host);
+        const inp = UI.el('#br-name-' + (Store.state.portfolio.branches.length - 1));
         if (inp) inp.focus();
         return;
       }

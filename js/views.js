@@ -17,6 +17,7 @@ const Views = (() => {
     const effTone = eff === null ? '' : eff >= 0.75 ? 'ok' : eff >= 0.6 ? 'warn' : 'danger';
     const effDiffers = eff !== null && tot.effectiveness !== null && Math.abs(tot.effectiveness - eff) > 0.0005;
 
+    const gen = calc.generalInherent, genMeasured = calc.generalInherentMeasured;
     /* Hiyerarşi: dört sonuç ölçümü öne çıkar (hero), ilerleme ve iş yükü
        ölçümleri onların altında daha sessiz bir satırda durur. Önceki tasarımda
        on kutu aynı ağırlıktaydı ve hiçbiri okunmuyordu. */
@@ -30,9 +31,11 @@ const Views = (() => {
       }),
       statTile({
         hero: true,
-        label: t('kpiInherent'), value: inh.measured ? fmtNum2(inh.general) : '—', unit: '/ 5',
-        tone: !inh.measured ? '' : inh.general >= 3 ? 'danger' : inh.general >= 2 ? 'warn' : 'ok',
-        foot: `${inh.measured ? esc(I18n.ref('riskLevel', inh.dims.GENEL.level)) : t('notMeasured')} · ${inh.scored}/${inh.applicable} ${t('factor')}${inh.na ? ` · ${inh.na} N/A` : ''}`
+        /* Artık risk hangi doğuştan değerden hesaplanıyorsa pano onu gösterir:
+           maruziyet yöntemi açıkken iş kolu ağırlıklı değer. */
+        label: t('kpiInherent'), value: genMeasured ? fmtNum2(gen) : '—', unit: '/ 5',
+        tone: !genMeasured ? '' : gen >= 3 ? 'danger' : gen >= 2 ? 'warn' : 'ok',
+        foot: `${genMeasured ? esc(I18n.ref('riskLevel', Calc.riskLevel5(gen))) : t('notMeasured')} · ${inh.scored}/${inh.applicable} ${t('factor')}${inh.na ? ` · ${inh.na} N/A` : ''}${calc.method && calc.method.applied ? ` · ${esc(t('mtExposure'))}` : ''}`
       }),
       statTile({
         hero: true,
@@ -187,7 +190,7 @@ const Views = (() => {
     });
     // Durum sütunu yazma bitince güncellensin
     host.addEventListener('blur', e => {
-      if (e.target.closest('[data-kpi]')) App.rerender();
+      if (e.target.closest('[data-kpi]')) App.rerenderAfterBlur();
     }, true);
   }
 
@@ -537,7 +540,7 @@ const Views = (() => {
     });
     // Sayı ve metin alanlarında yazma bitince türetilenleri tazele
     host.addEventListener('blur', e => {
-      if (e.target.closest('input[data-kunye]')) App.rerender();
+      if (e.target.closest('input[data-kunye]')) App.rerenderAfterBlur();
     }, true);
   }
 
@@ -951,7 +954,7 @@ const Views = (() => {
 
   function bindInherent(host) {
     host.addEventListener('blur', e => {
-      if (e.target.closest('input[data-line][data-field="share"]')) App.rerender();
+      if (e.target.closest('input[data-line][data-field="share"]')) App.rerenderAfterBlur();
     }, true);
     host.addEventListener('click', e => {
       const sc = e.target.closest('[data-inh-score]');
