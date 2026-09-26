@@ -43,7 +43,7 @@ const Actions = (() => {
       if (filter.crit && a.crit !== filter.crit) return false;   // dil-güvenli: aksiyon kaydı sabit anahtar saklar
       if (filter.domain && a.domain !== filter.domain) return false;
       if (filter.delay === 'overdue' && a.delay !== 'GECİKMİŞ') return false;
-      if (filter.delay === 'open' && a.status === 'Kapalı') return false;
+      if (filter.delay === 'open' && !Calc.actionOpen(a)) return false;
       return true;
     });
 
@@ -60,7 +60,10 @@ const Actions = (() => {
             tone: incomplete ? 'warn' : 'ok',
             foot: incomplete ? t('incompleteDesc') : t('allComplete') });
         })()}
-        ${statTile({ label: t('closureRate'), value: fmtPct(st.closureRate), foot: UI.meter(st.closureRate) })}
+        ${statTile({ label: t('closureRate'), value: fmtPct(st.closureRate),
+          foot: (st.accepted ? `${fmtInt(st.closed)} / ${fmtInt(st.total - st.accepted)} ${t('closedOfResolvable')}` : '')
+            + UI.meter(st.closureRate) })}
+        ${st.accepted ? statTile({ label: t('accepted'), value: fmtInt(st.accepted), foot: t('acceptedFoot') }) : ''}
       </div>
 
       ${banner('info', t('bnFiveFields'), t('bnFiveFieldsBody'))}
@@ -122,10 +125,13 @@ const Actions = (() => {
   function gaps(a) {
     const missing = [];
     if (!a.rootCause) missing.push(t('mRootCause'));
-    if (!a.action) missing.push(t('mAction'));
+    // Risk kabulünde giderme aksiyonu yoktur; onay referansı doğrulama alanında aranır.
+    if (!a.action && a.status !== Calc.ACTION_ACCEPTED) missing.push(t('mAction'));
     if (!a.owner) missing.push(t('mOwner'));
     if (!a.due) missing.push(t('mDue'));
     if (!a.verification) missing.push(t('mVerification'));
+    // Kapanmış ya da kabul edilmiş bulgunun tarihi yoksa kapanış kanıtsızdır.
+    if (Calc.ACTION_CLOSING.includes(a.status) && !a.closedAt) missing.push(t('mClosedAt'));
     return missing;
   }
 
@@ -164,8 +170,40 @@ const Actions = (() => {
 
   function statusChip(a) {
     if (a.status === 'Kapalı') return `<span class="chip chip-ok">${Icons.check()} ${t('closed')}</span>`;
+    if (a.status === Calc.ACTION_ACCEPTED) return `<span class="chip chip-na">${Icons.flag()} ${esc(I18n.ref('status', a.status))}</span>`;
     if (a.delay === 'GECİKMİŞ') return `<span class="chip chip-critical">${Icons.alert()} ${t('overdue')}</span><div class="subtle">${esc(I18n.ref('status', a.status))}</div>`;
     return `<span class="chip chip-mid">${esc(I18n.ref('status', a.status || 'Açık'))}</span>`;
+  }
+
+  /** Bulgu kaydının kuralları. [alan kimliği, ileti] listesi döner; boşsa kayıt geçerli.
+      DOM'a dokunmaz — testler kuralları doğrudan sınar. */
+  function validate(rec, isEdit, actions) {
+    const problems = [];
+    /* Yeni kayıtta kimlik alanı düzenlenebilir. Var olan bir kimlik
+       yazılırsa eski bulgu sessizce üzerine yazılıyordu — denetim kaydı
+       kaybı. Çakışma açıkça reddedilir. */
+    if (!isEdit && actions.some(a => a.id === rec.id)) {
+      problems.push(['af-id', t('vIdTaken', { id: rec.id })]);
+    }
+    if (!rec.finding) problems.push(['af-finding', t('vFinding')]);
+    if (!rec.rootCause) problems.push(['af-rootCause', t('vRootCause')]);
+    if (!rec.owner) problems.push(['af-owner', t('vOwner')]);
+    if (!rec.due) problems.push(['af-due', t('vDue')]);
+    if (rec.questionId && !Calc.findQuestion(rec.questionId)) {
+      problems.push(['af-questionId', t('vQuestionId')]);
+    }
+    /* Kapanış disiplini: kapanan ya da kabul edilen bulgunun tarihi olur,
+       açık bulgunun olmaz, tarih ileri olamaz. Risk kabulü onay referansı
+       ister ve kritik bulguda — tanımı gereği yasal ihlal — kullanılamaz. */
+    const kapaniyor = Calc.ACTION_CLOSING.includes(rec.status);
+    if (kapaniyor && !rec.closedAt) problems.push(['af-closedAt', t('vClosedAtReq')]);
+    if (!kapaniyor && rec.closedAt) problems.push(['af-closedAt', t('vClosedAtOpen')]);
+    if (rec.closedAt && rec.closedAt > Calc.toISODate(new Date())) problems.push(['af-closedAt', t('vClosedAtFuture')]);
+    if (rec.status === Calc.ACTION_ACCEPTED) {
+      if (rec.crit === 'Kritik') problems.push(['af-status', t('vAcceptCritical')]);   // dil-güvenli: sabit anahtar
+      if (!rec.verification) problems.push(['af-verification', t('vAcceptApproval')]);
+    }
+    return problems;
   }
 
   /* ---------- Form ---------- */
@@ -248,6 +286,14 @@ const Actions = (() => {
       onMount(scrim) {
         const critSel = UI.el('#af-crit', scrim);
         const dueInp = UI.el('#af-due', scrim);
+        const durumSel = UI.el('#af-status', scrim);
+        const kapanisInp = UI.el('#af-closedAt', scrim);
+        // Kapatırken tarih boşsa bugün önerilir; kullanıcı değiştirebilir.
+        durumSel.addEventListener('change', () => {
+          if (Calc.ACTION_CLOSING.includes(durumSel.value) && !kapanisInp.value) {
+            kapanisInp.value = Calc.toISODate(new Date());
+          }
+        });
         /* Son tarih kullanıcı elle değiştirmediyse SLA'yı izler; elle
            girilmiş tarih kritiklik değişince ezilmez. */
         let otoTarih = existing ? '' : dueInp.value;
@@ -285,20 +331,7 @@ const Actions = (() => {
             closedAt: get('closedAt'),
             residualAfter: get('residualAfter')
           };
-          const problems = [];
-          /* Yeni kayıtta kimlik alanı düzenlenebilir. Var olan bir kimlik
-             yazılırsa eski bulgu sessizce üzerine yazılıyordu — denetim kaydı
-             kaybı. Çakışma açıkça reddedilir. */
-          if (!existing && (Store.state.actions || []).some(a => a.id === rec.id)) {
-            problems.push(['af-id', t('vIdTaken', { id: rec.id })]);
-          }
-          if (!rec.finding) problems.push(['af-finding', t('vFinding')]);
-          if (!rec.rootCause) problems.push(['af-rootCause', t('vRootCause')]);
-          if (!rec.owner) problems.push(['af-owner', t('vOwner')]);
-          if (!rec.due) problems.push(['af-due', t('vDue')]);
-          if (rec.questionId && !Calc.findQuestion(rec.questionId)) {
-            problems.push(['af-questionId', t('vQuestionId')]);
-          }
+          const problems = validate(rec, Boolean(existing), Store.state.actions || []);
           if (problems.length) {
             UI.toast(problems[0][1] + (problems.length > 1 ? ' ' + t('vMissingCount', { n: problems.length }) : ''), 'err');
             const first = UI.el('#' + problems[0][0], scrim);
@@ -308,10 +341,11 @@ const Actions = (() => {
           rec.questionId = rec.questionId.toUpperCase();
           const oncekiKayit = existing ? JSON.stringify({
             finding: existing.finding, status: existing.status, crit: existing.crit,
-            owner: existing.owner, due: existing.due
+            owner: existing.owner, due: existing.due, closedAt: existing.closedAt || ''
           }) : '';
           const sonrakiKayit = JSON.stringify({
-            finding: rec.finding, status: rec.status, crit: rec.crit, owner: rec.owner, due: rec.due
+            finding: rec.finding, status: rec.status, crit: rec.crit, owner: rec.owner, due: rec.due,
+            closedAt: rec.closedAt
           });
           Store.update(s => {
             s.actions = s.actions || [];
@@ -374,6 +408,7 @@ const Actions = (() => {
     });
     if (!ok) return;
 
+    const uretilen = [];
     Store.update(s => {
       s.actions = s.actions || [];
       let n = Math.max(0, ...s.actions.map(a => Number(String(a.id).replace(/\D/g, '')) || 0));
@@ -397,10 +432,13 @@ const Actions = (() => {
           closedAt: '',
           residualAfter: ''
         });
+        uretilen.push(s.actions[s.actions.length - 1]);
       });
     });
+    // Toplu üretilen bulgu da tek tek eklenmiş sayılır: denetim izi eksik kalmasın.
+    uretilen.forEach(a => Store.log('action-add', a.id, '', a.finding));
     UI.toast(t('genDone', { n: gaps.length }), 'ok');
   }
 
-  return { view, openForm, generateFromGaps, gapQuestions, kaynakMetni };
+  return { view, openForm, generateFromGaps, gapQuestions, kaynakMetni, validate, gaps };
 })();

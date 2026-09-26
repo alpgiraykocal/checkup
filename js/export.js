@@ -106,7 +106,7 @@ const Exporter = (() => {
             I18n.isEn ? q.en : q.tr, I18n.ref('answers', st.answer), dec(st.coef), q.weight,
             dec(st.applicableWeight || ''), dec(st.earned || ''), I18n.ref('crit', q.crit),
             I18n.isEn ? q.enEvidence : q.trEvidence, q.source,
-            q.qa ? yes : no, '', (state.answers[q.id] || {}).evidence || '', '',
+            q.qa ? yes : no, '', (state.answers[q.id] || {}).evidence || '', (state.answers[q.id] || {}).note || '',
             st.actionNeeded === 'EVET - ÖNCELİKLİ' ? t('priorityAction') : st.actionNeeded ? I18n.ref('answers', st.actionNeeded) : '',
             reasonLabel(st.actionReason), st.scopeReason || '']);
         }));
@@ -146,7 +146,7 @@ const Exporter = (() => {
       calc.actions.forEach(a => rows.push([a.id, a.domain, a.questionId, a.finding, a.source,
         I18n.ref('rootCause', a.rootCause), I18n.ref('crit', a.crit),
         a.action, a.owner, a.due, a.verification, I18n.ref('status', a.status),
-        a.delay === 'GECİKMİŞ' ? t('overdue') : a.delay === 'Kapalı' ? t('closed') : a.delay,
+        a.delay === 'GECİKMİŞ' ? t('overdue') : a.delay === 'Kapalı' ? t('closed') : a.delay === 'Kabul' ? t('accepted') : a.delay,
         a.closedAt, I18n.ref('riskLevel', a.residualAfter)]));
     } else if (kind === 'operations') {
       name = t('fileOperations');
@@ -291,6 +291,7 @@ const Exporter = (() => {
     // PF ayrı bir satır ama aşım sayımına girer — pano rozeti de onu sayıyor.
     const breaches = calc.residual.filter(r => r.breach).concat(calc.pfLine.breach ? [calc.pfLine] : []);
     const overdue = calc.actions.filter(a => a.delay === 'GECİKMİŞ');
+    const accepted = calc.actions.filter(a => a.status === Calc.ACTION_ACCEPTED);
 
     host.innerHTML = `
       <div class="toolbar no-print">
@@ -381,7 +382,8 @@ const Exporter = (() => {
             ${calc.pf.measured ? kv(esc(I18n.isEn ? RISKMODEL.pf.en : RISKMODEL.pf.tr),
               `${fmtNum2(calc.pf.value)} / 5 · ${esc(I18n.ref('riskLevel', calc.pf.level))}`) : ''}
             ${calc.pfLine.residual !== null ? kv(t('colResidual') + ' (PF)',
-              `${fmtNum2(calc.pfLine.residual)} · ${esc(I18n.ref('riskLevel', calc.pfLine.level))}${calc.pfLine.breach ? ' — ' + t('breachAction') : ''}`) : ''}
+              `${fmtNum2(calc.pfLine.residual)} · ${esc(I18n.ref('riskLevel', calc.pfLine.level))}${calc.pfLine.breach ? ' — ' + t('breachAction') : ''}`
+              + ` · ${t('colAppetiteLimit')} ${fmtNum1(calc.pfLine.appetite)}${calc.pfLine.appetiteOverridden ? ` (${t('rrOwnLimit')})` : ''}`) : ''}
             ${calc.lines.weightedInherent !== null ? kv(t('blWeighted'), fmtNum2(calc.lines.weightedInherent)) : ''}
             ${calc.inherent.measured ? kv(t('blDimBased'), fmtNum2(calc.inherent.general)) : ''}
             ${calc.lines.worst && calc.lines.worst.inherent !== null
@@ -403,7 +405,8 @@ const Exporter = (() => {
                 <td>${esc(d.maturity ? I18n.ref('maturity', d.maturity) : '—')}</td>
                 <td class="num"><span class="heat-cell score-pill ${levelClass(r.level)}">${fmtNum2(r.residual)}</span></td>
                 <td>${esc(r.level ? I18n.ref('riskLevel', r.level) : '—')}</td>
-                <td>${r.breach === null ? '—' : r.breach ? `<b style="color:var(--danger)">${t('breach')}</b>` : t('withinAppetite')}</td>
+                <td>${r.breach === null ? '—' : r.breach ? `<b style="color:var(--danger)">${t('breach')}</b>` : t('withinAppetite')}
+                  <div class="subtle">${t('colAppetiteLimit')} ${fmtNum1(r.appetite)}${r.appetiteOverridden ? ` · ${t('rrOwnLimit')}` : ''}</div></td>
                 <td class="num">${fmtInt(d.openCritical)}</td>
               </tr>`;
             }).join('')}</tbody>
@@ -430,11 +433,23 @@ const Exporter = (() => {
           <div class="divider"></div>
           <h3>${t('sectionActions')}</h3>
           <p>${t('actionsSummary', { t: fmtInt(calc.actionStats.total), o: fmtInt(calc.actionStats.open),
-               d: fmtInt(calc.actionStats.overdue), c: fmtPct(calc.actionStats.closureRate) })}</p>
+               d: fmtInt(calc.actionStats.overdue), a: fmtInt(calc.actionStats.accepted),
+               c: fmtPct(calc.actionStats.closureRate) })}</p>
           ${overdue.length ? `<div class="table-wrap"><table>
             <thead><tr><th>${t('colFindingId')}</th><th>${t('csvH.findingText')}</th><th>${t('colOwner')}</th><th>${t('colDue')}</th><th>${t('criticality')}</th></tr></thead>
             <tbody>${overdue.map(a => `<tr><td class="mono">${esc(a.id)}</td><td>${esc(a.finding)}</td>
               <td>${esc(a.owner || '—')}</td><td>${fmtDate(a.due)}</td><td>${critChip(a.crit)}</td></tr>`).join('')}
+            </tbody></table></div>` : ''}
+
+          ${accepted.length ? `
+          <h3>${t('rptAcceptedTtl')} (${accepted.length})</h3>
+          <p class="subtle">${t('rptAcceptedNote')}</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>${t('colFindingId')}</th><th>${t('csvH.findingText')}</th><th>${t('criticality')}</th>
+              <th>${t('colApproval')}</th><th>${t('fClosedAt')}</th><th>${t('fResidualAfter')}</th></tr></thead>
+            <tbody>${accepted.map(a => `<tr><td class="mono">${esc(a.id)}</td><td>${esc(a.finding)}</td>
+              <td>${a.crit ? critChip(a.crit) : '—'}</td><td>${esc(a.verification || '—')}</td>
+              <td>${fmtDate(a.closedAt)}</td><td>${esc(a.residualAfter ? I18n.ref('riskLevel', a.residualAfter) : '—')}</td></tr>`).join('')}
             </tbody></table></div>` : ''}
 
           ${calc.extra && calc.extra.totals.answered ? `

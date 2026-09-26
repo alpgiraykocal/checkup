@@ -98,6 +98,67 @@ const withState = m => { const s = blank(); m(s); return s; };
   check('açık ile kritik açık tutarlı', c2.actionStats.critical <= c2.actionStats.open, c2.actionStats);
 }
 
+/* ---------- 15b. Risk kabulü ve kapanış disiplini ---------- */
+{
+  const { Actions, EXTRA } = A;
+  const bugun = new Date(); bugun.setHours(0,0,0,0);
+  const iso = d => Calc.toISODate(d);
+  const dun = new Date(bugun); dun.setDate(dun.getDate()-1);
+  const yarin = new Date(bugun); yarin.setDate(yarin.getDate()+1);
+  const st = withState(s => { s.actions = [
+    { id:'R1', status:'Kabul Edilen Risk', due: iso(dun), crit:'Yüksek', closedAt: iso(dun), verification:'YK-2026/14' },
+    { id:'R2', status:'Kapalı', due: iso(dun), crit:'Orta', closedAt: iso(dun) },
+    { id:'R3', status:'Açık', due: iso(dun), crit:'Kritik' },
+    { id:'R4', status:'Kabul Edilen Risk', crit:'Kritik' }            // elle düzenlenmiş dosyadan
+  ]; });
+  const c = Calc.compute(st);
+  const g = id => c.actions.find(a => a.id === id);
+  check('kabul: termini geçse de gecikmiş değil', g('R1').delay === 'Kabul', g('R1').delay);
+  check('kabul: açık sayılmaz', c.actionStats.open === 1, c.actionStats.open);
+  check('kabul: kapalı sayılmaz', c.actionStats.closed === 1, c.actionStats.closed);
+  check('kabul: ayrı sayılır', c.actionStats.accepted === 2, c.actionStats.accepted);
+  check('kabul: kritik açığa girmez', c.actionStats.critical === 1, c.actionStats.critical);
+  check('kabul: gecikmiş yalnız açık kayıt', c.actionStats.overdue === 1, c.actionStats.overdue);
+  check('kapanış oranı kabul hariç', near(c.actionStats.closureRate, 1 / 2), c.actionStats.closureRate);
+  const yalniz = Calc.compute(withState(s => { s.actions = [{ id:'K', status:'Kabul Edilen Risk' }]; }));
+  check('yalnız kabul varsa oran yok', yalniz.actionStats.closureRate === null, yalniz.actionStats.closureRate);
+  check('actionOpen: boş durum açık', Calc.actionOpen({ status: '' }) && Calc.actionOpen({}));
+  check('actionOpen: kapalı ve kabul açık değil', !Calc.actionOpen({ status: 'Kapalı' }) && !Calc.actionOpen({ status: 'Kabul Edilen Risk' }));
+
+  // Form kuralları
+  const temel = { id: 'X9', finding: 'f', rootCause: 'Süreç', owner: 'o', due: iso(yarin), crit: 'Yüksek', status: 'Açık', verification: '', closedAt: '', questionId: '' };
+  const alanlar = r => Actions.validate(Object.assign({}, temel, r), false, []).map(p => p[0]);
+  check('geçerli açık kayıt', alanlar({}).length === 0, alanlar({}));
+  check('kapalı kayıt tarih ister', alanlar({ status: 'Kapalı' }).includes('af-closedAt'));
+  check('kapalı kayıt tarihle geçer', alanlar({ status: 'Kapalı', closedAt: iso(bugun) }).length === 0, alanlar({ status: 'Kapalı', closedAt: iso(bugun) }));
+  check('açık kayıtta kapanış tarihi reddedilir', alanlar({ closedAt: iso(dun) }).includes('af-closedAt'));
+  check('ileri kapanış tarihi reddedilir', alanlar({ status: 'Kapalı', closedAt: iso(yarin) }).includes('af-closedAt'));
+  check('kabul onay referansı ister', alanlar({ status: 'Kabul Edilen Risk', closedAt: iso(bugun) }).includes('af-verification'));
+  check('kabul onayla geçer', alanlar({ status: 'Kabul Edilen Risk', closedAt: iso(bugun), verification: 'YK-1' }).length === 0);
+  check('kritik bulgu kabul edilemez', alanlar({ status: 'Kabul Edilen Risk', closedAt: iso(bugun), verification: 'YK-1', crit: 'Kritik' }).includes('af-status'));
+  check('mükerrer kimlik reddedilir', Actions.validate(temel, false, [{ id: 'X9' }]).some(p => p[0] === 'af-id'));
+  check('düzenlemede kendi kimliği serbest', !Actions.validate(temel, true, [{ id: 'X9' }]).some(p => p[0] === 'af-id'));
+
+  // Eksik alan: kapanmış ama tarihsiz kayıt
+  const eksik = Actions.gaps({ rootCause: 'x', action: 'x', owner: 'x', due: 'x', verification: 'x', status: 'Kapalı' });
+  check('tarihsiz kapalı kayıt eksik alanlı', eksik.length === 1, eksik);
+  check('kabulde aksiyon alanı aranmaz', Actions.gaps({ rootCause: 'x', owner: 'x', due: 'x', verification: 'YK', status: 'Kabul Edilen Risk', closedAt: '2026-01-01' }).length === 0);
+  check('açık kayıtta kapanış tarihi aranmaz', Actions.gaps({ rootCause: 'x', action: 'x', owner: 'x', due: 'x', verification: 'x', status: 'Açık' }).length === 0);
+
+  // Ek set: kapsam dışı sette önceden girilmiş yanıt sayılır ama skora girmez
+  const set = EXTRA.sets.find(x => Array.isArray(x.types) && x.types.length);
+  const ex = Calc.compute(withState(s => {
+    s.kunye.yukumlu_tipi = 'Banka';
+    s.answers[set.questions[0].id] = { a: 'Hayır' };
+    s.answers[set.questions[1].id] = { a: 'Evet' };
+  })).extra;
+  const es = ex.sets.find(x => x.spec.key === set.key);
+  check('kapsam dışı sette elle yanıt sayılır', es.outOfScope && es.manualAnswered === 2, { out: es.outOfScope, m: es.manualAnswered });
+  check('kapsam dışı set toplama girmez', ex.totals.applicableWeight === ex.sets.filter(x => !x.outOfScope).reduce((a, x) => a + x.applicableWeight, 0));
+  check('kapsam dışı setten bulgu üretilmez', !Actions.gapQuestions(Calc.compute(withState(s => {
+    s.kunye.yukumlu_tipi = 'Banka'; s.answers[set.questions[0].id] = { a: 'Hayır' }; }))).some(q => q.id === set.questions[0].id));
+}
+
 /* ---------- 16. PF ---------- */
 {
   const st = withState(s => {

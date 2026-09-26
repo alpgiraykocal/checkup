@@ -284,4 +284,118 @@ function dusmancaDurum() {
   check('ertelenmiş çizim dışa açık', typeof A.App.rerenderAfterBlur === 'function');
 })();
 
+/* ---------- Kayıttan gelen çizim de tıklamayı yutmamalı ----------
+   Metin alanının "change" olayı fareye basıldığı anda kaydı tetikler; abone
+   çizimi ertelenmezse kenar çubuğu yeniden kurulur, gezinme tıklaması kaybolur. */
+(() => {
+  const kod = require('fs').readFileSync(require('path').join(__dirname, '..', 'js', 'app.js'), 'utf8');
+  check('Store aboneliği ertelenmiş çizimi kullanır', /Store\.subscribe\(\(\) => rerenderAfterBlur\(\)\)/.test(kod));
+})();
+
+/* ---------- Otomatik kapsam dışı kayıt elle yanıtlanabilir ----------
+   Künye "elle girilen değer otomatik kuralı yener" der; düğme kapalıysa
+   bu yola girilemez. */
+(() => {
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  const kural = DATA.scopeRules[0];
+  const s = JSON.parse(JSON.stringify(temiz));
+  s.kunye[kural.field] = 'Hayır';
+  RISKMODEL.pf.factors.filter(f => f.scope).forEach(f => { s.kunye[f.scope] = 'Hayır'; });
+  Store.replace(s);
+  const calc = Calc.compute(Store.state);
+  const q = DATA.questions.find(x => calc.perQuestion[x.id].autoNA);
+  const kart = Views.questionCard(q, calc);
+  check('kapsam dışı soru kartı kilit işaretli', /is-locked/.test(kart));
+  check('kapsam dışı soruda yanıt düğmesi açık', !/data-answer="[^"]+"[^>]*disabled/.test(kart), kart.slice(0, 200));
+
+  const h = host(); Views.inherent(h, { state: Store.state, calc });
+  const f = calc.inherent.factors.find(x => x.st.autoNA);
+  const skorDugmesi = new RegExp(`data-inh-score="${f.st.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>`, 'g');
+  const dugmeler = h.innerHTML.match(skorDugmesi) || [];
+  check('kapsam dışı faktörde skor düğmeleri var', dugmeler.length === 5, dugmeler.length);
+  check('kapsam dışı faktörde skor düğmeleri açık', dugmeler.every(b => !/disabled/.test(b)), dugmeler[0]);
+  const pfKapsam = calc.pf.factors.find(x => x.autoNA);
+  if (pfKapsam) {
+    const pfDugme = h.innerHTML.match(new RegExp(`data-pf-score="${pfKapsam.spec.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>`, 'g')) || [];
+    check('kapsam dışı PF faktöründe skor düğmeleri açık', pfDugme.length === 5 && pfDugme.every(b => !/disabled/.test(b)), pfDugme[0]);
+  }
+  check('PF kapsamlı faktör bulundu', Boolean(pfKapsam));
+  Store.replace(temiz);
+})();
+
+/* ---------- Kurum kararıyla değişen iştah limiti raporda görünür ---------- */
+(() => {
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  const s = JSON.parse(JSON.stringify(temiz));
+  s.appetite = { D2: 2.2, PF: 1.1 };
+  DATA.inherentFactors.forEach(f => { s.inherent[f.key] = 3; });
+  RISKMODEL.pf.factors.forEach(f => { s.pf[f.key] = { score: 3 }; });
+  DATA.questions.forEach(q => { s.answers[q.id] = { a: 'Kısmen' }; });
+  Store.replace(s);
+  const calc = Calc.compute(Store.state);
+  const h = host(); Exporter.report(h, { state: Store.state, calc });
+  const kurum = I18n.t('rrOwnLimit');
+  check('raporda domain limiti kurum kararı olarak yazılı', h.innerHTML.includes('2,2 · ' + kurum), h.innerHTML.match(/2,2[^<]{0,40}/));
+  check('raporda PF limiti kurum kararı olarak yazılı', h.innerHTML.includes('1,1 (' + kurum + ')'));
+  const r = host(); Views.residual(r, { state: Store.state, calc });
+  check('artık risk ekranında PF kurum kararı işareti', (r.innerHTML.match(new RegExp(kurum, 'g')) || []).length === 2);
+  Store.replace(temiz);
+})();
+
+/* ---------- Soru CSV'si ek set notunu taşır ---------- */
+(() => {
+  const ctx = A.__ctx;
+  let yakalanan = null;
+  const eskiUrl = ctx.URL.createObjectURL, eskiEl = ctx.document.createElement;
+  ctx.URL.createObjectURL = b => { yakalanan = b.parts.join(''); return 'blob:x'; };
+  ctx.document.createElement = (...a) => Object.assign(eskiEl(...a), { click() {} });
+  const eskiEkle = ctx.document.body.appendChild;
+  try {
+    const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+    const exQ = EXTRA.sets[0].questions[0];
+    Store.replace(Object.assign(JSON.parse(JSON.stringify(temiz)), { answers: { [exQ.id]: { a: 'Hayır', note: 'EKNOTU-123' } } }));
+    Exporter.exportCSV('questions', Calc.compute(Store.state));
+    check('soru CSV\'si ek set notunu içerir', yakalanan && yakalanan.includes('EKNOTU-123'));
+    Store.replace(temiz);
+  } finally {
+    ctx.URL.createObjectURL = eskiUrl; ctx.document.createElement = eskiEl; ctx.document.body.appendChild = eskiEkle;
+  }
+})();
+
+/* ---------- Toplu üretim günlüğe yazılır; yöntem olayı adlandırılmış ---------- */
+(() => {
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  const kod = require('fs').readFileSync(require('path').join(__dirname, '..', 'js', 'actions.js'), 'utf8');
+  check('toplu üretim her bulguyu günlüğe yazar', /uretilen\.forEach\(a => Store\.log\('action-add'/.test(kod));
+  check('yöntem olayının adı var', ChangeLog.turAdi('method') !== 'method', ChangeLog.turAdi('method'));
+  Store.replace(temiz);
+})();
+
+/* ---------- Risk kabulü raporda, bulgu ekranında ve ek sette görünür ---------- */
+(() => {
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  const s = JSON.parse(JSON.stringify(temiz));
+  s.actions = [
+    { id: 'RK-1', finding: 'Kabul edilen bulgu', crit: 'Yüksek', status: 'Kabul Edilen Risk',
+      closedAt: '2026-01-10', verification: 'YK-2026/14', due: '2025-01-01' },
+    { id: 'RK-2', finding: 'Açık', crit: 'Orta', status: 'Açık', due: '2099-01-01' }
+  ];
+  const set = EXTRA.sets.find(x => Array.isArray(x.types) && x.types.length);
+  s.kunye.yukumlu_tipi = 'Banka';
+  s.answers[set.questions[0].id] = { a: 'Hayır' };
+  Store.replace(s);
+  const calc = Calc.compute(Store.state);
+  const r = host(); Exporter.report(r, { state: Store.state, calc });
+  check('raporda risk kabulü tablosu', r.innerHTML.includes(I18n.t('rptAcceptedTtl')) && r.innerHTML.includes('YK-2026/14'));
+  check('rapor özeti kabul sayısını verir', /risk kabulü <b>1<\/b>/.test(r.innerHTML));
+  const a = host(); Actions.view(a, { state: Store.state, calc });
+  check('bulgu ekranında kabul kutucuğu', a.innerHTML.includes(I18n.t('acceptedFoot')));
+  const satir = (a.innerHTML.split('<tr>').find(x => x.includes('>RK-1<')) || '');
+  check('kabul edilen bulgu satırı bulundu', satir.length > 0);
+  check('kabul edilen bulgu gecikmiş rozeti almaz', !satir.includes(I18n.t('overdue')) && satir.includes('chip-na'), satir.slice(-300));
+  const e = host(); Extra.view(e, { state: Store.state, calc });
+  check('kapsam dışı sette bekleyen yanıt uyarısı', e.innerHTML.includes(I18n.t('exHeldAnswers', { n: '1' })));
+  Store.replace(temiz);
+})();
+
 process.exitCode = H.report('Görünüm — kaçırma, anahtar ve etiket') ? 1 : 0;

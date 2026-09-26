@@ -74,7 +74,9 @@ const Views = (() => {
       }),
       statTile({
         label: t('kpiClosureRate'), value: fmtPct(calc.actionStats.closureRate),
-        foot: `${fmtInt(calc.actionStats.closed)} / ${fmtInt(calc.actionStats.total)} ${t('closedOfTotal')}` + meter(calc.actionStats.closureRate)
+        foot: (calc.actionStats.accepted
+          ? `${fmtInt(calc.actionStats.closed)} / ${fmtInt(calc.actionStats.total - calc.actionStats.accepted)} ${t('closedOfResolvable')}`
+          : `${fmtInt(calc.actionStats.closed)} / ${fmtInt(calc.actionStats.total)} ${t('closedOfTotal')}`) + meter(calc.actionStats.closureRate)
       })
     ].concat(calc.extra && calc.extra.totals.count ? [
       statTile({
@@ -377,7 +379,7 @@ const Views = (() => {
         <td style="width:120px">
           ${isAuto && manual === null
             ? `<div class="auto-value" title="${t('kpiAutoTitle')}">
-                 <b class="num">${auto === null ? '—' : fmtInt(auto)}</b> <span class="subtle">${esc(k.unit)}</span>
+                 <b class="num">${auto === null ? '—' : Number.isInteger(auto) ? fmtInt(auto) : fmtNum1(auto)}</b> <span class="subtle">${esc(k.unit)}</span>
                  <div class="subtle">${fromOps ? t('kpiFromOpsShort') : t('kpiAuto')}</div>
                </div>`
             : `<div class="input-unit">
@@ -465,7 +467,7 @@ const Views = (() => {
     }).join('');
 
     const scoped = Array.from(calc.scopeMap.entries());
-    const scopedQ = DATA.questions.filter(q => calc.scopeMap.has(q.domain + '|' + q.section)).length;
+    const scopedQ = DATA.questions.filter(q => calc.scopeMap.has(q.domain + '|' + q.sectionKey)).length;
     const scopedFactors = calc.inherent.factors.filter(x => x.st.autoNA).length;
 
     host.innerHTML = `
@@ -702,7 +704,7 @@ const Views = (() => {
 
     const buttons = [1, 2, 3, 4, 5].map(n => `
       <button type="button" class="answer-btn score-btn" data-inh-score="${esc(st.key)}" data-n="${n}"
-        aria-pressed="${st.score === n}" ${st.na ? 'disabled' : ''}
+        aria-pressed="${st.score === n}" ${st.manualNA ? 'disabled' : ''}
         title="${esc(n + ' — ' + scoreLabels()[n - 1] + ': ' + f.anchors[n - 1])}"
         aria-label="${esc(f.factor)} — ${n} ${esc(scoreLabels()[n - 1])}">
         <span class="score-n">${n}</span>
@@ -786,11 +788,11 @@ const Views = (() => {
         <div class="factor-score">
           <div class="scorebar" role="group" aria-label="${esc(I18n.isEn ? s.en : s.tr)}">
             ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="answer-btn score-btn"
-              data-pf-score="${esc(s.key)}" data-n="${n}" aria-pressed="${f.score === n}" ${f.na ? 'disabled' : ''}
+              data-pf-score="${esc(s.key)}" data-n="${n}" aria-pressed="${f.score === n}" ${f.manualNA ? 'disabled' : ''}
               title="${esc(n + ' — ' + scoreLabels()[n - 1] + ': ' + anchors[n - 1])}">
               <span class="score-n">${n}</span></button>`).join('')}
             <button type="button" class="answer-btn na-btn" data-pf-na="${esc(s.key)}"
-              aria-pressed="${!f.autoNA && f.na}" title="${t('naTitle')}">${Icons.minus()}<span>${t('naShort')}</span></button>
+              aria-pressed="${f.manualNA}" title="${t('naTitle')}">${Icons.minus()}<span>${t('naShort')}</span></button>
           </div>
           <div class="factor-calc"><span class="subtle">${t('weight')}</span><b class="num">${s.weight}</b></div>
         </div>
@@ -926,7 +928,7 @@ const Views = (() => {
           <thead><tr><th>${t('dimension')}</th><th class="num">${t('mtDefault')}</th><th class="num">${t('mtExposure')}</th></tr></thead>
           <tbody>${Calc.DIMS.map(d => `<tr>
             <td>${esc(I18n.dim(d))}</td>
-            <td class="num">${fmtNum2(calc.inherent.dims[d].value)}</td>
+            <td class="num">${calc.inherent.dims[d].measured ? fmtNum2(calc.inherent.dims[d].value) : '—'}</td>
             <td class="num"><b>${calc.exposureDims[d] ? fmtNum2(calc.exposureDims[d].value) : '—'}</b></td>
           </tr>`).join('')}</tbody>
         </table></div>` : ''}
@@ -1532,11 +1534,14 @@ const Views = (() => {
   function questionCard(q, calc) {
     const s = calc.perQuestion[q.id];
     const rec = Store.state.answers[q.id] || {};
+    /* Kapsam dışı soru görsel olarak kilitli görünür ama düğmeler açık kalır:
+       künyedeki kural "elle yanıt otomatik kuralı yener" der ve ek kontrol
+       setlerinde de böyledir. Düğme kapalıyken bu yola girilemiyordu. */
     const locked = s.autoNA;
 
     const answerBtns = DATA.ref.answers.map(a => `
       <button type="button" class="answer-btn" data-answer="${q.id}" data-a="${esc(a)}"
-        aria-pressed="${s.answer === a}" ${locked ? 'disabled' : ''}>
+        aria-pressed="${s.answer === a}">
         ${ANSWER_ICON[a]}<span>${esc(I18n.ref('answers', a))}</span>
       </button>`).join('');
 
@@ -1895,7 +1900,8 @@ const Views = (() => {
               <td class="num"><span class="heat-cell score-pill ${levelClass(calc.pfLine.level)}">${fmtNum2(calc.pfLine.residual)}</span></td>
               <td>${calc.pfLine.level ? `<span class="chip ${levelClass(calc.pfLine.level)}">${esc(I18n.ref('riskLevel', calc.pfLine.level))}</span>` : '—'}</td>
               <td style="width:92px"><input type="number" min="0.1" max="5" step="0.1" inputmode="decimal" id="ap-PF"
-                data-appetite="PF" value="${esc(calc.pfLine.appetite)}" aria-label="PF — ${t('colAppetiteLimit')}"></td>
+                data-appetite="PF" value="${esc(calc.pfLine.appetite)}" aria-label="PF — ${t('colAppetiteLimit')}">
+                ${calc.pfLine.appetiteOverridden ? `<div class="subtle">${t('rrOwnLimit')}</div>` : ''}</td>
               <td>${calc.pfLine.breach === null ? '—' : calc.pfLine.breach
                 ? `<span class="chip chip-critical">${Icons.alert()} ${t('breachAction')}</span>`
                 : `<span class="chip chip-ok">${t('withinAppetiteFull')}</span>`}</td>
@@ -2017,5 +2023,5 @@ const Views = (() => {
     });
   }
 
-  return { dashboard, kunye, inherent: inherentView, questions, domainScores, residual, qa, guide, banner, maturityClass };
+  return { dashboard, kunye, inherent: inherentView, questions, questionCard, domainScores, residual, qa, guide, banner, maturityClass };
 })();

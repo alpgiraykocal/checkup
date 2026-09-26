@@ -228,7 +228,7 @@ const Calc = (() => {
 
   /** Bir faktörün etkin durumu: ağırlık geçersiz kılma, kapsam dışılık, skor, gerekçe. */
   function factorState(f, state) {
-    const key = f.key || (f.dim + '|' + f.factor);
+    const key = f.key;          // sabit anahtar; görünen ad dile göre değişir
     const wOverride = Number(state.inherentWeights[key]);
     const weight = Number.isFinite(wOverride) && wOverride > 0 ? wOverride : f.weight;
 
@@ -360,7 +360,7 @@ const Calc = (() => {
       if (excluded) na += 1;
       else if (has) { num += score * f.weight; den += f.weight; scored += 1; }
       return {
-        spec: f, score: has ? score : null, na: excluded, autoNA,
+        spec: f, score: has ? score : null, na: excluded, autoNA, manualNA: r.na === true,
         note: r.note || '',
         needsNote: has && !excluded && score >= 4 && !(r.note || '').trim()
       };
@@ -507,7 +507,7 @@ const Calc = (() => {
       const outOfScope = typeOut || actOut;
 
       let answered = 0, appW = 0, earned = 0, earnedTested = 0, openCrit = 0, actions = 0, na = 0;
-      let qaReq = 0, qaDone = 0;
+      let qaReq = 0, qaDone = 0, manual = 0;
 
       const questions = s.questions.map(q => {
         const rec = state.answers[q.id];
@@ -515,6 +515,7 @@ const Calc = (() => {
         // Kapsam dışı set, elle yanıtlanmadıysa "Uygulanamaz" sayılır.
         const st = scoreQuestion(spec, rec, outOfScope ? scopeReason(s, typeOut, type) : null);
         if (st.answered) answered += 1;
+        if (st.answered && !st.autoNA) manual += 1;
         if (st.coef === null && st.answered) na += 1;
         appW += st.applicableWeight;
         earned += st.earned;
@@ -528,6 +529,9 @@ const Calc = (() => {
       return {
         spec: s, outOfScope, typeOut, actOut, questions,
         count: s.questions.length, answered, na,
+        /* Elle girilmiş yanıt. Kapsam dışı sette hesaba girmez ama silinmez:
+           yükümlü tipi sonradan değişirse ekranda sayısıyla gösterilir. */
+        manualAnswered: manual,
         applicableWeight: appW, earned, earnedTested,
         effectiveness: appW ? earned / appW : null,
         effectivenessTested: appW ? earnedTested / appW : null,
@@ -732,7 +736,8 @@ const Calc = (() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const actions = (state.actions || []).map(a => {
       let delay = '';
-      if (a.due) {
+      if (a.status === ACTION_ACCEPTED) delay = 'Kabul';
+      else if (a.due) {
         if (a.status === 'Kapalı') delay = 'Kapalı';
         else {
           // Çözülemeyen tarih null döner; null < today true verdiği için ayrıca bakılır.
@@ -745,12 +750,16 @@ const Calc = (() => {
     const actionStats = {
       total: actions.length,
       // Durumu boş kayıt açık sayılır — ekran da onu "Açık" gösteriyor.
-      open: actions.filter(a => a.status !== 'Kapalı').length,
+      open: actions.filter(actionOpen).length,
       overdue: actions.filter(a => a.delay === 'GECİKMİŞ').length,
       closed: actions.filter(a => a.status === 'Kapalı').length,
-      critical: actions.filter(a => a.crit === 'Kritik' && a.status !== 'Kapalı').length   // dil-güvenli: aksiyon kaydı sabit anahtar saklar
+      accepted: actions.filter(a => a.status === ACTION_ACCEPTED).length,
+      critical: actions.filter(a => a.crit === 'Kritik' && actionOpen(a)).length   // dil-güvenli: aksiyon kaydı sabit anahtar saklar
     };
-    actionStats.closureRate = actionStats.total ? actionStats.closed / actionStats.total : null;
+    /* Kapanış oranı giderme başarısını ölçer: risk kabulü giderme değildir,
+       paydan da paydadan da çıkar. Yalnızca kabul edilmiş bulgu varsa oran yoktur. */
+    const giderilecek = actionStats.total - actionStats.accepted;
+    actionStats.closureRate = giderilecek ? actionStats.closed / giderilecek : null;
 
     return {
       scopeMap, perQuestion, domains, totals, kunye: kunye(state),
@@ -773,6 +782,14 @@ const Calc = (() => {
       qa, qaTotals, actions, actionStats
     };
   }
+
+  /* ---------- Bulgu durumu ----------
+     "Kabul Edilen Risk" ne açık ne kapalıdır: giderilmemiş ama yönetim
+     onayıyla kabul edilmiştir. Açık sayılırsa termin geçince sonsuza dek
+     GECİKMİŞ görünür; kapalı sayılırsa kapanış oranını giderilmiş gibi şişirir. */
+  const ACTION_ACCEPTED = 'Kabul Edilen Risk';
+  const ACTION_CLOSING = ['Kapalı', ACTION_ACCEPTED];
+  function actionOpen(a) { return !ACTION_CLOSING.includes(a && a.status); }
 
   /* ---------- Soru çözümleyici ----------
      Bulgu formu, toplu üretim ve aksiyon bağlantıları hem ana soru bankasını
@@ -822,7 +839,7 @@ const Calc = (() => {
     return toISODate(d);
   }
 
-  return { compute, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
+  return { compute, actionOpen, ACTION_ACCEPTED, ACTION_CLOSING, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
            maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite, parseDate, toISODate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

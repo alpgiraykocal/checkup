@@ -8,7 +8,7 @@
 <meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.9.7">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -45,7 +45,7 @@
       <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
       <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
-      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.9.7</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.0</span></div>
     </div>
   </header>
 
@@ -175,17 +175,20 @@
     <p>
       Scoring a control as “absent” for business you do not conduct depresses the
       score unfairly; scoring it as “present” is a false declaration. That is why
-      scope is set first, and in writing. A “No” to any of the six business scope
-      questions in the Profile screen automatically takes the related question
-      sections, inherent risk factors, business lines and extra control sets out
-      of scope.
+      scope is set first, and in writing. A “No” to five of the six business
+      scope questions in the Profile screen automatically takes the related
+      question sections, inherent risk factors, business lines and extra control
+      sets out of scope. The sixth (foreign branches/subsidiaries) does not scope
+      anything out automatically; for the group-level policy and information
+      sharing questions you are expected to record the reason for a “No” as a
+      note.
     </p>
 
     <div class="tablo-sar">
       <table>
         <thead><tr><th>Profile field answered “No”</th><th>Question section taken out of scope</th><th>Inherent risk factor taken out of scope</th></tr></thead>
         <tbody>
-          <tr><td>Trade finance activity</td><td>D6 · Trade Finance</td><td>Trade finance product volume</td></tr>
+          <tr><td>Trade finance activity</td><td>D6 · Trade Finance · D3 · Trade Finance</td><td>Trade finance product volume</td></tr>
           <tr><td>Correspondent banking</td><td>D2 · Correspondent Banking</td><td>Geographic risk of the correspondent network</td></tr>
           <tr><td>Virtual asset activity</td><td>D3 · Virtual Assets</td><td>Virtual asset products and services</td></tr>
           <tr><td>Remote customer onboarding</td><td>D3 · Digital Channel</td><td>Share of remote onboarding</td></tr>
@@ -532,9 +535,14 @@
     </p>
     <p>
       Sets open and close automatically according to the <b>obliged entity type</b>
-      and the business scope answers in the Profile. Questions in an out-of-scope
-      set count as “Not applicable” unless answered manually, and the reason is
-      shown on screen.
+      and the business scope answers in the Profile; the reason for an
+      out-of-scope set is shown on screen. Unlike sections of the main
+      questionnaire, an out-of-scope set does not reopen through a manual answer:
+      its scope is the type of institution, not a business choice — an insurance
+      set does not apply to a bank. If the obliged entity type changes later,
+      answers entered earlier are not deleted; the set card shows how many there
+      are, but they do not count toward the score, finding generation or the
+      report.
     </p>
     <p>
       These sets <b>do not enter the denominator of the main score</b>. If they
@@ -591,6 +599,25 @@
       The suggested date can be changed by hand. A finding past its due date and
       not closed counts as “OVERDUE”.
     </p>
+    <p>
+      <b>Closure discipline.</b> A closed finding has a closure date and an open
+      one does not; the date cannot be in the future. A closed finding without a
+      closure date counts as having missing fields. When the status is set to
+      “Closed” and the date is empty, today is suggested.
+    </p>
+    <p>
+      <b>Risk acceptance.</b> The “Risk accepted” status is for a finding that is
+      not remediated but is accepted with management approval; it counts as
+      neither open nor closed. It is never overdue, is excluded from the open and
+      open-critical counts, and enters neither the numerator nor the denominator of
+      the closure rate — the rate measures remediation. On acceptance the approval
+      reference (decision no., date, approver) goes in the Verification field and
+      the decision date in the closure date; since nothing is remediated, an empty
+      action field does not count as missing. A critical finding is by definition a
+      legal breach and cannot be closed by risk acceptance; it must be remediated.
+      Accepted findings are listed in a separate table in the executive report,
+      with their approval reference.
+    </p>
 
     <h3 id="m-referans">Freshness of the reference data</h3>
     <p>
@@ -624,7 +651,7 @@
           <tr><td>Volume-weighted inherent risk</td><td>Σ(business line score × share) ÷ Σ(share)</td></tr>
           <tr><td>Annual QA sample</td><td>full coverage: the volume; otherwise MIN(volume, MAX(volume × rate, minimum))</td></tr>
           <tr><td>Sample per test</td><td>ROUNDUP(annual sample ÷ number of tests)</td></tr>
-          <tr><td>Action closure rate</td><td>closed findings ÷ total findings</td></tr>
+          <tr><td>Action closure rate</td><td>closed findings ÷ (total findings − accepted risks)</td></tr>
         </tbody>
       </table>
     </div>
@@ -1191,7 +1218,8 @@
     <h4>The top tiles</h4>
     <p>
       Total findings, open, overdue, <b>findings with missing fields</b> and the
-      closure rate.
+      closure rate (risk acceptance excluded). Findings closed by risk acceptance,
+      if any, are counted in a separate tile.
     </p>
     <h4>Filters and bulk generation</h4>
     <ul>
@@ -1218,9 +1246,9 @@
           <tr><td>Action</td><td>What will be done</td></tr>
           <tr><td>Owner <b>(required)</b></td><td>A person or a unit</td></tr>
           <tr><td>Due date <b>(required)</b></td><td>Suggested from the criticality</td></tr>
-          <tr><td>Status</td><td>Open / In progress / Closed etc.</td></tr>
+          <tr><td>Status</td><td>Open / In progress / Closed etc. “Risk accepted” requires an approval reference and cannot be chosen for a critical finding</td></tr>
           <tr><td>Verification</td><td>How the closure will be tested</td></tr>
-          <tr><td>Closure date · Residual risk after closure</td><td>Filled in when closing</td></tr>
+          <tr><td>Closure date · Residual risk after closure</td><td>Date required once closed or accepted; not allowed on an open finding, cannot be in the future</td></tr>
         </tbody>
       </table>
     </div>
@@ -1272,9 +1300,10 @@
 
     <h3 id="e-gunluk">15 · Change Log</h3>
     <p>
-      Append-only; never edited. The events recorded are: questionnaire answers,
-      inherent risk scores, adding/editing/deleting findings, merges and file
-      loads. Each row carries the date and time, who, what, which record, the old
+      Append-only; never edited. The events recorded are: questionnaire answers
+      (extra controls included), inherent risk and PF scores, the scoring method
+      choice, adding/editing/deleting findings (bulk-generated findings
+      included), merges and file loads. Each row carries the date and time, who, what, which record, the old
       value and the new value.
     </p>
     <ul>
@@ -1297,7 +1326,7 @@
       <li>Domain results: effectiveness, assurance, maturity, residual risk</li>
       <li>Appetite breaches</li>
       <li>Open critical controls</li>
-      <li>Action plan summary</li>
+      <li>Action plan summary; any findings closed by risk acceptance (with approval reference)</li>
       <li>Extra control sets (separate table)</li>
       <li>Prepared by / reviewed by / approved by signature block</li>
       <li>At the bottom, the reference data pack version and any stale sections</li>
@@ -1612,7 +1641,7 @@
 
     <div class="altbilgi">
       <p>
-        This guide describes version 2.9.7 of the application and reference data
+        This guide describes version 2.10.0 of the application and reference data
         pack 2026.1. The formulas in the methodology section match the scoring
         engine exactly. Regulatory citations are indicative and must be verified
         against the legislation in force. The tool supports detection,
@@ -1623,6 +1652,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.9.7"></script>
+<script src="js/kilavuz.js?v=2.10.0"></script>
 </body>
 </html>

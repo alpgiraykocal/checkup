@@ -39,7 +39,7 @@ Belgeler `css/kilavuz.css` ve `js/kilavuz.js` dosyalarını paylaşır (açık/k
 tema, okuma ilerlemesi, etkin bölüm işareti); harici istek yoktur.
 
 Yazdırma sürümleri depoda hazır durur: [KILAVUZ.pdf](KILAVUZ.pdf) (A4, 36 sayfa)
-ve [GUIDE.pdf](GUIDE.pdf) (A4, 28 sayfa). Yeniden üretmek için:
+ve [GUIDE.pdf](GUIDE.pdf) (A4, 29 sayfa). Yeniden üretmek için:
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer --print-to-pdf=KILAVUZ.pdf KILAVUZ.html
@@ -53,10 +53,11 @@ Bağımlılık yok. Node 18+ yeterli:
 node test/run.js
 ```
 
-On paket, yaklaşık 6.100 kontrol: skorlama zinciri, kapsam ve QA matematiği,
+On iki paket, yaklaşık 6.500 kontrol: skorlama zinciri, kapsam ve QA matematiği,
 operasyon ve portföy hesapları, altın örnek regresyon çıpası, veri sözleşmesi,
 iki dilde metin örtüsü, **dil sızıntısı denetimi**, birleştirme, bozuk veriye
-dayanıklılık ve dokuz saat dilimli tarih matrisi. Ayrıntı: [test/README.md](test/README.md).
+dayanıklılık, görünüm ve etkileşim denetimi, dar ekran ızgarası ve dokuz saat
+dilimli tarih matrisi. Ayrıntı: [test/README.md](test/README.md).
 
 Çalışma kitabı paritesini gerçekten sınamak için: [test/PARITE.md](test/PARITE.md).
 

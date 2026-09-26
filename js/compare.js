@@ -107,10 +107,12 @@ const Compare = (() => {
     }).join('');
 
     // Bulgu kapanışı: kimlik üzerinden eşleştirilir
-    const wasOpen = new Set((base.actions.ids || []).filter(a => a.status !== 'Kapalı').map(a => a.id));
+    // Risk kabulü ne açık ne kapalıdır; ayrı sayılır (bkz. Calc.actionOpen).
+    const wasOpen = new Set((base.actions.ids || []).filter(Calc.actionOpen).map(a => a.id));
     const nowById = Object.fromEntries((now.actions.ids || []).map(a => [a.id, a]));
     const closedSince = [...wasOpen].filter(id => nowById[id] && nowById[id].status === 'Kapalı');
-    const stillOpen = [...wasOpen].filter(id => nowById[id] && nowById[id].status !== 'Kapalı');
+    const acceptedSince = [...wasOpen].filter(id => nowById[id] && nowById[id].status === Calc.ACTION_ACCEPTED);
+    const stillOpen = [...wasOpen].filter(id => nowById[id] && Calc.actionOpen(nowById[id]));
     const brandNew = (now.actions.ids || []).filter(a => !(base.actions.ids || []).some(b => b.id === a.id));
 
     host.innerHTML = `
@@ -164,6 +166,7 @@ const Compare = (() => {
             ${statTile({ label: t('cmpStillOpen'), value: fmtInt(stillOpen.length), tone: stillOpen.length ? 'warn' : 'ok',
               foot: t('cmpStillOpenFoot') })}
             ${statTile({ label: t('cmpNew'), value: fmtInt(brandNew.length), foot: t('cmpNewFoot') })}
+            ${acceptedSince.length ? statTile({ label: t('cmpAccepted'), value: fmtInt(acceptedSince.length), foot: t('cmpAcceptedFoot') }) : ''}
           </div>
           ${stillOpen.length ? `<div class="divider"></div>
             <h3>${t('cmpStillOpen')}</h3>

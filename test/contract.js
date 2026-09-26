@@ -43,6 +43,7 @@ EXTRA.sets.forEach(s => {
 
 /* ---------- Doğuştan risk faktörleri ---------- */
 DATA.inherentFactors.forEach(f => {
+  check(`faktör sabit anahtarı ${f.factor}`, typeof f.key === 'string' && f.key.includes('|'), f.key);
   check(`faktör çıpası ${f.key}`, Array.isArray(f.anchors) && f.anchors.length === 5, (f.anchors || []).length);
   check(`faktör ağırlığı ${f.key}`, Number.isFinite(f.weight) && f.weight > 0);
   check(`faktör boyutu ${f.key}`, Calc.DIMS.includes(f.dimKey), f.dimKey);

@@ -207,8 +207,9 @@ const App = (() => {
   /* Alan odağı kaybedince türetilen değerler için ekran yeniden çizilir.
      Odak kaybı fareye basıldığı anda olur; o anda çizilirse basılan düğme
      DOM'dan kalkar ve tıklama hiç gelmez — "Ülke ekle"ye yazdıktan hemen
-     sonra basmak ilk seferde işe yaramıyordu. İşaretçi basılıyken çizim,
-     bırakıldıktan ve tıklama işlendikten sonraya ertelenir. */
+     sonra basmak ilk seferde işe yaramıyordu. İşaretçi basılıyken çizim —
+     ister blur'dan ister kayıttan gelsin — bırakıldıktan ve tıklama
+     işlendikten sonraya ertelenir. */
   let isaretciBasili = false, bekleyenCizim = false;
 
   function rerenderAfterBlur() {
@@ -347,7 +348,10 @@ const App = (() => {
     applyTheme(Store.state.ui.theme || 'light');
     current = route();
 
-    Store.subscribe(() => render());
+    /* Kayıt da odak kaybında olur: metin alanındaki "change" fareye basıldığı
+       anda gelir. Bu çizim de ertelenmezse kenar çubuğu yeniden kurulur ve
+       basılan gezinme düğmesi tıklamayı hiç almaz. */
+    Store.subscribe(() => rerenderAfterBlur());
     isaretciyiIzle();
     window.addEventListener('hashchange', () => { current = route(); render(); });
     window.addEventListener('resize', measureChrome);

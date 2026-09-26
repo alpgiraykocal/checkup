@@ -9,7 +9,7 @@ const ChangeLog = (() => {
 
   const ui = { what: '', q: '' };
 
-  const TURLER = ['answer', 'inherent', 'action-add', 'action-edit', 'action-delete', 'merge', 'import'];
+  const TURLER = ['answer', 'inherent', 'method', 'action-add', 'action-edit', 'action-delete', 'merge', 'import'];
   const turAdi = w => {
     const v = t('lgWhat_' + w);
     return v === 'lgWhat_' + w ? w : v;

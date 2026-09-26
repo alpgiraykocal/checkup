@@ -39,6 +39,14 @@ for (const f of KOD) {
         check(`${f}:${i + 1} — .${alan} karşılaştırması (.${anahtar} kullanılmalı)`, false, satir.trim().slice(0, 90));
       }
     });
+    // Bileşik anahtar yerelleştirilmiş alanla kurulmuş: q.domain + '|' + q.section gibi
+    // (künyede kapsam dışı soru sayısı İngilizcede 0 çıkıyordu)
+    Object.entries(ANAHTARLI).forEach(([alan, anahtar]) => {
+      const re = new RegExp(`'\\|'\\s*\\+\\s*\\w+\\.${alan}\\b|\\w+\\.${alan}\\s*\\+\\s*'\\|'`);
+      if (re.test(satir) && !satir.includes('.' + anahtar)) {
+        check(`${f}:${i + 1} — .${alan} bileşik anahtarda (.${anahtar} kullanılmalı)`, false, satir.trim().slice(0, 90));
+      }
+    });
     // Sözlük anahtarı olarak yerelleştirilmiş ad: state.kpis[k.name] gibi
     if (/\[\s*\w+\.name\s*\]/.test(satir) && !/\.key\b/.test(satir)) {
       check(`${f}:${i + 1} — .name sözlük anahtarı olarak kullanılmış`, false, satir.trim().slice(0, 90));

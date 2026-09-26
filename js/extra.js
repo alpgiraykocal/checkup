@@ -53,7 +53,8 @@ const Extra = (() => {
                `<span class="chip ${Views.maturityClass(s.maturity)}">${fmtPct(s.effectivenessTested)}</span>`}`}
       </div>
       ${s.outOfScope
-        ? `<div class="card-body"><p class="subtle">${esc(s.questions[0].st.scopeReason || '')}</p></div>`
+        ? `<div class="card-body"><p class="subtle">${esc(s.questions[0].st.scopeReason || '')}</p>
+            ${s.manualAnswered ? Views.banner('warn', t('exHeldAnswers', { n: fmtInt(s.manualAnswered) }), t('exHeldBody')) : ''}</div>`
         : `<div class="card-body flush">${s.questions.map(x => row(x.q, x.st)).join('')}</div>`}
     </div>`;
   }

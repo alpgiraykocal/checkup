@@ -8,7 +8,7 @@
 <meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.9.7">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -44,7 +44,7 @@
       <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
       <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
-      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.9.7</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.0</span></div>
     </div>
   </header>
 
@@ -172,16 +172,19 @@
     <p>
       Yapmadığınız bir işin kontrolünü “yok” diye puanlamak skoru haksız yere
       düşürür; “var” demek ise yanlış beyandır. Bu yüzden kapsam en başta ve
-      yazılı olarak belirlenir. Künyedeki altı faaliyet sorusuna verilen “Hayır”
-      yanıtı ilgili soru bölümlerini, doğuştan risk faktörlerini, iş kollarını ve
-      ek kontrol setlerini otomatik olarak kapsam dışına alır.
+      yazılı olarak belirlenir. Künyedeki altı faaliyet sorusundan beşine verilen
+      “Hayır” yanıtı ilgili soru bölümlerini, doğuştan risk faktörlerini, iş
+      kollarını ve ek kontrol setlerini otomatik olarak kapsam dışına alır.
+      Altıncı soru (yurt dışı şube/iştirak) otomatik kapsam dışı bırakmaz; grup
+      düzeyi politika ve bilgi paylaşımı sorularında “Hayır” yanıtının
+      gerekçesini not olarak düşmeniz beklenir.
     </p>
 
     <div class="tablo-sar">
       <table>
         <thead><tr><th>Künye alanı “Hayır”</th><th>Kapsam dışı soru bölümü</th><th>Kapsam dışı doğuştan risk faktörü</th></tr></thead>
         <tbody>
-          <tr><td>Trade finance faaliyeti</td><td>D6 · Trade Finance</td><td>Trade finance ürün hacmi</td></tr>
+          <tr><td>Trade finance faaliyeti</td><td>D6 · Trade Finance · D3 · Trade Finance</td><td>Trade finance ürün hacmi</td></tr>
           <tr><td>Muhabir bankacılık</td><td>D2 · Muhabir Bankacılık</td><td>Muhabir bankacılık ağının coğrafi riski</td></tr>
           <tr><td>Sanal varlık faaliyeti</td><td>D3 · Sanal Varlık</td><td>Sanal varlık ürün ve hizmetleri</td></tr>
           <tr><td>Uzaktan müşteri kabulü</td><td>D3 · Dijital Kanal</td><td>Uzaktan müşteri kabul oranı</td></tr>
@@ -503,8 +506,12 @@
     </p>
     <p>
       Setler künyedeki <b>yükümlü tipine</b> ve faaliyet sorularına göre otomatik
-      açılıp kapanır. Kapsam dışı kalan setin soruları, elle yanıtlanmadıysa
-      “Uygulanamaz” sayılır ve gerekçesi ekranda yazar.
+      açılıp kapanır; kapsam dışı setin gerekçesi ekranda yazar. Ana anketteki
+      bölümlerden farklı olarak kapsam dışı set elle yanıtla geri açılmaz: buradaki
+      kapsam bir faaliyet tercihi değil kurum tipidir — bir bankaya sigorta seti
+      uygulanmaz. Yükümlü tipi sonradan değişirse önceden girilmiş yanıtlar
+      silinmez; set kartında sayısıyla gösterilir, ama skora, bulgu üretimine ve
+      rapora girmez.
     </p>
     <p>
       Bu setler <b>ana skorun paydasına girmez</b>. Girseydi domain etkinlikleri
@@ -560,6 +567,22 @@
       hafta sonları atlanarak beş <b>iş günü</b> hesaplanır. Önerilen termin elle
       değiştirilebilir. Termini geçmiş ve kapanmamış bulgu “GECİKMİŞ” sayılır.
     </p>
+    <p>
+      <b>Kapanış disiplini.</b> Kapalı bulgunun kapanış tarihi olur, açık bulgunun
+      olmaz; tarih ileri olamaz. Kapanış tarihi eksik kapalı bulgu “eksik alanlı”
+      sayılır. Durum “Kapalı” seçilince tarih boşsa bugün önerilir.
+    </p>
+    <p>
+      <b>Risk kabulü.</b> “Kabul Edilen Risk” durumu, giderilmeyen ama yönetim
+      onayıyla kabul edilen bulgu içindir; ne açık ne kapalı sayılır. Gecikmiş
+      sayılmaz, açık bulgu ve kritik açık sayısına girmez; kapanış oranının ne
+      payına ne paydasına girer — oran giderme başarısını ölçer. Kabulde onay
+      referansı (karar no, tarih, onaylayan) Doğrulama alanına ve karar tarihi
+      kapanış tarihine yazılır; giderme yapılmadığı için aksiyon alanı eksik alan
+      sayılmaz. Kritik bulgu tanımı gereği yasal ihlal olduğu için
+      risk kabulüyle kapatılamaz, aksiyonla giderilmelidir. Kabul edilen bulgular
+      yönetici raporunda ayrı bir tabloda, onay referansıyla listelenir.
+    </p>
 
     <h3 id="m-referans">Referans verisinin tazeliği</h3>
     <p>
@@ -592,7 +615,7 @@
           <tr><td>İş kolu ağırlıklı doğuştan risk</td><td>Σ(iş kolu skoru × pay) ÷ Σ(pay)</td></tr>
           <tr><td>Yıllık QA örneklemi</td><td>tam kapsam ise hacim; değilse MİN(hacim, MAK(hacim × oran, asgari))</td></tr>
           <tr><td>Test başına örneklem</td><td>YUKARIYUVARLA(yıllık örneklem ÷ test sayısı)</td></tr>
-          <tr><td>Aksiyon kapanış oranı</td><td>kapalı bulgu ÷ toplam bulgu</td></tr>
+          <tr><td>Aksiyon kapanış oranı</td><td>kapalı bulgu ÷ (toplam bulgu − risk kabulü)</td></tr>
         </tbody>
       </table>
     </div>
@@ -1129,7 +1152,8 @@
     <h4>Üst kutucuklar</h4>
     <p>
       Toplam bulgu, açık, gecikmiş, <b>eksik alanı olan bulgu sayısı</b> ve kapanış
-      oranı.
+      oranı (risk kabulü hariç). Risk kabulüyle kapatılan bulgu varsa ayrı bir
+      kutucukta sayılır.
     </p>
     <h4>Filtreler ve toplu üretim</h4>
     <ul>
@@ -1155,9 +1179,9 @@
           <tr><td>Aksiyon</td><td>Ne yapılacak</td></tr>
           <tr><td>Sahip <b>(zorunlu)</b></td><td>Kişi ya da birim</td></tr>
           <tr><td>Termin <b>(zorunlu)</b></td><td>Kritikliğe göre önerilir</td></tr>
-          <tr><td>Durum</td><td>Açık / Devam / Kapalı vb.</td></tr>
+          <tr><td>Durum</td><td>Açık / Devam / Kapalı vb. “Kabul Edilen Risk” onay referansı ister; kritik bulguda seçilemez</td></tr>
           <tr><td>Doğrulama</td><td>Kapanışın nasıl sınanacağı</td></tr>
-          <tr><td>Kapanış tarihi · Kapanış sonrası artık risk</td><td>Kapatırken doldurulur</td></tr>
+          <tr><td>Kapanış tarihi · Kapanış sonrası artık risk</td><td>Kapalı ya da kabul edilen bulguda tarih zorunlu; açık bulguda girilemez, ileri tarih olamaz</td></tr>
         </tbody>
       </table>
     </div>
@@ -1207,8 +1231,10 @@
 
     <h3 id="e-gunluk">15 · Değişiklik Günlüğü</h3>
     <p>
-      Yalnızca eklenir, düzenlenmez. Kaydedilen olaylar: anket yanıtı, doğuştan risk
-      skoru, bulgu ekleme/düzenleme/silme, birleştirme ve dosya yükleme. Her satırda
+      Yalnızca eklenir, düzenlenmez. Kaydedilen olaylar: anket yanıtı (ek kontroller
+      dahil), doğuştan risk ve PF skoru, skorlama yöntemi seçimi, bulgu
+      ekleme/düzenleme/silme (toplu üretilen bulgular dahil), birleştirme ve dosya
+      yükleme. Her satırda
       tarih-saat, kim, ne, hangi kayıt, eski değer ve yeni değer vardır.
     </p>
     <ul>
@@ -1230,7 +1256,7 @@
       <li>Domain sonuçları: etkinlik, güvence, olgunluk, artık risk</li>
       <li>İştah aşımları</li>
       <li>Açık kritik kontroller</li>
-      <li>Aksiyon planı özeti</li>
+      <li>Aksiyon planı özeti; varsa risk kabulüyle kapatılan bulgular (onay referansıyla)</li>
       <li>Ek kontrol setleri (ayrı tablo)</li>
       <li>Hazırlayan / gözden geçiren / onaylayan imza bloğu</li>
       <li>Altta referans veri paketi sürümü ve bayat bölümler</li>
@@ -1534,7 +1560,7 @@
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.9.7 sürümünü ve 2026.1 referans veri paketini
+        Bu kılavuz uygulamanın 2.10.0 sürümünü ve 2026.1 referans veri paketini
         anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
         birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
         doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
@@ -1544,6 +1570,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.9.7"></script>
+<script src="js/kilavuz.js?v=2.10.0"></script>
 </body>
 </html>
