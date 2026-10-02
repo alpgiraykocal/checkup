@@ -42,6 +42,17 @@ const Calc = (() => {
   const WEIGHT_MAX = 10;        // faktör ağırlığı girişi 0,5–10
   const APPETITE_MAX = 5;       // iştah limiti girişi 0,1–5 (artık risk ölçeği)
 
+  /* Skor önerisi: oran (yüzde) bant sınırlarına düşürülür. Bant dizisi dört
+     üst sınırdır; ilk sınırın altı 1, son sınırın üstü 5 puan. Tanımında 1 puan
+     "hiç yok" olan faktörlerde ilk sınır HIC'tir: yalnızca tam sıfır 1 alır,
+     küçük de olsa var olan maruziyet 2'den başlar. Formül tek yerdedir; portföy,
+     işlem ve künye önerileri bunu kullanır. */
+  const HIC = 0.000001;
+  function bandScore(pct, bands) {
+    const i = bands.findIndex(b => pct < b);
+    return i === -1 ? 5 : i + 1;
+  }
+
   /** 1–5 arası tam sayı skor; değilse null. */
   function validScore(v) {
     if (v === '' || v === null || v === undefined) return null;
@@ -546,7 +557,8 @@ const Calc = (() => {
       const ay = monthsSince(s.as);
       return {
         key: k, spec: s, months: ay,
-        stale: ay !== null && ay >= s.staleMonths,
+        // Kılavuz: eşiği AŞTIĞINDA uyarı — künye tarih yaşlandırmasıyla aynı kural (>)
+        stale: ay !== null && ay > s.staleMonths,
         label: I18n.isEn ? s.enLabel : s.trLabel,
         sources: I18n.isEn ? s.enSources : s.trSources
       };
@@ -909,7 +921,7 @@ const Calc = (() => {
     return toISODate(d);
   }
 
-  return { compute, qaSampleCheck, validScore, validWeight, validAppetite, WEIGHT_MAX, APPETITE_MAX, isFutureDate, qaRequired, qaTested, actionOpen, ACTION_ACCEPTED, ACTION_CLOSING, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
+  return { compute, bandScore, HIC, qaSampleCheck, validScore, validWeight, validAppetite, WEIGHT_MAX, APPETITE_MAX, isFutureDate, qaRequired, qaTested, actionOpen, ACTION_ACCEPTED, ACTION_CLOSING, inherent, pfRisk, businessLines, extra, refpack, factorState, kunye, autoKpi, monthsSince, findQuestion,
            maturity, riskLevel5, residualLevel, slaDueDate, defaultAppetite, parseDate, toISODate,
            ANSWER_COEF, DIMS, RESIDUAL_DIMS };
 })();

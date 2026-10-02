@@ -55,11 +55,11 @@ const ChangeLog = (() => {
 
   /** En yeni başta, süzülmüş liste. */
   function filtrele(log) {
-    const term = ui.q.trim().toLocaleLowerCase(I18n.locale);
+    const term = UI.arama(ui.q.trim());
     return log.filter(e => {
       if (ui.what && e.what !== ui.what) return false;
       if (term) {
-        const hay = [e.ref, e.who, e.from, e.to, degerMetni(e, e.from), degerMetni(e, e.to), turAdi(e.what)].join(' ').toLocaleLowerCase(I18n.locale);
+        const hay = UI.arama([e.ref, e.who, e.from, e.to, degerMetni(e, e.from), degerMetni(e, e.to), turAdi(e.what)].join(' '));
         if (!hay.includes(term)) return false;
       }
       return true;

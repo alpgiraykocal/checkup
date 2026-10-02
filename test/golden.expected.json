@@ -505,8 +505,8 @@
     "highRiskShare": 0.7,
     "countries": 3,
     "crossTx": 82100,
-    "hints": 12,
-    "warnings": 2
+    "hints": 10,
+    "warnings": 3
   },
   "operations": {
     "filled": 11,

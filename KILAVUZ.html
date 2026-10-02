@@ -10,7 +10,7 @@
 <meta name="description" content="AML/CFT Uyum Check-up uygulamasının değerlendirme metodolojisi ve on yedi ekranın tam kullanım kılavuzu: kapsam, doğuştan risk, kontrol etkinliği, bağımsız test, artık risk, iştah ve aksiyon.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.10.7">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.8">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -46,7 +46,7 @@
       <div><span class="kunye-etiket">Uygulama</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Kapsam</span><span class="kunye-deger">17 ekran · 218 soru · 25 risk faktörü</span></div>
       <div><span class="kunye-etiket">Gereken süre</span><span class="kunye-deger">İlk dönem 3–5 iş günü</span></div>
-      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.7</span></div>
+      <div><span class="kunye-etiket">Referans paketi</span><span class="kunye-deger">2026.1 · Sürüm 2.10.8</span></div>
     </div>
   </header>
 
@@ -263,7 +263,12 @@
       önerisi üretilir (12’si portföyden, 4’ü operasyondan). Öneri, hesaplanan
       oranın rubrik bantlarına düşürülmesiyle bulunur ve tek tıkla uygulanır.
       Öneri bağlayıcı değildir; gerekçeyi yine siz yazarsınız. Portföy verisi
-      yoksa künyedeki sayılar devreye girer.
+      yoksa künyedeki sayılar devreye girer. Sınır ötesi işlem payında künyede
+      açıkça girilen adet önceliklidir: ülke tablosu çoğu zaman yalnızca önemli
+      ülkeleri içerdiğinden, tablo toplamı künyeden ±%10'dan fazla saparsa uyarı
+      çıkar ve öneri künyeden alınır. Tanımında 1 puan “yok” olan faktörlerde
+      yalnızca sıfır oran 1 puan alır; küçük de olsa var olan maruziyet 2'den
+      başlar.
     </p>
 
     <h3 id="m-kontrol">Kontrol beyanı</h3>
@@ -1081,7 +1086,9 @@
       <li><b>Beklenen kanıt</b>, <b>kaynak/mevzuat atfı</b> ve varsa <b>örneklem
         popülasyonu</b> kartta yazar.</li>
       <li><b>Kanıt referansı</b> ve <b>bulgu notu</b> alanları. Yanıtlanmış ama kanıt
-        referansı boş sorular rozetle işaretlenir ve filtreden bulunur.</li>
+        referansı boş sorular rozetle işaretlenir ve filtreden bulunur. Künyeyle
+        kapsam dışı kalan soru kanıt istemez; elle “Uygulanamaz” denen soru ise
+        gerekçe ister.</li>
       <li><b>QA dosya testi bloğu</b> (115 soruda) — sonuç, test edilen dosya sayısı,
         hatalı dosya sayısı ve not. Hata oranı otomatik hesaplanır. Beyan “Evet”
         iken sonuç “Çelişkili” ise kırmızı uyarı çıkar.</li>
@@ -1577,7 +1584,7 @@
 
     <div class="altbilgi">
       <p>
-        Bu kılavuz uygulamanın 2.10.7 sürümünü ve 2026.1 referans veri paketini
+        Bu kılavuz uygulamanın 2.10.8 sürümünü ve 2026.1 referans veri paketini
         anlatır. Metodoloji bölümündeki formüller uygulamanın skorlama motoruyla
         birebir aynıdır. Mevzuat atıfları yön göstericidir; yürürlükteki metinle
         doğrulanmalıdır. Araç tespit, önceliklendirme ve aksiyon takibi üretir;
@@ -1587,6 +1594,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.10.7"></script>
+<script src="js/kilavuz.js?v=2.10.8"></script>
 </body>
 </html>

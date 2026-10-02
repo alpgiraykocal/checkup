@@ -172,8 +172,18 @@ const Portfolio = (() => {
       topLoad: branches.filter(b => b.load !== null).sort((a, b) => b.load - a.load)[0] || null
     };
 
+    /* Künyede açıkça beyan edilen sınır ötesi işlem adedi (öneri önceliği bundadır) */
+    const bos = v => v === '' || v === null || v === undefined;
+    const kunyeCross = Number(state.kunye.yillik_sinir_otesi_islem_adedi);
+    const kunyeSinirOtesi = !bos(state.kunye.yillik_sinir_otesi_islem_adedi) && Number.isFinite(kunyeCross) && kunyeCross >= 0
+      && Number.isFinite(annualTx) && annualTx > 0;
+
     /* Tutarlılık uyarıları */
     const warnings = [];
+    // Ülke tablosunun sınır ötesi toplamı künyedeki adetten ±%10'dan fazla saparsa
+    if (kunyeSinirOtesi && crossTx > 0 && Math.abs(crossTx - kunyeCross) > Math.max(1, kunyeCross * 0.1)) {
+      warnings.push(t('pfWarnCrossDiffers', { t: fmtInt(crossTx), k: fmtInt(kunyeCross) }));
+    }
     // Negatif değer hesapta 0 sayılır (num); kullanıcı nedenini görsün.
     const negatif = v => !(v === '' || v === null || v === undefined) && Number(v) < 0;
     const negSay = Object.values(p.matrix).reduce((a, r) => a + Object.values(r || {}).filter(negatif).length, 0)
@@ -205,7 +215,7 @@ const Portfolio = (() => {
     const addHint = (factorKey, share, bands, label) => {
       if (share === null || share === undefined || !bands) return;
       const pct = share * 100;
-      const suggested = bands.findIndex(b => pct < b) + 1 || 5;
+      const suggested = Calc.bandScore(pct, bands);
       hints[factorKey] = { pct, suggested, label, source: 'portfolio' };
     };
 
@@ -218,15 +228,24 @@ const Portfolio = (() => {
       if (g.share !== null) addHint(s.feeds, g.share, s.bands, L(s));
     });
     addHint('Coğrafya ve Yaptırım|FATF gri/kara liste ülkeleriyle iş hacmi',
-      countryStats.shares.fatfTx, [0.5, 1, 5, 10], t('pfFatfTxShare'));
+      // Tanım: 1 ilişki yok · 2 %1'in altı · 3 %1–5 · 4 %5–10 · 5 %10 üstü
+      countryStats.shares.fatfTx, [Calc.HIC, 1, 5, 10], t('pfFatfTxShare'));
     addHint('Coğrafya ve Yaptırım|Yaptırım rejimi altındaki ülkelere komşuluk/ticaret',
       countryStats.shares.sanctionedTx, [0.1, 0.5, 2, 5], t('pfSanctionedTxShare'));
     addHint('Coğrafya ve Yaptırım|Muhabir bankacılık ağının coğrafi riski',
-      countryStats.shares.corrRisky, [1, 15, 35, 60], t('pfCorrRiskyShare'));
-    addHint('Coğrafya ve Yaptırım|Sınır ötesi transfer hacminin toplam içindeki payı',
-      countryStats.shares.crossBorder, [5, 15, 30, 50], t('pfCrossBorderShare'));
-    addHint('İşlem|Sınır ötesi elektronik transfer yoğunluğu',
-      countryStats.shares.crossBorder, [5, 15, 30, 50], t('pfCrossBorderShare'));
+      // Muhabir ilişkisi varsa en az 2: tamamı düşük riskli ülkelerde (oran 0) → 2,
+      // riskli ağırlık düşük → 3, %35 üstü → 4, %60 üstü → 5. İlişki yoksa öneri çıkmaz.
+      countryStats.shares.corrRisky, [0, Calc.HIC, 35, 60], t('pfCorrRiskyShare'));
+    /* Sınır ötesi pay: künyede sınır ötesi ve toplam işlem adedi açıkça
+       girildiyse öneri oradan gelir (Doğuştan Risk ekranı künye önerisine düşer).
+       Ülke tablosu çoğu zaman yalnızca önemli ülkeleri içerir; kısmen dolu tablo
+       künyedeki %30'u %0,1'e indirip 1 puan önerebiliyordu. */
+    if (!kunyeSinirOtesi) {
+      addHint('Coğrafya ve Yaptırım|Sınır ötesi transfer hacminin toplam içindeki payı',
+        countryStats.shares.crossBorder, [5, 15, 30, 50], t('pfCrossBorderShare'));
+      addHint('İşlem|Sınır ötesi elektronik transfer yoğunluğu',
+        countryStats.shares.crossBorder, [5, 15, 30, 50], t('pfCrossBorderShare'));
+    }
 
     const filledCount = (matrixFilled ? 1 : 0)
       + (Object.values(seg).some(s => s.filled) ? 1 : 0)

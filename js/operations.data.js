@@ -241,10 +241,11 @@ const OPERATIONS = {
       num: 'egitim_tamamlayan.adet', den: 'egitim_hedef.adet', good: 'up', kpi: 'Eğitim tamamlanma oranı' },
     { key: 'remote_share', tr: 'Uzaktan hesap açılış payı', en: 'Remote onboarding share',
       num: 'uzaktan_hesap.adet', den: 'yeni_hesap.adet',
-      factor: 'Kanal|Uzaktan (yüz yüze olmayan) müşteri kabul oranı', bands: [10, 35, 70, 100] },
+      // 0.000001: tanımda 1 puan "hiç yok" — yalnızca tam sıfır 1 alır (Calc.bandScore)
+      factor: 'Kanal|Uzaktan (yüz yüze olmayan) müşteri kabul oranı', bands: [0.000001, 10, 35, 70] },
     { key: 'agent_share', tr: 'Acente kanalı işlem payı', en: 'Agent channel transaction share',
       num: 'acente_islem.adet', den: 'islem_toplam.adet',
-      factor: 'Kanal|Acente ve temsilci kanalı payı', bands: [5, 20, 40, 100] },
+      factor: 'Kanal|Acente ve temsilci kanalı payı', bands: [0.000001, 5, 20, 40] },
     { key: 'unattended_share', tr: 'Gözetimsiz kanal işlem payı', en: 'Unattended channel share',
       num: 'gozetimsiz_kanal.adet', den: 'islem_toplam.adet',
       factor: 'Kanal|Gözetimsiz kanallar (ATM, kiosk) işlem payı', bands: [2, 10, 25, 40] }

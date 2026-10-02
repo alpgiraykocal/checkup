@@ -209,4 +209,39 @@ const withState = m => { const s = blank(); m(s); return s; };
   Store.replace(temiz);
 }
 
+/* ---------- Sınır ötesi pay: künyedeki açık oran önceliklidir ----------
+   Kısmen dolu ülke tablosu künyedeki %30'u %0,1'e indirip 1 puan öneriyordu. */
+{
+  const k = 'Coğrafya ve Yaptırım|Sınır ötesi transfer hacminin toplam içindeki payı';
+  const s = Store.normalize({});
+  s.kunye.yillik_islem_adedi = '1000000'; s.kunye.yillik_sinir_otesi_islem_adedi = '300000';
+  s.portfolio.countries = [{ code: 'DE', relations: ['islem_karsi_taraf'], txIn: 600, txOut: 400 }];
+  const p = Portfolio.compute(s);
+  check('künye oranı varken portföy sınır ötesi önerisi yok', !p.hints[k] && !p.hints['İşlem|Sınır ötesi elektronik transfer yoğunluğu']);
+  check('tablo künyeden farklıysa uyarı', p.warnings.some(w => /300\.000|300,000/.test(w)), p.warnings);
+  const f = DATA.inherentFactors.find(x => x.key === k);
+  check('öneri künyeden: %30 → 4', Calc.bandScore(30, f.hint.bands) === 4);
+  // Tablo künyeyle uyumluysa uyarı yok
+  s.portfolio.countries = [{ code: 'DE', relations: ['islem_karsi_taraf'], txIn: 150000, txOut: 150000 }];
+  check('tablo künyeyle uyumluysa uyarı yok', !Portfolio.compute(s).warnings.some(w => /300\.000|300,000/.test(w)));
+  // Künye boşsa portföy önerisi çalışır
+  const t = Store.normalize({}); t.portfolio.countries = [{ code: 'DE', relations: ['islem_karsi_taraf'], txIn: 600, txOut: 400 }];
+  check('künye boşsa portföy önerisi var', Boolean(Portfolio.compute(t).hints[k]));
+}
+
+/* ---------- Referans paketi: eşik ayında eskimiş sayılmaz (aştığında sayılır) ---------- */
+{
+  const { REFPACK } = A;
+  const bolum = Object.values(REFPACK.sections)[0];
+  const eski = bolum.as;
+  const ayOnce = n => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - n); return Calc.toISODate(d); };
+  bolum.as = ayOnce(bolum.staleMonths);
+  const tam = Calc.refpack().sections[0];
+  bolum.as = ayOnce(bolum.staleMonths + 1);
+  const asti = Calc.refpack().sections[0];
+  bolum.as = eski;
+  check('referans: tam eşik ayında taze', tam.stale === false, tam.months);
+  check('referans: eşiği aşınca eskimiş', asti.stale === true, asti.months);
+}
+
 process.exitCode = H.report('Mantık — operasyon, portföy, ülke, karşılaştırma, depolama, dil') ? 1 : 0;

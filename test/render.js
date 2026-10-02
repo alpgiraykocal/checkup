@@ -502,4 +502,30 @@ function dusmancaDurum() {
   check('şablonlarda on* olay niteliği yok', !/\son(click|load|error|change|input|submit|mouse\w+|key\w+)=/.test(kod));
 })();
 
+/* ---------- Kanıt rozeti ve arama ----------
+   Kapsam dışı (yapılmayan faaliyet) soru kanıt istemez; canlıda 8/8 kapsam dışı
+   soruda "Kanıt referansı yok" uyarısı çıkıyordu. Arama Türkçe büyük/küçük harf
+   ve karaktersiz yazımda eşleşmiyordu ("RISK", "islem"). */
+(() => {
+  const temiz = JSON.parse(JSON.stringify(Store.snapshot()));
+  const s = JSON.parse(JSON.stringify(temiz));
+  s.kunye.trade_finance_faaliyeti_var_mi = 'Hayır';
+  const elle = DATA.questions.find(q => q.domain === 'D1');
+  s.answers[elle.id] = { a: 'Uygulanamaz' };
+  Store.replace(s);
+  const calc = Calc.compute(Store.state);
+  const oto = DATA.questions.filter(q => calc.perQuestion[q.id].autoNA);
+  const rozetGorunur = q => / data-evidence-badge>/.test(Views.questionCard(q, calc)) && !/hidden" data-evidence-badge/.test(Views.questionCard(q, calc));
+  check('kapsam dışı soruda kanıt rozeti yok', oto.length > 0 && oto.every(q => !rozetGorunur(q)), oto.filter(rozetGorunur).map(q => q.id));
+  check('elle "Uygulanamaz" kanıt/gerekçe ister', rozetGorunur(elle));
+  Store.replace(temiz);
+
+  const a = UI.arama;
+  check('arama: büyük I', a('RISK') === a('risk') && a('ISTISNA') === a('istisna') && a('Istisna') === a('İstisna'));
+  check('arama: Türkçe karaktersiz', a('islem') === a('işlem') && a('turkiye') === a('Türkiye') && a('sib') === a('ŞİB'));
+  const fs = require('fs'), path = require('path');
+  const kod = ['views.js', 'log.js', 'settings.js'].map(f => fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8')).join('\n');
+  check('arama kutuları ortak sadeleştirmeyi kullanır', !/const (term|hay) = [^\n]*toLocaleLowerCase/.test(kod));
+})();
+
 process.exitCode = H.report('Görünüm — kaçırma, anahtar ve etiket') ? 1 : 0;

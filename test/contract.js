@@ -136,4 +136,61 @@ COUNTRIES.forEach(c => {
 check('sözlük dolu', Array.isArray(GLOSSARY) && GLOSSARY.length > 0);
 GLOSSARY.forEach(g => check(`sözlük girdisi ${g.k}`, g.k && g.tr && g.en));
 
+/* ---------- Skor önerisi bantları = faktör tanım metinleri ----------
+   Öneri "Uygula" ile tek tıkla skora dönüşür; bantlar tanımdan bir basamak
+   kayarsa kurum riski sistematik olarak düşük çıkar (canlıda yedi faktör
+   böyleydi: %7 offshore "%1–5" tanımlı 3 puanı alıyordu). Tanımdaki yüzde
+   aralıkları okunur, her aralığın içinden oran seçilir, öneri o puanı vermeli. */
+{
+  const { PORTFOLIO, OPERATIONS } = A;
+  const kaynaklar = {};
+  const ekle = (k, bands, nereden) => (kaynaklar[k] = kaynaklar[k] || []).push({ bands, nereden });
+  const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'js', 'portfolio.js'), 'utf8');
+  [...src.matchAll(/addHint\('([^']+)',[\s\S]*?\[([^\]]+)\]/g)].forEach(m => {
+    const b = m[2].split(',').map(x => x.trim() === 'Calc.HIC' ? Calc.HIC : Number(x));
+    if (b.every(Number.isFinite)) ekle(m[1], b, 'portföy');
+  });
+  PORTFOLIO.segments.filter(s => s.feeds && s.bands).forEach(s => ekle(s.feeds, s.bands, 'segment ' + s.key));
+  OPERATIONS.groups.forEach(g => g.metrics.filter(m => m.feedsFactor && m.bands).forEach(m => ekle(m.feedsFactor, m.bands, 'işlem ' + m.key)));
+  OPERATIONS.derived.filter(d => d.factor && d.bands).forEach(d => ekle(d.factor, d.bands, 'türetilen ' + d.key));
+  DATA.inherentFactors.filter(f => f.hint).forEach(f => ekle(f.key, f.hint.bands, 'künye'));
+
+  const sayi = x => Number(x.replace(',', '.'));
+  // Tanım metninden temsilî bir oran: "%a–b" orta nokta, "%x'in altında" x/2,
+  // "%x'in üzerinde" 1,5x, "yok / sunulmuyor" 0. Nitel tanımlar (yüzdesiz) atlanır.
+  const temsil = (metin, onceki) => {
+    let m = metin.match(/%\s?(\d+(?:,\d+)?)\s*[–-]\s*(\d+(?:,\d+)?)/);
+    if (m) return (sayi(m[1]) + sayi(m[2])) / 2;
+    m = metin.match(/%\s?(\d+(?:,\d+)?)['’](?:in|ın|un|ün|nin|nın|nun|nün|e|a|den|dan)?\s*(altında|altı)/);
+    if (m) return Math.max(sayi(m[1]) / 2, onceki === 0 ? sayi(m[1]) / 2 : 0);
+    m = metin.match(/%\s?(\d+(?:,\d+)?)['’](?:in|ın|un|ün|nin|nın|nun|nün)?\s*üzerinde/);
+    if (m) return sayi(m[1]) * 1.5;
+    if (/\byok\b|sunulmuyor|faaliyeti yok|İlişki yok|ağı yok/i.test(metin)) return 0;
+    return null;
+  };
+  let denenen = 0;
+  // Muhabir: ölçülen oran "riskli muhabir payı", tanımdaki yüzdeler başka ölçüye ait — aşağıda ayrıca sınanır
+  const NITEL = new Set(['Coğrafya ve Yaptırım|Muhabir bankacılık ağının coğrafi riski']);
+  Object.entries(kaynaklar).filter(([k]) => !NITEL.has(k)).forEach(([k, liste]) => {
+    const f = DATA.inherentFactors.find(x => x.key === k);
+    let onceki = null;
+    f.anchors.forEach((a, i) => {
+      const pct = temsil(a, onceki);
+      onceki = pct;
+      if (pct === null) return;
+      liste.forEach(({ bands, nereden }) => {
+        denenen += 1;
+        const oneri = Calc.bandScore(pct, bands);
+        check(`öneri bandı tanıma uyar: ${k.split('|')[1]} (${nereden}) %${pct} → ${i + 1}`, oneri === i + 1, `öneri ${oneri}`);
+      });
+    });
+  });
+  check('bant/tanım karşılaştırması yapıldı', denenen > 60, denenen);
+  // Muhabir: nitel tanım — ilişki varsa en az 2, tamamı düşük riskli ülkede 2
+  const muhabir = kaynaklar['Coğrafya ve Yaptırım|Muhabir bankacılık ağının coğrafi riski'][0].bands;
+  check('muhabir: tamamı düşük riskli ülkede → 2', Calc.bandScore(0, muhabir) === 2);
+  check('muhabir: riskli ağırlık düşük → 3', Calc.bandScore(10, muhabir) === 3);
+  check('muhabir: riskli ağırlık yüksek → 5', Calc.bandScore(80, muhabir) === 5);
+}
+
 process.exitCode = H.report('Veri sözleşmesi') ? 1 : 0;

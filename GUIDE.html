@@ -10,7 +10,7 @@
 <meta name="description" content="Assessment methodology and full user guide for the AML/CFT Compliance Check-up: scope, inherent risk, control effectiveness, independent testing, residual risk, appetite and actions across all seventeen screens.">
 <link rel="alternate" hreflang="tr" href="KILAVUZ.html">
 <link rel="alternate" hreflang="en" href="GUIDE.html">
-<link rel="stylesheet" href="css/kilavuz.css?v=2.10.7">
+<link rel="stylesheet" href="css/kilavuz.css?v=2.10.8">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E40AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='m9 12 2 2 4-4'/></svg>">
 </head>
 <body>
@@ -47,7 +47,7 @@
       <div><span class="kunye-etiket">Application</span><span class="kunye-deger">checkup.alpgiraykocal.com</span></div>
       <div><span class="kunye-etiket">Scope</span><span class="kunye-deger">17 screens · 218 questions · 25 risk factors</span></div>
       <div><span class="kunye-etiket">Time needed</span><span class="kunye-deger">3–5 working days for the first period</span></div>
-      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.7</span></div>
+      <div><span class="kunye-etiket">Reference pack</span><span class="kunye-deger">2026.1 · Version 2.10.8</span></div>
     </div>
   </header>
 
@@ -272,7 +272,12 @@
       suggestion is derived by placing the calculated ratio into the rubric bands,
       and it is applied with one click. Suggestions are not binding; you still
       write the rationale. If there is no portfolio data, the figures from the
-      Profile screen step in.
+      Profile screen step in. For the cross-border share, a count entered
+      explicitly in the Profile takes precedence: the country table often lists
+      only the significant countries, so if its total deviates from the Profile
+      by more than ±10% a warning appears and the suggestion uses the Profile.
+      For factors whose score 1 means “none”, only a zero ratio scores 1; any
+      exposure, however small, starts at 2.
     </p>
 
     <h3 id="m-kontrol">Control declaration</h3>
@@ -1141,7 +1146,8 @@
         relevant, the <b>sampling population</b> are printed on the card.</li>
       <li><b>Evidence reference</b> and <b>finding note</b> fields. Questions that
         are answered but have no evidence reference are badged and can be found
-        through the filter.</li>
+        through the filter. A question taken out of scope by the Profile needs no
+        evidence; one marked “Not applicable” by hand still needs a reason.</li>
       <li>The <b>QA file test block</b> (on 115 questions) — result, number of files
         tested, number of files in error, and a note. The error rate is calculated
         automatically. If the answer is “Yes” while the result is “Contradicted”, a
@@ -1660,7 +1666,7 @@
 
     <div class="altbilgi">
       <p>
-        This guide describes version 2.10.7 of the application and reference data
+        This guide describes version 2.10.8 of the application and reference data
         pack 2026.1. The formulas in the methodology section match the scoring
         engine exactly. Regulatory citations are indicative and must be verified
         against the legislation in force. The tool supports detection,
@@ -1671,6 +1677,6 @@
 
   </main>
 </div>
-<script src="js/kilavuz.js?v=2.10.7"></script>
+<script src="js/kilavuz.js?v=2.10.8"></script>
 </body>
 </html>

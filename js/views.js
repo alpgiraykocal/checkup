@@ -573,7 +573,7 @@ const Views = (() => {
     const den = Number(state.kunye[f.hint.den]);
     if (!Number.isFinite(num) || !Number.isFinite(den) || den <= 0) return null;
     const pct = (num / den) * 100;
-    const suggested = f.hint.bands.findIndex(b => pct < b) + 1 || 5;
+    const suggested = Calc.bandScore(pct, f.hint.bands);
     return { pct, suggested, label: f.hint.label, source: 'kunye' };
   }
 
@@ -1263,7 +1263,9 @@ const Views = (() => {
         if (field === 'evidence') {
           const card = ev.closest('.q');
           const badge = card && card.querySelector('[data-evidence-badge]');
-          if (badge) badge.classList.toggle('hidden', Boolean(ev.value.trim()));
+          // Rozet yanıtsız ya da kapsam dışı soruda yazıp silince de çıkmamalı
+          const st = App.calc && App.calc.perQuestion[id];
+          if (badge) badge.classList.toggle('hidden', !kanitBekler(st) || Boolean(ev.value.trim()));
         }
       }
     });
@@ -1474,7 +1476,7 @@ const Views = (() => {
   }
 
   function filtered(calc) {
-    const term = qFilter.q.trim().toLocaleLowerCase(I18n.locale);
+    const term = UI.arama(qFilter.q.trim());
     return DATA.questions.filter(q => {
       const s = calc.perQuestion[q.id];
       if (qFilter.domain && q.domain !== qFilter.domain) return false;
@@ -1490,10 +1492,10 @@ const Views = (() => {
       if (qFilter.status === 'qaconflict' && !s.qaConflict) return false;
       if (qFilter.status === 'noevidence') {
         const rec = Store.state.answers[q.id];
-        if (!s.answered || (rec && rec.evidence && rec.evidence.trim())) return false;
+        if (!kanitBekler(s) || (rec && rec.evidence && rec.evidence.trim())) return false;
       }
       if (term) {
-        const hay = (q.id + ' ' + q.text + ' ' + q.evidence + ' ' + q.source + ' ' + q.section).toLocaleLowerCase(I18n.locale);
+        const hay = UI.arama(q.id + ' ' + q.text + ' ' + q.evidence + ' ' + q.source + ' ' + q.section);
         if (!hay.includes(term)) return false;
       }
       return true;
@@ -1566,6 +1568,11 @@ const Views = (() => {
     ].join('');
   }
 
+  /* Kanıt beklenen soru: yanıtlanmış ve kapsam kuralıyla dışarıda kalmamış.
+     Kapsam dışı soru (yapılmayan faaliyet) kanıt istemez; elle verilen
+     "Uygulanamaz" ise gerekçe/kanıt ister. */
+  const kanitBekler = st => Boolean(st && st.answered && !st.autoNA);
+
   /** QA hata alanının yardım satırı: oran ya da tutarsızlık uyarısı. */
   function qaHelp(st) {
     const c = Calc.qaSampleCheck(st.qaSample, st.qaErrors);
@@ -1589,7 +1596,7 @@ const Views = (() => {
         ${ANSWER_ICON[a]}<span>${esc(I18n.ref('answers', a))}</span>
       </button>`).join('');
 
-    const missingEvidence = s.answered && !(rec.evidence || '').trim();
+    const missingEvidence = kanitBekler(s) && !(rec.evidence || '').trim();
 
     return `<article class="q ${s.openCritical ? 'is-open-critical' : ''} ${locked ? 'is-locked' : ''}" id="q-${q.id}">
       <div class="q-head">

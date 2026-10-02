@@ -47,6 +47,15 @@ const UI = (() => {
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* Arama anahtarı: iki taraf aynı biçime getirilir. Türkçe küçük harf kuralında
+     "I" → "ı" olduğundan "RISK" ile "risk", "Istisna" ile "istisna" eşleşmiyordu;
+     Türkçe karaktersiz yazım ("islem") da "işlem"i bulmuyordu. */
+  function arama(s) {
+    return String(s == null ? '' : s)
+      .replace(/[İIı]/g, 'i').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
   // Sayı ve tarih biçimi seçili dile göre çözülür.
   const nf = (min, max) => new Intl.NumberFormat(I18n.locale,
     { minimumFractionDigits: min, maximumFractionDigits: max });
@@ -216,7 +225,7 @@ const UI = (() => {
   }
 
   return {
-    el, els, esc, fmtInt, fmtPct, fmtPct1, fmtNum1, fmtNum2, fmtDate,
+    el, els, esc, arama, fmtInt, fmtPct, fmtPct1, fmtNum1, fmtNum2, fmtDate,
     levelClass, effClass, critChip, toast, modal, closeModal, confirmDialog,
     meter, statTile, emptyState, selectOptions, refOptions, chunkRender
   };

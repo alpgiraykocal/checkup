@@ -65,7 +65,7 @@ const Operations = (() => {
     const addHint = (factor, share, bands, label) => {
       if (share === null || !bands || !factor) return;
       const pct = share * 100;
-      hints[factor] = { pct, suggested: bands.findIndex(b => pct < b) + 1 || 5, label, source: 'operations' };
+      hints[factor] = { pct, suggested: Calc.bandScore(pct, bands), label, source: 'operations' };
     };
     OPERATIONS.groups.forEach(g => g.metrics.forEach(m => {
       if (!m.feedsFactor || !m.bands || !m.base) return;

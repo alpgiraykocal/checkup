@@ -25,20 +25,22 @@ const PORTFOLIO = {
   /* Doğuştan risk faktörlerini besleyen özel müşteri segmentleri.
      feeds: bu segmentin oranını skor önerisine çeviren faktör anahtarı. */
   segments: [
+    /* bands: öneri bant üst sınırları (yüzde). 0.000001 ile başlayan dizi, tanımında
+       1 puan "hiç yok" olan faktör içindir: yalnızca tam sıfır 1 puan alır (Calc.bandScore). */
     { key: 'pep', tr: 'PEP, aile üyeleri ve yakın çevre', en: 'PEPs, family members and close associates',
       feeds: 'Müşteri|PEP ve ilişkili kişi maruziyeti', bands: [0.1, 0.5, 1, 3] },
     { key: 'non_resident', tr: 'Yerleşik olmayan müşteriler', en: 'Non-resident customers',
       feeds: 'Müşteri|Yerleşik olmayan (non-resident) müşteri oranı', bands: [1, 5, 15, 30] },
     { key: 'karmasik_sahiplik', tr: 'Karmaşık sahiplik yapılı tüzel kişiler', en: 'Legal entities with complex ownership',
-      feeds: 'Müşteri|Karmaşık sahiplik yapılı tüzel kişi oranı', bands: [5, 15, 30, 100],
+      feeds: 'Müşteri|Karmaşık sahiplik yapılı tüzel kişi oranı', bands: [0.000001, 5, 15, 30],
       base: 'tuzel' },
     { key: 'nakit_yogun', tr: 'Nakit yoğun sektör müşterileri', en: 'Cash-intensive sector customers',
       feeds: 'Müşteri|Nakit yoğun sektör müşterilerinin payı', bands: [2, 5, 12, 25] },
     { key: 'offshore', tr: 'Offshore / serbest bölge yapılı müşteriler', en: 'Offshore or free-zone structured customers',
-      feeds: 'Coğrafya ve Yaptırım|Offshore ve vergi cenneti bağlantılı müşteri hacmi', bands: [1, 5, 10, 100] },
+      feeds: 'Coğrafya ve Yaptırım|Offshore ve vergi cenneti bağlantılı müşteri hacmi', bands: [0.000001, 1, 5, 10] },
     { key: 'vasp', tr: 'Sanal varlık hizmet sağlayıcıları (VASP)', en: 'Virtual asset service providers (VASPs)' },
     { key: 'ozel_bankacilik', tr: 'Özel bankacılık / servet yönetimi müşterileri', en: 'Private banking / wealth management customers',
-      feeds: 'Ürün|Özel bankacılık / servet yönetimi hacmi', bands: [2, 10, 20, 100] },
+      feeds: 'Ürün|Özel bankacılık / servet yönetimi hacmi', bands: [0.000001, 2, 10, 20] },
     { key: 'kar_amacsiz', tr: 'Kâr amacı gütmeyen kuruluşlar', en: 'Non-profit organisations' },
     { key: 'yeni_musteri', tr: 'Dönem içinde kabul edilen yeni müşteriler', en: 'New customers onboarded during the period' },
     { key: 'reddedilen', tr: 'Reddedilen başvurular', en: 'Declined applications' },

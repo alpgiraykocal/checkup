@@ -63,7 +63,7 @@ const Extra = (() => {
   function row(q, st) {
     const rec = Store.state.answers[q.id] || {};
     const evidence = I18n.isEn ? q.enEvidence : q.trEvidence;
-    const missingEvidence = st.answered && !(rec.evidence || '').trim();
+    const missingEvidence = st.answered && !st.autoNA && !(rec.evidence || '').trim();
 
     const answerBtns = DATA.ref.answers.map(a => `
       <button type="button" class="answer-btn" data-ex-answer="${esc(q.id)}" data-a="${esc(a)}"

@@ -92,7 +92,7 @@ const Settings = (() => {
 
   function view(host, { state }) {
     const sum = CountryRisk.summary(state);
-    const term = ui.q.trim().toLocaleLowerCase(I18n.locale);
+    const term = UI.arama(ui.q.trim());
 
     const list = COUNTRIES.filter(c => {
       const fl = CountryRisk.flags(c.code, state);
@@ -101,7 +101,7 @@ const Settings = (() => {
       if (ui.only === 'changed' && !CountryRisk.isOverridden(c.code, state)) return false;
       if (ui.only && PORTFOLIO.countryFlags.some(f => f.key === ui.only) && !fl.includes(ui.only)) return false;
       if (term) {
-        const hay = (c.tr + ' ' + c.en + ' ' + c.code).toLocaleLowerCase(I18n.locale);
+        const hay = UI.arama(c.tr + ' ' + c.en + ' ' + c.code);
         if (!hay.includes(term)) return false;
       }
       return true;

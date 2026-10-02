@@ -906,6 +906,7 @@ const I18n = (() => {
     pfWarnCountryOver: ['Ülke tablosundaki müşteri toplamı genel müşteri sayısını aşıyor.', 'Customers in the country table exceed the overall customer count.'],
     pfWarnBranchOver:  ['Şube tablosundaki müşteri toplamı genel müşteri sayısını aşıyor.', 'Customers in the branch table exceed the overall customer count.'],
     pfWarnNegative:  ['{n} alanda negatif değer var; bu değerler hesaba katılmıyor.', '{n} fields hold negative values; they are not used.'],
+    pfWarnCrossDiffers: ['Ülke tablosundaki sınır ötesi işlem toplamı ({t}) künyedeki sınır ötesi işlem adedinden ({k}) farklı; tablo eksik olabilir. Skor önerisi künyedeki orandan alınıyor.', 'Cross-border transactions in the country table ({t}) differ from the cross-border count in the profile ({k}); the table may be incomplete. The score suggestion uses the profile ratio.'],
     pfWarnCrossBorderOver: ['Ülke tablosundaki işlem adedi künyedeki yıllık işlem adedini aşıyor.', 'Transactions in the country table exceed the annual transaction count in the profile.'],
 
     pfTotalCustomers: ['Toplam müşteri', 'Total customers'],
